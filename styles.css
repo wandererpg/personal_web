@@ -957,6 +957,7 @@ svg {
 
 .page-hero {
   position: relative;
+  overflow: hidden;
   padding: 112px 0 82px;
 }
 

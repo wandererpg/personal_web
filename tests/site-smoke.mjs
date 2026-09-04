@@ -30,6 +30,11 @@ test('styles include responsive and reduced-motion rules', async () => {
   assert.match(css, /prefers-reduced-motion/);
 });
 
+test('page hero clips decorative overflow', async () => {
+  const css = await read('styles.css');
+  assert.match(css, /\.page-hero\s*\{[^}]*overflow:\s*hidden;/s);
+});
+
 test('pages provide a local favicon', async () => {
   assert.equal(await exists('favicon.svg'), true, 'favicon.svg is missing');
   for (const page of ['index.html', 'projects.html', 'notes.html']) {
