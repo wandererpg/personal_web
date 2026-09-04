@@ -97,131 +97,127 @@ if (revealItems.length && 'IntersectionObserver' in window && !reducedMotion) {
 
 const musicPlayer = document.querySelector('[data-music-player]');
 const musicToggle = musicPlayer?.querySelector('[data-music-toggle]');
+const musicTitle = musicPlayer?.querySelector('[data-music-title]');
 const musicStatus = musicPlayer?.querySelector('[data-music-status]');
-const ambientNotes = [146.83, 174.61, 220, 261.63, 293.66, 329.63];
-const ambientMelody = [0, 2, 4, 3, 1, 4, 2, 5];
+const musicSelect = musicPlayer?.querySelector('[data-music-select]');
+const musicAudio = musicPlayer?.querySelector('[data-music-audio]');
+const tracks = [
+  {
+    title: '花弁となり 世界は大いに歌う',
+    file: 'music/松本文紀 - 花弁となり 世界は大いに歌う.mp3',
+  },
+  {
+    title: '夢の歩みを見上げて',
+    file: 'music/松本文紀 - 夢の歩みを見上げて (仰望梦想的脚步).mp3',
+  },
+  {
+    title: '夜の向日葵',
+    file: 'music/松本文紀 - 夜の向日葵.flac',
+  },
+  {
+    title: '月の眼球譚',
+    file: 'music/松本文紀 - 月の眼球譚.mp3',
+  },
+];
 const audioState = {
-  context: null,
-  output: null,
-  timer: null,
-  step: 0,
+  index: 0,
   playing: false,
 };
 let musicBusy = false;
 
 const updateMusicUI = (playing, status) => {
   if (!musicPlayer || !musicToggle || !musicStatus) return;
+  const track = tracks[audioState.index];
   musicPlayer.classList.toggle('is-playing', playing);
   musicToggle.setAttribute('aria-pressed', String(playing));
   musicToggle.setAttribute('aria-label', playing ? '暂停背景音乐' : '播放背景音乐');
+  if (musicTitle && track) musicTitle.textContent = track.title;
   musicStatus.textContent = status;
 };
 
-const closeAudioContext = async (status = '点击播放 · 浏览器合成音') => {
-  window.clearTimeout(audioState.timer);
-  audioState.timer = null;
-  audioState.playing = false;
+const encodeTrackPath = (file) => file.split('/').map(encodeURIComponent).join('/');
 
-  const context = audioState.context;
-  audioState.context = null;
-  audioState.output = null;
-  audioState.step = 0;
-
-  if (context && context.state !== 'closed') {
-    try {
-      await context.close();
-    } catch {
-      // The browser may already have closed the context during navigation.
-    }
-  }
-
-  updateMusicUI(false, status);
-};
-
-const playTone = (frequency, startTime, duration, volume, type = 'sine') => {
-  const context = audioState.context;
-  const output = audioState.output;
-  if (!context || !output) return;
-
-  const oscillator = context.createOscillator();
-  const gain = context.createGain();
-  oscillator.type = type;
-  oscillator.frequency.setValueAtTime(frequency, startTime);
-  gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.16);
-  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-  oscillator.connect(gain);
-  gain.connect(output);
-  oscillator.start(startTime);
-  oscillator.stop(startTime + duration + 0.05);
-};
-
-const scheduleAmbientPhrase = () => {
-  const context = audioState.context;
-  if (!context || !audioState.playing) return;
-
-  const startTime = context.currentTime + 0.05;
-  const noteIndex = ambientMelody[audioState.step % ambientMelody.length];
-  const frequency = ambientNotes[noteIndex];
-  playTone(frequency, startTime, 1.55, 0.024);
-
-  if (audioState.step % 4 === 0) {
-    playTone(frequency / 2, startTime, 2.2, 0.011, 'triangle');
-  }
-
-  audioState.step += 1;
-  audioState.timer = window.setTimeout(scheduleAmbientPhrase, 1200);
-};
-
-const startAmbient = async () => {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) {
-    updateMusicUI(false, '当前浏览器不支持音频');
-    return;
-  }
-
-  const context = new AudioContext();
-  const filter = context.createBiquadFilter();
-  const master = context.createGain();
-  filter.type = 'lowpass';
-  filter.frequency.value = 1800;
-  filter.Q.value = 0.4;
-  master.gain.value = 0.8;
-  master.connect(filter);
-  filter.connect(context.destination);
-  audioState.context = context;
-  audioState.output = master;
-  audioState.step = 0;
+const playCurrentTrack = async () => {
+  if (!musicAudio) return;
 
   try {
-    await context.resume();
+    await musicAudio.play();
     audioState.playing = true;
-    updateMusicUI(true, '正在播放 · 浏览器合成音');
-    scheduleAmbientPhrase();
+    updateMusicUI(true, '正在播放 · 本地音乐');
   } catch {
-    await closeAudioContext('音频启动失败，请重试');
+    audioState.playing = false;
+    updateMusicUI(false, '播放失败 · 请检查音频文件');
   }
 };
 
-if (musicToggle) {
+const loadTrack = async (index, autoplay = false) => {
+  const track = tracks[index];
+  if (!musicAudio || !track) return;
+
+  audioState.playing = false;
+  musicAudio.pause();
+  audioState.index = index;
+  if (musicSelect) musicSelect.value = String(index);
+  musicAudio.src = encodeTrackPath(track.file);
+  musicAudio.load();
+  updateMusicUI(false, '已选曲目 · 点击播放');
+
+  if (autoplay) await playCurrentTrack();
+};
+
+if (musicPlayer && musicToggle && musicSelect && musicAudio) {
+  musicAudio.volume = 0.58;
+  void loadTrack(0);
+
   musicToggle.addEventListener('click', async () => {
     if (musicBusy) return;
     musicBusy = true;
 
     try {
-      if (audioState.playing) {
-        await closeAudioContext();
+      if (musicAudio.paused) {
+        await playCurrentTrack();
       } else {
-        await startAmbient();
+        musicAudio.pause();
+        audioState.playing = false;
+        updateMusicUI(false, '已暂停 · 点击播放');
       }
     } finally {
       musicBusy = false;
     }
   });
 
-  window.addEventListener('pagehide', () => {
-    if (audioState.context && audioState.context.state !== 'closed') {
-      void audioState.context.close();
+  musicSelect.addEventListener('change', async () => {
+    if (musicBusy) return;
+    musicBusy = true;
+
+    try {
+      await loadTrack(Number(musicSelect.value), audioState.playing);
+    } finally {
+      musicBusy = false;
     }
+  });
+
+  musicAudio.addEventListener('play', () => {
+    audioState.playing = true;
+    updateMusicUI(true, '正在播放 · 本地音乐');
+  });
+
+  musicAudio.addEventListener('pause', () => {
+    audioState.playing = false;
+    if (!musicAudio.ended) updateMusicUI(false, '已暂停 · 点击播放');
+  });
+
+  musicAudio.addEventListener('ended', () => {
+    const nextIndex = (audioState.index + 1) % tracks.length;
+    void loadTrack(nextIndex, true);
+  });
+
+  musicAudio.addEventListener('error', () => {
+    audioState.playing = false;
+    updateMusicUI(false, '文件加载失败 · 可换一首');
+  });
+
+  window.addEventListener('pagehide', () => {
+    musicAudio.pause();
   });
 }
