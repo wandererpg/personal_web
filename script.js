@@ -101,6 +101,7 @@ const musicTitle = musicPlayer?.querySelector('[data-music-title]');
 const musicStatus = musicPlayer?.querySelector('[data-music-status]');
 const musicSelect = musicPlayer?.querySelector('[data-music-select]');
 const musicAudio = musicPlayer?.querySelector('[data-music-audio]');
+const defaultTrackIndex = 2;
 const tracks = [
   {
     title: '花弁となり 世界は大いに歌う',
@@ -120,7 +121,7 @@ const tracks = [
   },
 ];
 const audioState = {
-  index: 0,
+  index: defaultTrackIndex,
   playing: false,
 };
 let musicBusy = false;
@@ -143,7 +144,7 @@ const playCurrentTrack = async () => {
   try {
     await musicAudio.play();
     audioState.playing = true;
-    updateMusicUI(true, '正在播放 · 本地音乐');
+    updateMusicUI(true, '正在播放');
   } catch {
     audioState.playing = false;
     updateMusicUI(false, '播放失败 · 请检查音频文件');
@@ -167,7 +168,7 @@ const loadTrack = async (index, autoplay = false) => {
 
 if (musicPlayer && musicToggle && musicSelect && musicAudio) {
   musicAudio.volume = 0.58;
-  void loadTrack(0);
+  void loadTrack(defaultTrackIndex);
 
   musicToggle.addEventListener('click', async () => {
     if (musicBusy) return;
@@ -199,7 +200,7 @@ if (musicPlayer && musicToggle && musicSelect && musicAudio) {
 
   musicAudio.addEventListener('play', () => {
     audioState.playing = true;
-    updateMusicUI(true, '正在播放 · 本地音乐');
+    updateMusicUI(true, '正在播放');
   });
 
   musicAudio.addEventListener('pause', () => {

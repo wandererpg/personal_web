@@ -399,18 +399,6 @@ svg {
   gap: 1px;
 }
 
-.music-player__eyebrow {
-  overflow: hidden;
-  color: var(--cyan);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  line-height: 1.2;
-  text-overflow: ellipsis;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
 .music-player__copy strong {
   overflow: hidden;
   color: var(--ink-strong);
