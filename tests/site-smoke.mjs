@@ -49,3 +49,28 @@ test('pages do not ship unfinished placeholder copy', async () => {
     assert.doesNotMatch(html, /lorem ipsum|TODO|TBD|coming soon/i);
   }
 });
+
+test('pages expose the owner platform links', async () => {
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /https:\/\/github\.com\/wandererpg/);
+    assert.match(html, /https:\/\/space\.bilibili\.com\/1065241718/);
+  }
+});
+
+test('pages include cross-page transition and music player hooks', async () => {
+  const css = await read('styles.css');
+  const js = await read('script.js');
+
+  assert.match(css, /is-entering/);
+  assert.match(css, /is-leaving/);
+  assert.match(js, /location\.assign/);
+  assert.match(js, /AudioContext/);
+
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /data-music-player/);
+    assert.match(html, /data-music-toggle/);
+    assert.match(html, /aria-pressed="false"/);
+  }
+});
