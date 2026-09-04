@@ -30,6 +30,14 @@ test('styles include responsive and reduced-motion rules', async () => {
   assert.match(css, /prefers-reduced-motion/);
 });
 
+test('pages provide a local favicon', async () => {
+  assert.equal(await exists('favicon.svg'), true, 'favicon.svg is missing');
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /rel="icon" href="favicon\.svg"/);
+  }
+});
+
 test('pages do not ship unfinished placeholder copy', async () => {
   for (const page of ['index.html', 'projects.html', 'notes.html']) {
     const html = await read(page);
