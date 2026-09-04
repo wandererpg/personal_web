@@ -101,3 +101,16 @@ test('music player stays fixed to the viewport during page transitions', async (
   assert.match(css, /\.music-player\s*\{[^}]*position:\s*fixed;/s);
   assert.doesNotMatch(css, /html(?:\.[\w-]+)? body\s*\{[^}]*transform:/s);
 });
+
+test('music player defaults to 夜の向日葵 without legacy labels', async () => {
+  const js = await read('script.js');
+  assert.match(js, /defaultTrackIndex\s*=\s*2/);
+  assert.doesNotMatch(js, /ORBITAL AMBIENCE|本地音乐/);
+
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /<strong data-music-title>夜の向日葵<\/strong>/);
+    assert.match(html, /<option value="2" selected>夜の向日葵<\/option>/);
+    assert.doesNotMatch(html, /ORBITAL AMBIENCE|本地音乐/);
+  }
+});
