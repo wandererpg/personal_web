@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#050816">
+    <meta name="description" content="Wanderer 的个人项目记录：正在做和做过的事情。">
+    <title>Projects · Wanderer.OS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="index.html" aria-label="Wanderer.OS 首页">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>WANDERER<span>.OS</span></span>
+          </a>
+
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航菜单">
+            <span aria-hidden="true"></span>
+          </button>
+
+          <nav class="site-nav" id="site-nav" aria-label="主要导航">
+            <a href="index.html">Home</a>
+            <a href="projects.html" aria-current="page">Projects</a>
+            <a href="notes.html">Notes</a>
+            <a href="index.html#links">Comms</a>
+          </nav>
+        </div>
+      </header>
+
+      <main id="main">
+        <section class="page-hero container" aria-labelledby="page-title">
+          <p class="eyebrow">Project log · Open channel</p>
+          <h1 id="page-title">正在做与<em>做过的事。</em></h1>
+          <p>这里放那些从好奇心出发、经过反复试验，最后留下了一点结果的项目。</p>
+        </section>
+
+        <section class="section listing-section container" aria-labelledby="project-list-title">
+          <div class="section-heading reveal">
+            <div>
+              <span class="section-label">Mission archive</span>
+              <h2 id="project-list-title">每个项目，都是一条轨道。</h2>
+            </div>
+            <p>项目状态会随着时间变化，重要的是保留过程，也保留那些没有白费的尝试。</p>
+          </div>
+
+          <div class="listing-grid">
+            <article class="project-card project-card--wide listing-card reveal delay-1" id="star-map">
+              <div class="card-topline">
+                <span class="card-index">PROJECT / 01</span>
+                <span class="status">IN PROGRESS</span>
+              </div>
+              <h2>星图笔记：把散落的想法，整理成一张可以探索的地图。</h2>
+              <p>一个用于收集灵感、拆解问题和连接知识的个人工具。它还在不断变化，但已经开始帮助我看见想法之间的轨道。</p>
+              <div class="card-bottom">
+                <div class="tag-list"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">Notes</span></div>
+                <a class="text-link" href="https://github.com/" target="_blank" rel="noreferrer">源代码</a>
+              </div>
+            </article>
+
+            <article class="project-card listing-card reveal delay-2" id="tiny-tools">
+              <div class="card-topline">
+                <span class="card-index">PROJECT / 02</span>
+                <span class="status status--experiment">EXPERIMENT</span>
+              </div>
+              <h2>微型工具箱</h2>
+              <p>为日常工作做的一些小工具，体量不大，但每一个都解决一个真实的小麻烦。</p>
+              <div class="card-bottom">
+                <div class="tag-list"><span class="tag">Tools</span><span class="tag">Web</span></div>
+                <a class="text-link" href="https://github.com/" target="_blank" rel="noreferrer">源代码</a>
+              </div>
+            </article>
+
+            <article class="project-card listing-card reveal delay-3" id="knowledge-orbit">
+              <div class="card-topline">
+                <span class="card-index">PROJECT / 03</span>
+                <span class="status status--archive">ARCHIVED</span>
+              </div>
+              <h2>知识轨道</h2>
+              <p>一次关于个人知识整理方式的实验，留下了一套更适合自己的记录习惯。</p>
+              <div class="card-bottom">
+                <div class="tag-list"><span class="tag">Research</span><span class="tag">System</span></div>
+                <a class="text-link" href="https://github.com/" target="_blank" rel="noreferrer">源代码</a>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <p>© <span data-current-year>2026</span> WANDERER.OS / PROJECT LOG</p>
+          <p><a href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://www.bilibili.com/" target="_blank" rel="noreferrer">Bilibili</a></p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
