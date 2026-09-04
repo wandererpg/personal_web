@@ -5,6 +5,12 @@ import test from 'node:test';
 const root = new URL('../', import.meta.url);
 const read = (name) => readFile(new URL(name, root), 'utf8');
 const exists = async (name) => access(new URL(name, root)).then(() => true, () => false);
+const musicFiles = [
+  'music/松本文紀 - 花弁となり 世界は大いに歌う.mp3',
+  'music/松本文紀 - 夢の歩みを見上げて (仰望梦想的脚步).mp3',
+  'music/松本文紀 - 夜の向日葵.flac',
+  'music/松本文紀 - 月の眼球譚.mp3',
+];
 
 test('required site files exist', async () => {
   for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js']) {
@@ -65,12 +71,30 @@ test('pages include cross-page transition and music player hooks', async () => {
   assert.match(css, /is-entering/);
   assert.match(css, /is-leaving/);
   assert.match(js, /location\.assign/);
-  assert.match(js, /AudioContext/);
+  assert.match(js, /data-music-audio/);
+  assert.match(js, /data-music-select/);
 
   for (const page of ['index.html', 'projects.html', 'notes.html']) {
     const html = await read(page);
     assert.match(html, /data-music-player/);
     assert.match(html, /data-music-toggle/);
+    assert.match(html, /data-music-select/);
+    assert.match(html, /data-music-audio/);
     assert.match(html, /aria-pressed="false"/);
   }
+});
+
+test('music playlist assets exist and are wired into the player', async () => {
+  const js = await read('script.js');
+  for (const file of musicFiles) {
+    assert.equal(await exists(file), true, `${file} is missing`);
+    const escapedFile = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    assert.match(js, new RegExp(escapedFile));
+  }
+});
+
+test('music player stays fixed to the viewport during page transitions', async () => {
+  const css = await read('styles.css');
+  assert.match(css, /\.music-player\s*\{[^}]*position:\s*fixed;/s);
+  assert.doesNotMatch(css, /html(?:\.[\w-]+)? body\s*\{[^}]*transform:/s);
 });
