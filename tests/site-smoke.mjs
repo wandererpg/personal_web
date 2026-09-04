@@ -73,6 +73,7 @@ test('pages include cross-page transition and music player hooks', async () => {
   assert.match(js, /location\.assign/);
   assert.match(js, /data-music-audio/);
   assert.match(js, /data-music-select/);
+  assert.match(js, /\.play\(\)/);
 
   for (const page of ['index.html', 'projects.html', 'notes.html']) {
     const html = await read(page);
@@ -80,6 +81,8 @@ test('pages include cross-page transition and music player hooks', async () => {
     assert.match(html, /data-music-toggle/);
     assert.match(html, /data-music-select/);
     assert.match(html, /data-music-audio/);
+    assert.match(html, /<option value="0">/);
+    assert.match(html, /<option value="3">/);
     assert.match(html, /aria-pressed="false"/);
   }
 });
