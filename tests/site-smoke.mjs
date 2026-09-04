@@ -1,0 +1,38 @@
+import assert from 'node:assert/strict';
+import { access, readFile } from 'node:fs/promises';
+import test from 'node:test';
+
+const root = new URL('../', import.meta.url);
+const read = (name) => readFile(new URL(name, root), 'utf8');
+const exists = async (name) => access(new URL(name, root)).then(() => true, () => false);
+
+test('required site files exist', async () => {
+  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js']) {
+    assert.equal(await exists(file), true, `${file} is missing`);
+  }
+});
+
+test('pages expose shared navigation and semantic landmarks', async () => {
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /<header[\s>]/);
+    assert.match(html, /<main[\s>]/);
+    assert.match(html, /<footer[\s>]/);
+    assert.match(html, /href="projects\.html"/);
+    assert.match(html, /href="notes\.html"/);
+    assert.match(html, /href="https:\/\//);
+  }
+});
+
+test('styles include responsive and reduced-motion rules', async () => {
+  const css = await read('styles.css');
+  assert.match(css, /@media/);
+  assert.match(css, /prefers-reduced-motion/);
+});
+
+test('pages do not ship unfinished placeholder copy', async () => {
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.doesNotMatch(html, /lorem ipsum|TODO|TBD|coming soon/i);
+  }
+});
