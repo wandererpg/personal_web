@@ -81,7 +81,7 @@ test('pages include cross-page transition and music player hooks', async () => {
     assert.match(html, /data-music-toggle/);
     assert.match(html, /data-music-select/);
     assert.match(html, /data-music-audio/);
-    assert.match(html, /<option value="0">/);
+    assert.match(html, /<option value="0"(?: selected)?>/);
     assert.match(html, /<option value="3">/);
     assert.match(html, /aria-pressed="false"/);
   }
