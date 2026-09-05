@@ -144,3 +144,26 @@ test('home calendar implementation plan defines tested delivery steps', async ()
   assert.match(plan, /localStorage/);
   assert.match(plan, /git commit/);
 });
+
+test('home hero exposes the editable calendar interface', async () => {
+  const html = await read('index.html');
+  const css = await read('styles.css');
+
+  assert.doesNotMatch(html, /探索、建造|欢迎来到我的个人空间/);
+  assert.match(html, /src="calendar\.js"/);
+  for (const hook of [
+    'data-calendar',
+    'data-calendar-grid',
+    'data-calendar-month',
+    'data-calendar-prev',
+    'data-calendar-today',
+    'data-calendar-next',
+    'data-calendar-event-list',
+    'data-calendar-add',
+    'data-calendar-form',
+  ]) {
+    assert.match(html, new RegExp(hook));
+  }
+  assert.match(css, /\.home-calendar\s*\{/);
+  assert.match(css, /\.calendar-grid(?:\s*\{|\s*,)/);
+});

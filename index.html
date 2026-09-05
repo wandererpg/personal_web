@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles.css">
+    <script src="calendar.js" defer></script>
     <script src="script.js" defer></script>
   </head>
   <body>
@@ -59,11 +60,56 @@
       </aside>
 
       <main id="main">
-        <section class="hero container" aria-labelledby="hero-title">
+        <section class="hero container" aria-labelledby="calendar-title">
           <div class="hero-copy">
             <p class="eyebrow">Signal received · Personal station</p>
-            <h1 class="hero-title" id="hero-title">探索、建造，<br><em>然后发射出去。</em></h1>
-            <p class="hero-description">这里记录我正在做的项目、学到的知识，以及值得分享的想法。欢迎来到我的个人空间。</p>
+            <section class="home-calendar" data-calendar aria-labelledby="calendar-title">
+              <header class="calendar-header">
+                <div>
+                  <span class="calendar-kicker">Mission calendar</span>
+                  <h1 id="calendar-title" data-calendar-month>载入日历…</h1>
+                </div>
+                <div class="calendar-nav" aria-label="月份导航">
+                  <button type="button" data-calendar-prev aria-label="上个月">←</button>
+                  <button type="button" data-calendar-today>今天</button>
+                  <button type="button" data-calendar-next aria-label="下个月">→</button>
+                </div>
+              </header>
+
+              <div class="calendar-weekdays" aria-hidden="true">
+                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+              </div>
+              <div class="calendar-grid" data-calendar-grid role="grid" aria-label="月历"></div>
+
+              <section class="calendar-events" aria-labelledby="calendar-events-title">
+                <header class="calendar-events__header">
+                  <div>
+                    <span class="calendar-kicker">Selected date</span>
+                    <h2 id="calendar-events-title" data-calendar-selected-date></h2>
+                  </div>
+                  <button type="button" class="calendar-add" data-calendar-add>+ 添加事件</button>
+                </header>
+                <p class="calendar-warning" data-calendar-storage-warning role="status" hidden>本次修改可能无法保留。</p>
+                <div class="calendar-event-list" data-calendar-event-list></div>
+
+                <form class="calendar-form" data-calendar-form hidden novalidate>
+                  <input type="hidden" data-calendar-event-id>
+                  <label>
+                    事件标题
+                    <input type="text" data-calendar-title maxlength="80" required>
+                  </label>
+                  <label>
+                    补充说明
+                    <textarea data-calendar-note maxlength="280" rows="3"></textarea>
+                  </label>
+                  <p class="calendar-form__error" data-calendar-error role="alert" hidden></p>
+                  <div class="calendar-form__actions">
+                    <button type="button" data-calendar-cancel>取消</button>
+                    <button type="submit">保存事件</button>
+                  </div>
+                </form>
+              </section>
+            </section>
             <div class="hero-actions">
               <a class="button button-primary" href="projects.html">查看项目</a>
               <a class="button button-secondary" href="notes.html">浏览知识</a>
