@@ -146,6 +146,22 @@ test('README documents the GitHub SSH upload workflow', async () => {
   assert.match(readme, /git push/);
 });
 
+test('blog admin publishing spec preserves private drafts and repository publishing', async () => {
+  const specPath = 'docs/superpowers/specs/2026-09-06-blog-admin-publishing-design.md';
+
+  assert.equal(await exists(specPath), true, `${specPath} is missing`);
+  const spec = await read(specPath);
+  assert.match(spec, /我的项目/);
+  assert.match(spec, /心得分享/);
+  assert.match(spec, /日常学习/);
+  assert.match(spec, /草稿不会写入 `posts\/index\.json`/);
+  assert.match(spec, /不会进入 Git/);
+  assert.match(spec, /Markdown 编辑/);
+  assert.match(spec, /Git Commit/);
+  assert.match(spec, /Push 到 GitHub/);
+  assert.match(spec, /JPEG、PNG 和 WebP/);
+});
+
 test('home calendar design spec records the approved MVP boundaries', async () => {
   const specPath = 'docs/superpowers/specs/2026-09-05-home-calendar-design.md';
   assert.equal(await exists(specPath), true, `${specPath} is missing`);
