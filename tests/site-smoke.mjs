@@ -321,7 +321,7 @@ test('home calendar exposes the school schedule and nearby events panel', async 
 
 test('all primary glass surfaces load the shared interaction module', async () => {
   const expectedTargets = new Map([
-    ['index.html', 11],
+    ['index.html', 8],
     ['projects.html', 4],
     ['notes.html', 4],
   ]);
@@ -396,4 +396,24 @@ test('wanderer station uses transparent nebula and avatar styling', async () => 
   assert.match(css, /@keyframes station-nebula-breathe/);
   assert.match(css, /@keyframes avatar-breathe/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.station-nebula/s);
+});
+
+test('home exposes the repository-driven blog preview', async () => {
+  const html = await read('index.html');
+  const blog = await read('blog.js');
+
+  assert.match(html, /<script src="blog\.js" defer><\/script>\s*<script src="script\.js" defer><\/script>/);
+  assert.match(html, /id="blog"/);
+  assert.match(html, /data-blog-preview/);
+  assert.match(html, /data-blog-preview-empty/);
+  assert.match(html, /data-blog-preview-error/);
+  assert.match(html, /我的博客/);
+  assert.match(html, /查看全部博客/);
+  assert.match(html, /href="notes\.html"/);
+  assert.match(html, /进入博客/);
+  assert.match(html, /BLOG: IN TRANSMISSION/);
+  assert.doesNotMatch(html, /值得留下的想法/);
+
+  assert.match(blog, /latestPosts\([^)]*,\s*3\)/);
+  assert.match(blog, /post\.html\?slug=/);
 });

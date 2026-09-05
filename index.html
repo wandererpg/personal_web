@@ -13,6 +13,7 @@
     <script src="calendar.js" defer></script>
     <script src="clock.js" defer></script>
     <script src="liquid-glass.js" defer></script>
+    <script src="blog.js" defer></script>
     <script src="script.js" defer></script>
   </head>
   <body>
@@ -37,7 +38,7 @@
           <nav class="site-nav" id="site-nav" aria-label="主要导航">
             <a href="index.html" aria-current="page">Home</a>
             <a href="projects.html">Projects</a>
-            <a href="notes.html">Notes</a>
+            <a href="notes.html">Blog</a>
             <a href="#links">Comms</a>
           </nav>
         </div>
@@ -128,11 +129,11 @@
             </div>
             <div class="hero-actions">
               <a class="button button-primary" href="projects.html">查看项目</a>
-              <a class="button button-secondary" href="notes.html">浏览知识</a>
+              <a class="button button-secondary" href="notes.html">进入博客</a>
             </div>
             <div class="hero-metadata" aria-label="当前状态">
               <span>PROJECT LOG: OPEN</span>
-              <span>NOTES: IN TRANSMISSION</span>
+              <span>BLOG: IN TRANSMISSION</span>
             </div>
           </div>
 
@@ -218,41 +219,22 @@
           </div>
         </section>
 
-        <section class="section notes-section" id="notes" aria-labelledby="notes-title">
+        <section class="section notes-section blog-section" id="blog" aria-labelledby="blog-title">
           <div class="container">
             <div class="section-heading reveal">
               <div>
-                <span class="section-label">02 / Knowledge signal</span>
-                <h2 id="notes-title">值得留下的想法。</h2>
+                <span class="section-label">02 / Blog archive</span>
+                <h2 id="blog-title">我的博客</h2>
               </div>
               <div>
-                <p>不一定是结论，也可以是一个问题、一条路径，或一次没有白费的尝试。</p>
-                <a class="text-link" href="notes.html">进入知识库</a>
+                <p>记录正在学习、制作和重新理解的东西。</p>
+                <a class="text-link" href="notes.html">查看全部博客</a>
               </div>
             </div>
 
-            <div class="card-grid">
-              <article class="note-card liquid-glass reveal delay-1" data-liquid-glass>
-                <div class="note-meta"><span>THOUGHTS</span><span>2026.03</span></div>
-                <h3>为什么我喜欢把想法做成小项目？</h3>
-                <p>当一个念头变成可以点击、运行或被别人使用的东西，它才真正开始和世界发生联系。</p>
-                <div class="card-bottom"><div class="tag-list"><span class="tag">Making</span></div><a class="card-arrow" href="notes.html#small-projects" aria-label="阅读为什么我喜欢把想法做成小项目">↗</a></div>
-              </article>
-
-              <article class="note-card liquid-glass reveal delay-2" data-liquid-glass>
-                <div class="note-meta"><span>METHOD</span><span>2026.02</span></div>
-                <h3>把复杂问题拆成可见的步骤。</h3>
-                <p>记录一次从混乱到清晰的过程：先找到边界，再决定下一步，最后让结果能够被复用。</p>
-                <div class="card-bottom"><div class="tag-list"><span class="tag">Process</span></div><a class="card-arrow" href="notes.html#visible-steps" aria-label="阅读把复杂问题拆成可见的步骤">↗</a></div>
-              </article>
-
-              <article class="note-card liquid-glass reveal delay-3" data-liquid-glass>
-                <div class="note-meta"><span>LEARNING</span><span>2026.01</span></div>
-                <h3>个人知识库的第一条轨道。</h3>
-                <p>比起收藏更多内容，更重要的是为真正会再次使用的知识留出位置。</p>
-                <div class="card-bottom"><div class="tag-list"><span class="tag">Learning</span></div><a class="card-arrow" href="notes.html#first-orbit" aria-label="阅读个人知识库的第一条轨道">↗</a></div>
-              </article>
-            </div>
+            <div class="card-grid" data-blog-preview aria-live="polite"></div>
+            <p class="blog-preview__empty" data-blog-preview-empty hidden>暂时还没有可公开的博客记录。</p>
+            <p class="blog-preview__error" data-blog-preview-error role="alert" hidden>博客索引暂时无法加载，请稍后再试。</p>
           </div>
         </section>
 

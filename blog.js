@@ -1,7 +1,17 @@
 (function attachBlog(globalScope, factory) {
   const api = factory();
 
-  if (globalScope) globalScope.WandererBlog = api;
+  if (globalScope) {
+    globalScope.WandererBlog = api;
+    if (globalScope.document) {
+      const start = () => api.initBlogPreview(globalScope.document, globalScope);
+      if (globalScope.document.readyState === 'loading') {
+        globalScope.document.addEventListener('DOMContentLoaded', start, { once: true });
+      } else {
+        start();
+      }
+    }
+  }
   if (typeof module === 'object' && module.exports) module.exports = api;
 }(typeof globalThis !== 'undefined' ? globalThis : this, function createBlogApi() {
   const BLOG_INDEX_PATH = 'posts/index.json';
@@ -102,6 +112,138 @@
     } catch (error) {
       throw new Error('文章内容加载失败', { cause: error });
     }
+  };
+
+  const getBlogPreviewElements = (doc) => ({
+    preview: doc?.querySelector('[data-blog-preview]') ?? null,
+    empty: doc?.querySelector('[data-blog-preview-empty]') ?? null,
+    error: doc?.querySelector('[data-blog-preview-error]') ?? null,
+  });
+
+  const setVisibility = (element, visible) => {
+    if (element) element.hidden = !visible;
+  };
+
+  const createTextElement = (doc, tagName, className, text) => {
+    const element = doc.createElement(tagName);
+    if (className) element.className = className;
+    element.textContent = text;
+    return element;
+  };
+
+  const createBlogCard = (doc, post, index) => {
+    const featured = index === 0;
+    const card = doc.createElement('article');
+    card.className = `${featured ? 'project-card project-card--wide' : 'note-card'} blog-card blog-card--${featured ? 'featured' : 'compact'} liquid-glass reveal delay-${index + 1}`;
+    card.dataset.liquidGlass = '';
+    card.dataset.blogSlug = post.slug;
+
+    const topLine = doc.createElement('div');
+    topLine.className = 'card-topline';
+    topLine.append(
+      createTextElement(doc, 'span', 'card-index', `BLOG / ${String(index + 1).padStart(2, '0')}`),
+      createTextElement(doc, 'span', 'status', post.category),
+    );
+    card.append(topLine);
+
+    const cover = doc.createElement('div');
+    cover.className = 'blog-card__cover';
+    cover.setAttribute('aria-hidden', 'true');
+    cover.style.cssText = 'position:absolute;inset:0 0 auto;height:132px;overflow:hidden;opacity:.42;pointer-events:none;';
+
+    const fallback = createTextElement(doc, 'span', 'blog-card__cover-fallback', 'COVER / SIGNAL LOST');
+    fallback.style.cssText = 'display:grid;height:100%;place-items:center;color:rgba(183,244,255,.72);font:10px/1 var(--mono);letter-spacing:.16em;';
+    fallback.hidden = Boolean(post.cover);
+    cover.append(fallback);
+
+    if (post.cover) {
+      const image = doc.createElement('img');
+      image.className = 'blog-card__cover-image';
+      image.src = post.cover;
+      image.alt = `文章封面：${post.title}`;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      image.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;';
+      image.addEventListener('error', () => {
+        card.classList.add('is-cover-fallback');
+        image.hidden = true;
+        fallback.hidden = false;
+      });
+      cover.append(image);
+    } else {
+      card.classList.add('is-cover-fallback');
+    }
+    card.append(cover);
+
+    card.append(
+      createTextElement(doc, 'h3', '', post.title),
+      createTextElement(doc, 'p', '', post.excerpt),
+    );
+
+    const bottom = doc.createElement('div');
+    bottom.className = 'card-bottom';
+    const tags = doc.createElement('div');
+    tags.className = 'tag-list';
+    for (const tag of post.tags) tags.append(createTextElement(doc, 'span', 'tag', tag));
+    tags.append(createTextElement(doc, 'span', 'tag', post.readingTime));
+
+    const link = createTextElement(doc, 'a', 'card-arrow', '↗');
+    link.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
+    link.setAttribute('aria-label', `阅读${post.title}`);
+    bottom.append(tags, link);
+    card.append(bottom);
+
+    return card;
+  };
+
+  const renderBlogPreview = (doc, posts, liquidGlass) => {
+    const { preview, empty, error } = getBlogPreviewElements(doc);
+    if (!preview) return [];
+
+    preview.replaceChildren();
+    setVisibility(empty, false);
+    setVisibility(error, false);
+
+    const cards = latestPosts(posts, 3).map((post, index) => createBlogCard(doc, post, index));
+    if (!cards.length) {
+      setVisibility(empty, true);
+      return cards;
+    }
+
+    preview.append(...cards);
+    liquidGlass?.initLiquidGlass?.(doc, typeof globalThis !== 'undefined' ? globalThis : undefined);
+    return cards;
+  };
+
+  const createBlogPreviewController = (doc, options = {}) => {
+    const scope = options.scope ?? (typeof globalThis !== 'undefined' ? globalThis : {});
+    const fetchImpl = options.fetchImpl ?? (typeof scope.fetch === 'function' ? scope.fetch.bind(scope) : null);
+    const liquidGlass = options.liquidGlass ?? scope.WandererLiquidGlass;
+    const { preview, empty, error } = getBlogPreviewElements(doc);
+
+    const load = async () => {
+      if (!preview) return [];
+
+      setVisibility(empty, false);
+      setVisibility(error, false);
+      try {
+        return renderBlogPreview(doc, await loadPosts(fetchImpl), liquidGlass);
+      } catch (loadError) {
+        preview.replaceChildren();
+        setVisibility(empty, false);
+        setVisibility(error, true);
+        return [];
+      }
+    };
+
+    return { load };
+  };
+
+  const initBlogPreview = (doc, scope = typeof globalThis !== 'undefined' ? globalThis : {}) => {
+    if (!doc?.querySelector('[data-blog-preview]')) return null;
+    const controller = createBlogPreviewController(doc, { scope });
+    controller.load();
+    return controller;
   };
 
   const renderInline = (text) => {
@@ -213,6 +355,11 @@
     getAdjacentPosts,
     loadPosts,
     loadPostContent,
+    getBlogPreviewElements,
+    createBlogCard,
+    renderBlogPreview,
+    createBlogPreviewController,
+    initBlogPreview,
     renderMarkdown,
     safeContentUrl,
   };

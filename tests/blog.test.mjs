@@ -28,6 +28,16 @@ test('sortPosts returns a date-descending copy and latestPosts limits the result
   assert.deepEqual(posts.map((post) => post.slug), ['old', 'new', 'middle']);
 });
 
+test('latestPosts limits the home preview to the three newest posts', () => {
+  const archive = [
+    ...posts,
+    { slug: 'newest', title: '最新文章', date: '2026-04-01', category: 'MAKING', excerpt: '最新摘要', cover: '', tags: [], readingTime: '1 min', content: 'posts/newest.md' },
+  ];
+
+  assert.deepEqual(latestPosts(archive, 3).map((post) => post.slug), ['newest', 'new', 'middle']);
+  assert.equal(latestPosts(archive, 3).length, 3);
+});
+
 test('findPost and getAdjacentPosts use the normalized archive order', () => {
   assert.equal(findPost(posts, 'middle').title, '中间文章');
   assert.equal(findPost(posts, '../posts/secret'), null);
