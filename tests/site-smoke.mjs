@@ -416,4 +416,6 @@ test('home exposes the repository-driven blog preview', async () => {
 
   assert.match(blog, /latestPosts\([^)]*,\s*3\)/);
   assert.match(blog, /post\.html\?slug=/);
+  assert.match(blog, /const card = doc\.createElement\('a'\)/);
+  assert.doesNotMatch(blog, /createTextElement\(doc, 'a', 'card-arrow'/);
 });

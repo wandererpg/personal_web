@@ -133,8 +133,10 @@
 
   const createBlogCard = (doc, post, index) => {
     const featured = index === 0;
-    const card = doc.createElement('article');
+    const card = doc.createElement('a');
     card.className = `${featured ? 'project-card project-card--wide' : 'note-card'} blog-card blog-card--${featured ? 'featured' : 'compact'} liquid-glass reveal delay-${index + 1}`;
+    card.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
+    card.setAttribute('aria-label', `阅读文章：${post.title}`);
     card.dataset.liquidGlass = '';
     card.dataset.blogSlug = post.slug;
 
@@ -187,10 +189,9 @@
     for (const tag of post.tags) tags.append(createTextElement(doc, 'span', 'tag', tag));
     tags.append(createTextElement(doc, 'span', 'tag', post.readingTime));
 
-    const link = createTextElement(doc, 'a', 'card-arrow', '↗');
-    link.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
-    link.setAttribute('aria-label', `阅读${post.title}`);
-    bottom.append(tags, link);
+    const arrow = createTextElement(doc, 'span', 'card-arrow', '↗');
+    arrow.setAttribute('aria-hidden', 'true');
+    bottom.append(tags, arrow);
     card.append(bottom);
 
     return card;
