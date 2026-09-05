@@ -296,3 +296,16 @@ test('all pages share two composited drifting star layers', async () => {
   assert.match(css, /@keyframes cosmic-star-drift-far/);
   assert.match(css, /\.site-shell::before\s*\{[^}]*pointer-events:\s*none;/s);
 });
+
+test('wanderer station uses transparent nebula and avatar styling', async () => {
+  const css = await read('styles.css');
+
+  assert.match(css, /\.station-panel\s*\{[^}]*rgba\(20, 43, 89, 0\.44\)[^}]*rgba\(5, 10, 29, 0\.5\)/s);
+  assert.match(css, /\.station-nebula\s*\{[^}]*animation:\s*station-nebula-turn 24s linear infinite;/s);
+  assert.match(css, /\.station-nebula::before[\s\S]*?station-nebula-breathe 8s/s);
+  assert.match(css, /\.station-nebula::after[\s\S]*?station-nebula-breathe 10s/s);
+  assert.match(css, /\.avatar-placeholder\s*\{[^}]*border-radius:\s*50%;[^}]*animation:\s*avatar-breathe 5s/s);
+  assert.match(css, /@keyframes station-nebula-breathe/);
+  assert.match(css, /@keyframes avatar-breathe/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.station-nebula/s);
+});
