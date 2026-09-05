@@ -438,3 +438,48 @@ test('blog archive and article pages expose dynamic content hooks', async () => 
   assert.match(blogJs, /loadPostContent\(/);
   assert.match(blogJs, /URLSearchParams/);
 });
+
+test('styles provide cosmic blog archive surfaces and responsive states', async () => {
+  const css = await read('styles.css');
+
+  assert.match(css, /\.blog-card\s*\{[\s\S]*?position:\s*relative;[\s\S]*?overflow:\s*hidden;/);
+  assert.match(css, /\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*span\s+2;[\s\S]*?min-height:/);
+  assert.match(css, /\.blog-card--compact\s*\{[\s\S]*?min-height:/);
+  assert.match(css, /\.blog-card__cover\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/);
+  assert.match(css, /\.blog-card__cover-image\s*\{[\s\S]*?object-fit:\s*cover;/);
+  assert.match(css, /\.blog-card__cover-fallback[\s\S]*?\{[\s\S]*?background:/);
+
+  assert.match(css, /\.blog-card:hover[\s\S]*?transform:\s*translateY\(-[23]px\)/);
+  assert.match(css, /\.blog-card:hover \.blog-card__cover-image[\s\S]*?transform:\s*scale\(1\.0[4-9]\)/);
+  assert.match(css, /\.blog-card:hover \.card-arrow[\s\S]*?transform:\s*rotate\(45deg\)/);
+  assert.match(css, /\.blog-card\.is-glass-pressed[\s\S]*?transform:\s*translateY\(-[23]px\)/);
+  assert.match(css, /\.liquid-glass__shine\s*\{[^}]*display:\s*none;/s);
+  assert.doesNotMatch(css, /\.blog-card\s*\{[^}]*radial-gradient/);
+
+  assert.match(css, /\.blog-list\s*\{[\s\S]*?display:\s*grid;[\s\S]*?gap:/);
+  assert.match(css, /\.blog-row\s*\{[\s\S]*?display:\s*grid;[\s\S]*?grid-template-columns:/);
+  assert.match(css, /\.blog-row__media\s*\{[\s\S]*?aspect-ratio:/);
+  assert.match(css, /\.blog-row__date\s*\{[\s\S]*?font-family:\s*var\(--mono\)/);
+  assert.match(css, /\.blog-row__arrow\s*\{[\s\S]*?border-radius:\s*50%/);
+  assert.match(css, /\.blog-row:hover \.blog-row__arrow[\s\S]*?transform:\s*translate\(/);
+  assert.match(css, /\.blog-cover-fallback\s*\{[\s\S]*?background:/);
+
+  assert.match(css, /\.blog-article\s*\{[\s\S]*?max-width:/);
+  assert.match(css, /\.blog-article__hero\s*\{[\s\S]*?padding:/);
+  assert.match(css, /\.blog-article__cover\s*\{[\s\S]*?aspect-ratio:/);
+  assert.match(css, /\.blog-article__content\s*\{[\s\S]*?max-width:/);
+  assert.match(css, /\.blog-article__content img[\s\S]*?display:\s*block;/);
+  assert.match(css, /\.blog-article__content pre[\s\S]*?overflow:\s*auto;/);
+  assert.match(css, /\.blog-article__content figcaption\s*\{[\s\S]*?font-family:\s*var\(--mono\)/);
+  assert.match(css, /\.blog-article__nav\s*\{[\s\S]*?display:\s*grid;/);
+  assert.match(css, /\.blog-empty,[\s\S]*?\.blog-error,[\s\S]*?\{[\s\S]*?border:/);
+
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*auto;/);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-row\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-article__nav\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-article\s*\{[\s\S]*?padding-bottom:/);
+  assert.match(css, /\.blog-article\s*\{[^}]*padding-bottom:/s);
+
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.blog-card:hover[\s\S]*?transform:\s*none\s*!important;/);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.blog-card__cover-image[\s\S]*?filter:\s*none\s*!important;/);
+});
