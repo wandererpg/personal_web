@@ -225,3 +225,14 @@ test('all primary glass surfaces load the shared interaction module', async () =
   assert.match(glassJs, /pointercancel/);
   assert.match(glassJs, /liquid-glass__shine/);
 });
+
+test('liquid glass material provides responsive and reduced-motion feedback', async () => {
+  const css = await read('styles.css');
+
+  assert.match(css, /\.liquid-glass\s*\{[^}]*backdrop-filter:/s);
+  assert.match(css, /\.liquid-glass__shine\s*\{[^}]*pointer-events:\s*none;/s);
+  assert.match(css, /\.liquid-glass\.is-glass-active\s*\{[^}]*perspective\(900px\)/s);
+  assert.match(css, /\.liquid-glass\.is-glass-active\s*\{[^}]*transition-delay:\s*0ms\s*!important;/s);
+  assert.match(css, /@media\s*\(hover:\s*none\)[\s\S]*?\.liquid-glass\.is-glass-active/s);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.liquid-glass[^}]*transform:\s*none\s*!important;/s);
+});

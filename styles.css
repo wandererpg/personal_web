@@ -1655,6 +1655,65 @@ svg {
   transition-delay: 240ms !important;
 }
 
+.liquid-glass {
+  --glass-x: 50%;
+  --glass-y: 50%;
+  --glass-rx: 0deg;
+  --glass-ry: 0deg;
+  --glass-scale: 1;
+  isolation: isolate;
+  overflow: hidden;
+  backdrop-filter: blur(20px) saturate(1.18);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.09),
+    inset 0 -1px rgba(119, 230, 255, 0.05),
+    0 20px 60px rgba(0, 0, 0, 0.2);
+  transform-style: preserve-3d;
+  transform-origin: center;
+  will-change: transform;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.liquid-glass__shine {
+  position: absolute;
+  z-index: 3;
+  inset: -1px;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 220px at var(--glass-x) var(--glass-y), rgba(190, 246, 255, 0.2), rgba(119, 230, 255, 0.07) 34%, transparent 68%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 38% 64%, rgba(169, 140, 255, 0.08));
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease;
+}
+
+.liquid-glass.is-glass-active {
+  border-color: rgba(157, 237, 255, 0.48);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 -1px rgba(119, 230, 255, 0.08),
+    0 24px 64px rgba(0, 0, 0, 0.28),
+    0 0 34px rgba(119, 230, 255, 0.1);
+  transform: perspective(900px) rotateX(var(--glass-rx)) rotateY(var(--glass-ry)) translateY(-4px) scale(var(--glass-scale));
+  transition-delay: 0ms !important;
+  transition-duration: 90ms, 180ms, 180ms;
+}
+
+.liquid-glass.is-glass-active .liquid-glass__shine {
+  opacity: 1;
+}
+
+.liquid-glass.is-glass-pressed {
+  --glass-scale: 0.99;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .liquid-glass.is-glass-active {
+    transform: scale(var(--glass-scale));
+  }
+}
+
 @media (max-width: 920px) {
   .hero {
     grid-template-columns: 1fr;
@@ -1897,5 +1956,16 @@ svg {
   html.is-entering body,
   html.is-leaving body {
     opacity: 1;
+  }
+
+  .liquid-glass,
+  .liquid-glass.is-glass-active,
+  .liquid-glass.is-glass-pressed {
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .liquid-glass__shine {
+    transition: none;
   }
 }
