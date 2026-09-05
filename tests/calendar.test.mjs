@@ -92,6 +92,8 @@ test('school calendar contains confirmed student and holiday dates only', () => 
   const schedule = getSchoolCalendarEvents();
 
   assert.equal(schedule.some((event) => event.title.includes('教师')), false);
+  assert.equal(schedule.some((event) => event.title.includes('调休上班')), false);
+  assert.deepEqual(schoolEventsForDate('2026-09-20'), []);
   assert.deepEqual(
     schoolEventsForDate('2026-09-26').map((event) => event.title),
     ['中秋节放假'],
@@ -124,7 +126,7 @@ test('school date ranges expand and upcoming events keep holiday ranges grouped'
   assert.equal(upcoming.length, 3);
   assert.deepEqual(upcoming.map((event) => [event.title, event.start, event.end]), [
     ['整理网站', '2026-09-18', '2026-09-18'],
-    ['国庆调休上班', '2026-09-20', '2026-09-20'],
     ['中秋节放假', '2026-09-25', '2026-09-27'],
+    ['国庆节放假', '2026-10-01', '2026-10-07'],
   ]);
 });

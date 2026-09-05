@@ -5,13 +5,6 @@
   const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
   const SCHOOL_CALENDAR_EVENTS = Object.freeze([
     Object.freeze({
-      id: 'school-national-day-workday-2026-09-20',
-      title: '国庆调休上班',
-      start: '2026-09-20',
-      end: '2026-09-20',
-      type: 'workday',
-    }),
-    Object.freeze({
       id: 'school-mid-autumn-2026',
       title: '中秋节放假',
       start: '2026-09-25',
@@ -24,13 +17,6 @@
       start: '2026-10-01',
       end: '2026-10-07',
       type: 'holiday',
-    }),
-    Object.freeze({
-      id: 'school-national-day-workday-2026-10-10',
-      title: '国庆调休上班',
-      start: '2026-10-10',
-      end: '2026-10-10',
-      type: 'workday',
     }),
     Object.freeze({
       id: 'school-student-winter-break-2027',
@@ -269,7 +255,6 @@
   };
 
   const scheduleMarker = (events) => {
-    if (events.some((event) => event.type === 'workday')) return '班';
     if (events.some((event) => event.type === 'holiday' || event.type === 'break')) return '假';
     return '校';
   };
@@ -296,8 +281,8 @@
       button.classList.toggle('is-outside', !cell.inCurrentMonth);
       button.classList.toggle('is-today', cell.dateKey === todayKey);
       button.classList.toggle('is-selected', cell.dateKey === state.selectedDate);
+      button.classList.toggle('has-events', count > 0);
       button.classList.toggle('is-holiday', schoolEvents.some((event) => event.type === 'holiday'));
-      button.classList.toggle('is-workday', schoolEvents.some((event) => event.type === 'workday'));
       button.classList.toggle('is-break', schoolEvents.some((event) => event.type === 'break'));
       button.classList.toggle('is-school', schoolEvents.some((event) => event.type === 'school'));
       button.append(String(cell.day));
@@ -311,11 +296,15 @@
       }
 
       if (count) {
-        const badge = document.createElement('span');
-        badge.className = 'calendar-day__count';
-        badge.textContent = String(count);
-        badge.setAttribute('aria-hidden', 'true');
-        button.append(badge);
+        const dots = document.createElement('span');
+        dots.className = 'calendar-day__dots';
+        dots.setAttribute('aria-hidden', 'true');
+        Array.from({ length: count }, () => {
+          const dot = document.createElement('span');
+          dot.className = 'calendar-day__dot';
+          dots.append(dot);
+        });
+        button.append(dots);
       }
 
       return button;

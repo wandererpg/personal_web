@@ -122,6 +122,10 @@ test('music player defaults to 夜の向日葵 without legacy labels', async () 
   assert.match(js, /defaultTrackIndex\s*=\s*2/);
   assert.match(js, /loadTrack\(defaultTrackIndex, true\)/);
   assert.match(js, /自动播放被拦截/);
+  assert.match(js, /autoplayBlocked/);
+  assert.match(js, /handleAutoplayRecovery/);
+  assert.match(js, /document\.addEventListener\('click', handleAutoplayRecovery\)/);
+  assert.match(js, /document\.addEventListener\('keydown', handleAutoplayRecovery\)/);
   assert.doesNotMatch(js, /ORBITAL AMBIENCE|本地音乐/);
 
   for (const page of ['index.html', 'projects.html', 'notes.html']) {
@@ -225,6 +229,7 @@ test('calendar clock autoplay design records the confirmed scope', async () => {
   assert.match(spec, /2027-01-11/);
   assert.match(spec, /2027-02-21/);
   assert.match(spec, /不加入校历中的“教师放寒假”和“教师上班”事项/);
+  assert.doesNotMatch(spec, /国庆调休上班/);
   assert.match(spec, /最近三项/);
 });
 
@@ -241,6 +246,7 @@ test('calendar clock autoplay plan defines the confirmed delivery steps', async 
   assert.match(plan, /2027-02-21/);
   assert.match(plan, /教师放寒假/);
   assert.match(plan, /不加入/);
+  assert.doesNotMatch(plan, /国庆调休上班/);
   assert.match(plan, /git commit/);
 });
 
@@ -299,8 +305,18 @@ test('home calendar exposes the school schedule and nearby events panel', async 
   assert.match(calendarJs, /学生注册/);
   assert.doesNotMatch(calendarJs, /title:\s*['"]教师放寒假/);
   assert.doesNotMatch(calendarJs, /title:\s*['"]教师上班/);
+  assert.doesNotMatch(calendarJs, /title:\s*['"]国庆调休上班/);
+  assert.doesNotMatch(calendarJs, /workday/);
+  assert.match(calendarJs, /calendar-day__dots/);
+  assert.match(calendarJs, /calendar-day__dot/);
+  assert.doesNotMatch(calendarJs, /calendar-day__count/);
   assert.match(css, /\.calendar-layout\s*\{/);
   assert.match(css, /\.upcoming-events\s*\{/);
+  assert.match(css, /\.calendar-day\.has-events\s*\{/);
+  assert.match(css, /\.calendar-day__dots\s*\{/);
+  assert.match(css, /\.calendar-day__dot\s*\{/);
+  assert.doesNotMatch(css, /\.calendar-day__count\s*\{/);
+  assert.doesNotMatch(css, /workday/);
 });
 
 test('all primary glass surfaces load the shared interaction module', async () => {

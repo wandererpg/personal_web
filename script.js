@@ -125,6 +125,7 @@ const audioState = {
   playing: false,
 };
 let musicBusy = false;
+let autoplayBlocked = false;
 
 const updateMusicUI = (playing, status) => {
   if (!musicPlayer || !musicToggle || !musicStatus) return;
@@ -143,14 +144,16 @@ const playCurrentTrack = async () => {
 
   try {
     await musicAudio.play();
+    autoplayBlocked = false;
     audioState.playing = true;
     updateMusicUI(true, '正在播放');
   } catch (error) {
     audioState.playing = false;
+    autoplayBlocked = error?.name === 'NotAllowedError';
     updateMusicUI(
       false,
       error?.name === 'NotAllowedError'
-        ? '自动播放被拦截 · 点击播放'
+        ? '自动播放被拦截 · 点击页面启用声音'
         : '播放失败 · 请检查音频文件',
     );
   }
@@ -171,9 +174,18 @@ const loadTrack = async (index, autoplay = false) => {
   if (autoplay) await playCurrentTrack();
 };
 
+const handleAutoplayRecovery = (event) => {
+  if (!autoplayBlocked || musicBusy) return;
+  if (event.type === 'keydown' && !['Enter', ' '].includes(event.key)) return;
+  if (event.target instanceof Element && event.target.closest('[data-music-select]')) return;
+  void playCurrentTrack();
+};
+
 if (musicPlayer && musicToggle && musicSelect && musicAudio) {
   musicAudio.volume = 0.58;
   void loadTrack(defaultTrackIndex, true);
+  document.addEventListener('click', handleAutoplayRecovery);
+  document.addEventListener('keydown', handleAutoplayRecovery);
 
   musicToggle.addEventListener('click', async () => {
     if (musicBusy) return;
@@ -197,7 +209,7 @@ if (musicPlayer && musicToggle && musicSelect && musicAudio) {
     musicBusy = true;
 
     try {
-      await loadTrack(Number(musicSelect.value), audioState.playing);
+      await loadTrack(Number(musicSelect.value), audioState.playing || autoplayBlocked);
     } finally {
       musicBusy = false;
     }

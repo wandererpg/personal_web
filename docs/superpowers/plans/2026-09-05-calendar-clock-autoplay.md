@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 为静态个人主页增加北京时间时钟、默认音乐自动播放、无鼠标光晕的卡片交互，以及基于 2026—2027 学年校历的近期事项面板。
+**Goal:** 为静态个人主页增加北京时间时钟、默认音乐自动播放、无鼠标光晕的卡片交互，以及基于 2026—2027 学年校历（不展示调休上班）的近期事项面板。
 
 **Architecture:** 保持无框架、无后端依赖。新增 `clock.js` 承担北京时间格式化与每秒更新；`calendar.js` 继续负责用户事件，并增加不可变校历数据、日期范围和近期事项合并函数；`script.js` 只调整播放器自动播放与失败提示；三页共享页头和样式。
 
@@ -17,8 +17,8 @@
 - `notes.html`: 共享页头时钟和自动播放音频属性。
 - `clock.js`: 北京时间纯格式化函数和页头时钟初始化。
 - `calendar.js`: 用户事件、校历范围展开、日历标记、选中日期校历信息和近期事项列表。
-- `script.js`: 默认曲目自动播放尝试及浏览器拦截提示。
-- `styles.css`: 页头时钟、近期事项卡片、校历标记和无鼠标光晕液态玻璃样式。
+- `script.js`: 默认曲目自动播放尝试、浏览器拦截提示及首次用户操作恢复。
+- `styles.css`: 页头时钟、近期事项卡片、低对比度校历标记、事件圆点和无鼠标光晕液态玻璃样式。
 - `tests/clock.test.mjs`: 北京时区格式化测试。
 - `tests/calendar.test.mjs`: 校历数据、日期范围和近期事项测试。
 - `tests/site-smoke.mjs`: 三页 HTML/CSS/JS 结构契约测试。
@@ -195,7 +195,7 @@ to:
 void loadTrack(defaultTrackIndex, true);
 ```
 
-In `playCurrentTrack`, keep successful playback as `正在播放`. For a `NotAllowedError`, use `自动播放被拦截 · 点击播放`; for other errors retain `播放失败 · 请检查音频文件`. This makes the desired default behavior work where allowed and leaves a clear user-gesture fallback where browsers enforce autoplay policy.
+In `playCurrentTrack`, keep successful playback as `正在播放`. For a `NotAllowedError`, use `自动播放被拦截 · 点击页面启用声音`; register document-level `click` and Enter/Space `keydown` recovery handlers so the first user gesture retries playback. For other errors retain `播放失败 · 请检查音频文件`. This makes the desired default behavior work where allowed and provides the strongest browser-compliant fallback where browsers enforce autoplay policy.
 
 - [ ] **Step 3: Remove only the mouse halo**
 
@@ -240,6 +240,8 @@ test('school calendar contains confirmed student and holiday dates only', () => 
   const schedule = getSchoolCalendarEvents();
 
   assert.equal(schedule.some((event) => event.title.includes('教师')), false);
+  assert.equal(schedule.some((event) => event.title.includes('调休上班')), false);
+  assert.deepEqual(schoolEventsForDate('2026-09-20'), []);
   assert.deepEqual(
     schoolEventsForDate('2026-09-26').map((event) => event.title),
     ['中秋节放假'],
@@ -272,8 +274,8 @@ test('school date ranges expand and upcoming events keep holiday ranges grouped'
   assert.equal(upcoming.length, 3);
   assert.deepEqual(upcoming.slice(0, 3).map((event) => [event.title, event.start, event.end]), [
     ['整理网站', '2026-09-18', '2026-09-18'],
-    ['国庆调休上班', '2026-09-20', '2026-09-20'],
     ['中秋节放假', '2026-09-25', '2026-09-27'],
+    ['国庆节放假', '2026-10-01', '2026-10-07'],
   ]);
 });
 ```
@@ -288,14 +290,12 @@ Expected: FAIL because the calendar module has no school schedule API.
 
 - [ ] **Step 2: Add immutable confirmed school schedule APIs**
 
-Add a frozen schedule to `calendar.js` with exactly these records:
+Add a frozen schedule to `calendar.js` with exactly these records;调休上班安排不进入数据源：
 
 ```js
 [
-  { id: 'school-national-day-workday-2026-09-20', title: '国庆调休上班', start: '2026-09-20', end: '2026-09-20', type: 'workday' },
   { id: 'school-mid-autumn-2026', title: '中秋节放假', start: '2026-09-25', end: '2026-09-27', type: 'holiday' },
   { id: 'school-national-day-2026', title: '国庆节放假', start: '2026-10-01', end: '2026-10-07', type: 'holiday' },
-  { id: 'school-national-day-workday-2026-10-10', title: '国庆调休上班', start: '2026-10-10', end: '2026-10-10', type: 'workday' },
   { id: 'school-student-winter-break-2027', title: '学生寒假', start: '2027-01-11', end: '2027-02-20', type: 'break' },
   { id: 'school-student-registration-2027', title: '学生注册', start: '2027-02-21', end: '2027-02-21', type: 'school' },
 ]
@@ -305,7 +305,7 @@ Implement `expandDateRange(start, end = start)` using date-key arithmetic rather
 
 - [ ] **Step 3: Render school marks and selected-date schedule entries**
 
-In `renderMonth`, combine user event count with `schoolEventsForDate(cell.dateKey)`, add schedule titles to each day button’s accessible label, and add `is-holiday`/`is-workday` classes for matching schedule types. Render the existing count badge for the combined count.
+In `renderMonth`, combine user event count with `schoolEventsForDate(cell.dateKey)`, add schedule titles to each day button’s accessible label, add a low-contrast `has-events` treatment, and render one small bottom-right dot per combined event. Keep holiday/break/school text markers; no `is-workday` class or workday record is needed.
 
 In `renderEvents`, prepend read-only school schedule rows to user event rows. School rows show the title and a `校历` label and have no edit/delete controls. User rows keep their current controls and local-storage behavior. Call the upcoming renderer after every month/date/event mutation so the panel stays current.
 
@@ -331,11 +331,11 @@ In `calendar.js`, render each normalized item with title, date/range, and a rela
 
 - [ ] **Step 5: Style the compact panel and schedule markers**
 
-Add a two-column `.calendar-layout` with a narrow `.upcoming-events` card at desktop widths; reduce it to one column under `680px`. Keep the calendar fluid and preserve the previous compact footprint. Style holiday markers in amber/cyan, workday markers in rose, and ensure labels remain readable without relying only on color. Add `overflow-wrap: anywhere` to long event titles.
+Add a two-column `.calendar-layout` with a narrow `.upcoming-events` card at desktop widths; reduce it to one column under `680px`. Keep the calendar fluid and preserve the previous compact footprint. Use faded event-date colors, one dot per event, and readable holiday/break/school labels without relying only on color. Do not style or render compensatory workday events. Add `overflow-wrap: anywhere` to long event titles.
 
 - [ ] **Step 6: Add page and style smoke assertions**
 
-Assert in `tests/site-smoke.mjs` that `index.html` contains `[data-upcoming-events]`, `[data-upcoming-list]`, and the calendar script; that `calendar.js` contains the confirmed schedule titles and `getUpcomingEvents`; and that no teacher schedule title appears in the data records. Assert that all three pages keep the shared calendar-independent player and clock hooks.
+Assert in `tests/site-smoke.mjs` that `index.html` contains `[data-upcoming-events]`, `[data-upcoming-list]`, and the calendar script; that `calendar.js` contains the confirmed schedule titles and `getUpcomingEvents`, has no teacher or compensatory-workday title, and renders dot hooks; and that all three pages keep the shared calendar-independent player and clock hooks.
 
 - [ ] **Step 7: Verify calendar behavior and the full suite**
 
@@ -390,7 +390,7 @@ Confirm no horizontal overflow on all pages, the header date/time does not overl
 
 - [ ] **Step 4: Verify autoplay policy behavior**
 
-Load the homepage in Chromium with autoplay allowed and confirm the audio element uses the default `夜の向日葵` source and enters playing state. Load once with normal browser policy and confirm either playback begins or the status reads `自动播放被拦截 · 点击播放`; click the button and confirm playback then starts.
+Load the homepage in Chromium with autoplay allowed and confirm the audio element uses the default `夜の向日葵` source and enters playing state. Load once with normal browser policy and confirm either playback begins or the status reads `自动播放被拦截 · 点击页面启用声音`; click a blank page area and confirm playback then starts through the user-gesture recovery handler.
 
 - [ ] **Step 5: Verify reduced motion and final checks**
 
