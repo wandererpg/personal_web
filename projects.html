@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles.css">
+    <script src="liquid-glass.js" defer></script>
     <script src="script.js" defer></script>
   </head>
   <body>
@@ -35,7 +36,7 @@
         </div>
       </header>
 
-      <aside class="music-player" data-music-player aria-label="星际音乐播放器">
+      <aside class="music-player liquid-glass" data-liquid-glass data-music-player aria-label="星际音乐播放器">
         <div class="music-player__main">
           <button class="music-player__toggle" type="button" data-music-toggle aria-pressed="false" aria-label="播放背景音乐">
             <span class="music-player__disc" aria-hidden="true"><span></span></span>
@@ -75,7 +76,7 @@
           </div>
 
           <div class="listing-grid">
-            <article class="project-card project-card--wide listing-card reveal delay-1" id="star-map">
+            <article class="project-card project-card--wide listing-card liquid-glass reveal delay-1" data-liquid-glass id="star-map">
               <div class="card-topline">
                 <span class="card-index">PROJECT / 01</span>
                 <span class="status">IN PROGRESS</span>
@@ -88,7 +89,7 @@
               </div>
             </article>
 
-            <article class="project-card listing-card reveal delay-2" id="tiny-tools">
+            <article class="project-card listing-card liquid-glass reveal delay-2" data-liquid-glass id="tiny-tools">
               <div class="card-topline">
                 <span class="card-index">PROJECT / 02</span>
                 <span class="status status--experiment">EXPERIMENT</span>
@@ -101,7 +102,7 @@
               </div>
             </article>
 
-            <article class="project-card listing-card reveal delay-3" id="knowledge-orbit">
+            <article class="project-card listing-card liquid-glass reveal delay-3" data-liquid-glass id="knowledge-orbit">
               <div class="card-topline">
                 <span class="card-index">PROJECT / 03</span>
                 <span class="status status--archive">ARCHIVED</span>

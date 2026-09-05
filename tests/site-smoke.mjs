@@ -205,3 +205,23 @@ test('home calendar uses a compact desktop footprint while staying fluid on mobi
   assert.match(css, /\.calendar-event-list\s*\{[^}]*max-height:\s*140px;/s);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.home-calendar\s*\{[^}]*max-width:\s*none;/s);
 });
+
+test('all primary glass surfaces load the shared interaction module', async () => {
+  const expectedTargets = new Map([
+    ['index.html', 11],
+    ['projects.html', 4],
+    ['notes.html', 4],
+  ]);
+
+  for (const [page, count] of expectedTargets) {
+    const html = await read(page);
+    assert.match(html, /<script src="liquid-glass\.js" defer><\/script>/);
+    assert.equal((html.match(/data-liquid-glass/g) ?? []).length, count);
+  }
+
+  const glassJs = await read('liquid-glass.js');
+  assert.match(glassJs, /requestAnimationFrame/);
+  assert.match(glassJs, /pointerdown/);
+  assert.match(glassJs, /pointercancel/);
+  assert.match(glassJs, /liquid-glass__shine/);
+});

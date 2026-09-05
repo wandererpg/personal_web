@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles.css">
     <script src="calendar.js" defer></script>
+    <script src="liquid-glass.js" defer></script>
     <script src="script.js" defer></script>
   </head>
   <body>
@@ -36,7 +37,7 @@
         </div>
       </header>
 
-      <aside class="music-player" data-music-player aria-label="星际音乐播放器">
+      <aside class="music-player liquid-glass" data-liquid-glass data-music-player aria-label="星际音乐播放器">
         <div class="music-player__main">
           <button class="music-player__toggle" type="button" data-music-toggle aria-pressed="false" aria-label="播放背景音乐">
             <span class="music-player__disc" aria-hidden="true"><span></span></span>
@@ -63,7 +64,7 @@
         <section class="hero container" aria-labelledby="calendar-title">
           <div class="hero-copy">
             <p class="eyebrow">Signal received · Personal station</p>
-            <section class="home-calendar" data-calendar aria-labelledby="calendar-title">
+            <section class="home-calendar liquid-glass" data-liquid-glass data-calendar aria-labelledby="calendar-title">
               <header class="calendar-header">
                 <div>
                   <span class="calendar-kicker">Mission calendar</span>
@@ -121,7 +122,7 @@
           </div>
 
           <div class="hero-visual" aria-label="个人空间的星际视觉装置">
-            <div class="station-panel">
+            <div class="station-panel liquid-glass" data-liquid-glass>
               <div class="station-topline">
                 <span>WANDERER / PERSONAL STATION</span>
                 <span>ONLINE</span>
@@ -157,7 +158,7 @@
           </div>
 
           <div class="card-grid">
-            <article class="project-card project-card--wide reveal delay-1">
+            <article class="project-card project-card--wide liquid-glass reveal delay-1" data-liquid-glass>
               <div class="card-topline">
                 <span class="card-index">PROJECT / 01</span>
                 <span class="status">IN PROGRESS</span>
@@ -170,7 +171,7 @@
               </div>
             </article>
 
-            <article class="project-card reveal delay-2">
+            <article class="project-card liquid-glass reveal delay-2" data-liquid-glass>
               <div class="card-topline">
                 <span class="card-index">PROJECT / 02</span>
                 <span class="status status--experiment">EXPERIMENT</span>
@@ -183,7 +184,7 @@
               </div>
             </article>
 
-            <article class="project-card reveal delay-3">
+            <article class="project-card liquid-glass reveal delay-3" data-liquid-glass>
               <div class="card-topline">
                 <span class="card-index">PROJECT / 03</span>
                 <span class="status status--archive">ARCHIVED</span>
@@ -212,21 +213,21 @@
             </div>
 
             <div class="card-grid">
-              <article class="note-card reveal delay-1">
+              <article class="note-card liquid-glass reveal delay-1" data-liquid-glass>
                 <div class="note-meta"><span>THOUGHTS</span><span>2026.03</span></div>
                 <h3>为什么我喜欢把想法做成小项目？</h3>
                 <p>当一个念头变成可以点击、运行或被别人使用的东西，它才真正开始和世界发生联系。</p>
                 <div class="card-bottom"><div class="tag-list"><span class="tag">Making</span></div><a class="card-arrow" href="notes.html#small-projects" aria-label="阅读为什么我喜欢把想法做成小项目">↗</a></div>
               </article>
 
-              <article class="note-card reveal delay-2">
+              <article class="note-card liquid-glass reveal delay-2" data-liquid-glass>
                 <div class="note-meta"><span>METHOD</span><span>2026.02</span></div>
                 <h3>把复杂问题拆成可见的步骤。</h3>
                 <p>记录一次从混乱到清晰的过程：先找到边界，再决定下一步，最后让结果能够被复用。</p>
                 <div class="card-bottom"><div class="tag-list"><span class="tag">Process</span></div><a class="card-arrow" href="notes.html#visible-steps" aria-label="阅读把复杂问题拆成可见的步骤">↗</a></div>
               </article>
 
-              <article class="note-card reveal delay-3">
+              <article class="note-card liquid-glass reveal delay-3" data-liquid-glass>
                 <div class="note-meta"><span>LEARNING</span><span>2026.01</span></div>
                 <h3>个人知识库的第一条轨道。</h3>
                 <p>比起收藏更多内容，更重要的是为真正会再次使用的知识留出位置。</p>
@@ -246,12 +247,12 @@
           </div>
 
           <div class="links-grid">
-            <a class="link-card link-card--github reveal delay-1" href="https://github.com/wandererpg" target="_blank" rel="noreferrer">
+            <a class="link-card link-card--github liquid-glass reveal delay-1" data-liquid-glass href="https://github.com/wandererpg" target="_blank" rel="noreferrer">
               <div class="card-topline"><span class="card-index">COMMS / 01</span><span>EXTERNAL LINK</span></div>
               <div><h3>GitHub</h3><p>代码、项目和正在搭建的东西。</p></div>
               <span class="card-arrow" aria-hidden="true">↗</span>
             </a>
-            <a class="link-card link-card--bilibili reveal delay-2" href="https://space.bilibili.com/1065241718" target="_blank" rel="noreferrer">
+            <a class="link-card link-card--bilibili liquid-glass reveal delay-2" data-liquid-glass href="https://space.bilibili.com/1065241718" target="_blank" rel="noreferrer">
               <div class="card-topline"><span class="card-index">COMMS / 02</span><span>EXTERNAL LINK</span></div>
               <div><h3>Bilibili</h3><p>视频、分享和更轻松的表达。</p></div>
               <span class="card-arrow" aria-hidden="true">↗</span>
