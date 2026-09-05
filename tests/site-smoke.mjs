@@ -156,6 +156,18 @@ test('home calendar implementation plan defines tested delivery steps', async ()
   assert.match(plan, /git commit/);
 });
 
+test('liquid glass implementation plan defines test-first delivery steps', async () => {
+  const planPath = 'docs/superpowers/plans/2026-09-05-liquid-glass-cards.md';
+
+  assert.equal(await exists(planPath), true, `${planPath} is missing`);
+  const plan = await read(planPath);
+  assert.match(plan, /tests\/liquid-glass\.test\.mjs/);
+  assert.match(plan, /liquid-glass\.js/);
+  assert.match(plan, /data-liquid-glass/);
+  assert.match(plan, /prefers-reduced-motion/);
+  assert.match(plan, /git commit/);
+});
+
 test('home hero exposes the editable calendar interface', async () => {
   const html = await read('index.html');
   const css = await read('styles.css');
