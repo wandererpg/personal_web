@@ -281,3 +281,18 @@ test('home station presents wanderer with an accessible avatar placeholder', asy
   assert.doesNotMatch(html, /class="planet(?:-stage)?"/);
   assert.doesNotMatch(html, /把好奇心，变成可见的东西。/);
 });
+
+test('all pages share two composited drifting star layers', async () => {
+  const css = await read('styles.css');
+
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /class="site-shell"/);
+  }
+
+  assert.match(css, /body::before\s*\{[^}]*animation:\s*cosmic-star-drift-near 18s linear infinite;/s);
+  assert.match(css, /\.site-shell::before\s*\{[^}]*animation:\s*cosmic-star-drift-far 30s linear infinite;/s);
+  assert.match(css, /@keyframes cosmic-star-drift-near/);
+  assert.match(css, /@keyframes cosmic-star-drift-far/);
+  assert.match(css, /\.site-shell::before\s*\{[^}]*pointer-events:\s*none;/s);
+});

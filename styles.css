@@ -77,17 +77,18 @@ body::after {
 }
 
 body::before {
+  inset: -12vmax;
   opacity: 0.58;
   background-image:
     radial-gradient(circle at 8% 18%, rgba(255, 255, 255, 0.95) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 18% 78%, rgba(119, 230, 255, 0.8) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 29% 34%, rgba(255, 255, 255, 0.75) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 44% 11%, rgba(169, 140, 255, 0.9) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 53% 69%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 67% 24%, rgba(119, 230, 255, 0.7) 0 1px, transparent 1.4px),
-    radial-gradient(circle at 77% 83%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 91% 42%, rgba(169, 140, 255, 0.75) 0 1px, transparent 1.4px);
-  background-size: 100% 100%;
+    radial-gradient(circle at 18% 78%, rgba(119, 230, 255, 0.85) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 29% 34%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 44% 11%, rgba(169, 140, 255, 0.9) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 67% 24%, rgba(119, 230, 255, 0.74) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 91% 42%, rgba(169, 140, 255, 0.78) 0 1px, transparent 1.6px);
+  background-size: 180px 165px, 235px 215px, 285px 255px, 325px 295px, 375px 345px, 425px 385px;
+  animation: cosmic-star-drift-near 18s linear infinite;
+  will-change: transform;
 }
 
 body::after {
@@ -95,6 +96,18 @@ body::after {
   background-image: linear-gradient(rgba(123, 149, 255, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(123, 149, 255, 0.08) 1px, transparent 1px);
   background-size: 80px 80px;
   mask-image: linear-gradient(to bottom, #000, transparent 76%);
+}
+
+@keyframes cosmic-star-drift-near {
+  to {
+    transform: translate3d(68px, 48px, 0);
+  }
+}
+
+@keyframes cosmic-star-drift-far {
+  to {
+    transform: translate3d(-44px, 28px, 0);
+  }
 }
 
 a {
@@ -132,6 +145,22 @@ svg {
   position: relative;
   min-height: 100vh;
   isolation: isolate;
+}
+
+.site-shell::before {
+  position: fixed;
+  z-index: -1;
+  inset: -10vmax;
+  opacity: 0.26;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 15% 30%, rgba(255, 255, 255, 0.9) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 65% 70%, rgba(119, 230, 255, 0.72) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.82) 0 1px, transparent 1.4px);
+  background-size: 250px 230px, 320px 290px, 390px 350px;
+  content: '';
+  animation: cosmic-star-drift-far 30s linear infinite;
+  will-change: transform;
 }
 
 .skip-link {
