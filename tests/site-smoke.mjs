@@ -114,3 +114,13 @@ test('music player defaults to 夜の向日葵 without legacy labels', async () 
     assert.doesNotMatch(html, /ORBITAL AMBIENCE|本地音乐/);
   }
 });
+
+test('README documents the GitHub SSH upload workflow', async () => {
+  assert.equal(await exists('README.md'), true, 'README.md is missing');
+  const readme = await read('README.md');
+  assert.match(readme, /git@github\.com:wandererpg\/personal_web\.git/);
+  assert.match(readme, /ssh -T git@github\.com/);
+  assert.match(readme, /git add \./);
+  assert.match(readme, /git commit -m/);
+  assert.match(readme, /git push/);
+});
