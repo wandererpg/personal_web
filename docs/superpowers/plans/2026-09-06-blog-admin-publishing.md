@@ -81,37 +81,65 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import request from 'supertest';
 
 const require = createRequire(import.meta.url);
 
-test('readConfig requires secrets and keeps private data outside the repository', async () => {
+function validEnv(repoDir, dataDir, overrides = {}) {
+  return {
+    NODE_ENV: 'test', BLOG_REPO_DIR: repoDir, BLOG_DATA_DIR: dataDir,
+    BLOG_ADMIN_USERNAME: 'wanderer', BLOG_ADMIN_PASSWORD_HASH: '$2b$hash',
+    BLOG_SESSION_SECRET: 'x'.repeat(32), BLOG_GIT_BRANCH: 'master',
+    ...overrides
+  };
+}
+
+test('readConfig resolves real paths and rejects overlapping repo/data roots', async () => {
   const { readConfig } = require('../server/config.js');
   const root = await mkdtemp(join(tmpdir(), 'wanderer-site-'));
   const data = await mkdtemp(join(tmpdir(), 'wanderer-data-'));
-  const env = {
-    NODE_ENV: 'test', BLOG_REPO_DIR: root, BLOG_DATA_DIR: data,
-    BLOG_ADMIN_USERNAME: 'wanderer', BLOG_ADMIN_PASSWORD_HASH: '$2b$hash',
-    BLOG_SESSION_SECRET: 'x'.repeat(32), BLOG_GIT_BRANCH: 'master'
-  };
-  const config = readConfig(env);
+  const nested = join(root, 'private');
+  await mkdir(nested);
+  const linked = join(data, 'linked-repo');
+  await symlink(root, linked, process.platform === 'win32' ? 'junction' : 'dir');
+  const config = readConfig(validEnv(root, data));
   assert.equal(config.repoDir, root);
   assert.equal(config.dataDir, data);
-  assert.throws(() => readConfig({ ...env, BLOG_DATA_DIR: join(root, 'private') }), /outside/i);
+  for (const dataDir of [root, nested, join(root, '..', basename(root)), linked]) {
+    assert.throws(() => readConfig(validEnv(root, dataDir)), /outside/i);
+  }
 });
 
-test('public server blocks repository internals', async () => {
+test('readConfig only accepts decimal integer ports from 1 through 65535', async () => {
+  const { readConfig } = require('../server/config.js');
+  const root = await mkdtemp(join(tmpdir(), 'wanderer-site-'));
+  const data = await mkdtemp(join(tmpdir(), 'wanderer-data-'));
+  for (const port of ['', '0', '65536', '1.5', '1e3']) {
+    assert.throws(() => readConfig(validEnv(root, data, { PORT: port })), /PORT/);
+  }
+});
+
+test('public server serves the allowlist and rejects real sensitive files and path bypasses', async () => {
   const { createApp } = require('../server/app.js');
   const root = await mkdtemp(join(tmpdir(), 'wanderer-site-'));
-  await writeFile(join(root, 'index.html'), '<h1>home</h1>');
-  await writeFile(join(root, 'AGENT.md'), 'private instructions');
+  await Promise.all(['posts', 'assets', 'music', 'server'].map(dir => mkdir(join(root, dir))));
+  await writeFile(join(root, 'index.html'), 'public home');
+  await writeFile(join(root, 'assets', 'image.txt'), 'public asset');
+  for (const file of ['config.yml', 'school-calendar.JPG', 'AGENT.md', 'package.json']) {
+    await writeFile(join(root, file), 'must stay private');
+  }
+  await writeFile(join(root, 'server', 'app.js'), 'must stay private');
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
-  await request(app).get('/').expect(200, /home/);
-  await request(app).get('/AGENT.md').expect(404);
-  await request(app).get('/server/app.js').expect(404);
+  await request(app).get('/').expect(200, /public home/);
+  await request(app).get('/assets/image.txt').expect(200);
+  for (const url of ['/config.yml', '/school-calendar.JPG', '/AGENT.md', '/package.json',
+    '/server/app.js', '/assets%2Fimage.txt', '/%70osts/article.md',
+    '/assets/%2e%2e/config.yml', '/assets%5C..%5Cconfig.yml']) {
+    await request(app).get(url).expect(404);
+  }
 });
 ```
 
@@ -126,13 +154,14 @@ npm install --save-dev supertest
 node --test tests/server-config.test.mjs
 ```
 
-Expected: FAIL with `Cannot find module '../server/config.js'`.
+Expected: FAIL against the original Task 1 implementation with sensitive files returning 200 and missing path/PORT exceptions.
 
 - [ ] **Step 3: Implement validated configuration and the app shell**
 
 ```js
 // server/config.js
 const path = require('node:path');
+const fs = require('node:fs');
 
 function required(env, key) {
   const value = env[key]?.trim();
@@ -140,19 +169,48 @@ function required(env, key) {
   return value;
 }
 
+function existingDirectory(env, key) {
+  const configuredPath = path.resolve(required(env, key));
+  let realPath;
+  try {
+    realPath = fs.realpathSync.native(configuredPath);
+    if (!fs.statSync(realPath).isDirectory()) throw new Error('not a directory');
+  } catch (error) {
+    throw new Error(`${key} must reference an existing directory`, { cause: error });
+  }
+  return { configuredPath, realPath };
+}
+
+function isWithin(baseDir, targetPath) {
+  const relation = path.relative(baseDir, targetPath);
+  return relation === '' || (relation !== '..'
+    && !relation.startsWith(`..${path.sep}`)
+    && !path.isAbsolute(relation));
+}
+
+function pathsOverlap(firstPath, secondPath) {
+  return isWithin(firstPath, secondPath) || isWithin(secondPath, firstPath);
+}
+
 function readConfig(env = process.env) {
-  const repoDir = path.resolve(required(env, 'BLOG_REPO_DIR'));
-  const dataDir = path.resolve(required(env, 'BLOG_DATA_DIR'));
-  if (dataDir === repoDir || dataDir.startsWith(`${repoDir}${path.sep}`)) {
+  const repo = existingDirectory(env, 'BLOG_REPO_DIR');
+  const data = existingDirectory(env, 'BLOG_DATA_DIR');
+  if (pathsOverlap(repo.configuredPath, data.configuredPath)
+      || pathsOverlap(repo.realPath, data.realPath)) {
     throw new Error('BLOG_DATA_DIR must remain outside BLOG_REPO_DIR');
   }
   const sessionSecret = required(env, 'BLOG_SESSION_SECRET');
   if (sessionSecret.length < 32) throw new Error('BLOG_SESSION_SECRET must be at least 32 characters');
+  const rawPort = env.PORT === undefined ? '3000' : String(env.PORT).trim();
+  const port = Number(rawPort);
+  if (!/^\d+$/.test(rawPort) || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('PORT must be an integer from 1 through 65535');
+  }
   return {
     env: env.NODE_ENV || 'development',
-    port: Number(env.PORT || 3000),
-    repoDir,
-    dataDir,
+    port,
+    repoDir: repo.realPath,
+    dataDir: data.realPath,
     adminUsername: required(env, 'BLOG_ADMIN_USERNAME'),
     adminPasswordHash: required(env, 'BLOG_ADMIN_PASSWORD_HASH'),
     sessionSecret,
@@ -168,23 +226,86 @@ module.exports = { readConfig };
 const express = require('express');
 const helmet = require('helmet');
 const path = require('node:path');
+const { realpath, stat } = require('node:fs/promises');
 
-const BLOCKED = /^\/(?:\.git|server|tests|docs|deploy|scripts|node_modules)(?:\/|$)|^\/(?:AGENT\.md|README\.md|package(?:-lock)?\.json|\.env)$/i;
+const PUBLIC_ROOT_FILES = new Set([
+  'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
+  'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'favicon.svg'
+]);
+const PUBLIC_DIRECTORIES = new Set(['posts', 'assets', 'music']);
+
+function isWithin(baseDir, targetPath) {
+  const relation = path.relative(baseDir, targetPath);
+  return relation === '' || (relation !== '..'
+    && !relation.startsWith(`..${path.sep}`)
+    && !path.isAbsolute(relation));
+}
+
+function selectPublicPath(rawUrl) {
+  const rawPath = rawUrl.split('?', 1)[0];
+  if (/%[0-9a-f]{2}/i.test(rawPath)) return null;
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(rawPath);
+  } catch {
+    return null;
+  }
+  if (!decodedPath.startsWith('/') || decodedPath.includes('\\') || decodedPath.includes('\0')) return null;
+  if (decodedPath === '/') return { rootFile: 'index.html' };
+  const segments = decodedPath.slice(1).split('/');
+  if (segments.some(segment => !segment || segment === '.' || segment === '..')) return null;
+  if (segments.length === 1 && PUBLIC_ROOT_FILES.has(segments[0])) return { rootFile: segments[0] };
+  if (segments.length > 1 && PUBLIC_DIRECTORIES.has(segments[0])) {
+    return { directory: segments[0], childSegments: segments.slice(1) };
+  }
+  return null;
+}
+
+function isMissingPath(error) {
+  return ['ENOENT', 'ENOTDIR', 'ELOOP'].includes(error.code);
+}
+
+function installPublicFiles(app, repoDir) {
+  app.use(async (req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const selected = selectPublicPath(req.originalUrl);
+    if (!selected) return next();
+    try {
+      const repoReal = await realpath(repoDir);
+      let allowedBase = repoReal;
+      const candidate = path.join(repoDir, selected.rootFile || selected.directory,
+        ...(selected.childSegments || []));
+      if (selected.directory) {
+        allowedBase = await realpath(path.join(repoDir, selected.directory));
+        if (!isWithin(repoReal, allowedBase) || allowedBase === repoReal) return next();
+      }
+      const candidateReal = await realpath(candidate);
+      if (!isWithin(allowedBase, candidateReal) || !(await stat(candidateReal)).isFile()) return next();
+      return res.sendFile(candidateReal, error => {
+        if (!error) return;
+        if (isMissingPath(error)) return next();
+        return next(error);
+      });
+    } catch (error) {
+      if (isMissingPath(error)) return next();
+      return next(error);
+    }
+  });
+}
 
 function createApp(config, options = {}) {
   const app = express();
   app.disable('x-powered-by');
   if (config.env === 'production') app.set('trust proxy', 1);
   app.use(helmet({ contentSecurityPolicy: false }));
-  app.use((req, res, next) => BLOCKED.test(req.path) ? res.sendStatus(404) : next());
   app.use(express.json({ limit: '256kb' }));
   if (options.installAdmin !== false && options.installAdmin) options.installAdmin(app);
-  app.use(express.static(config.repoDir, { dotfiles: 'deny', index: 'index.html' }));
+  installPublicFiles(app, config.repoDir);
   app.use((req, res) => res.sendStatus(404));
   return app;
 }
 
-module.exports = { createApp };
+module.exports = { createApp, PUBLIC_ROOT_FILES, PUBLIC_DIRECTORIES };
 ```
 
 ```js
@@ -205,7 +326,7 @@ Set `package.json` scripts to:
 {
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/*.test.mjs"
+    "test": "node --test tests/*.test.mjs tests/site-smoke.mjs"
   },
   "engines": { "node": ">=20" }
 }
@@ -227,7 +348,7 @@ Run:
 node --test tests/server-config.test.mjs tests/site-smoke.mjs
 ```
 
-Expected: PASS; public HTML loads and blocked repository files return 404.
+Expected: PASS; only allowlisted public files load, while unknown files, encoded paths, traversal, backslashes, and out-of-root links return 404.
 
 - [ ] **Step 5: Commit**
 

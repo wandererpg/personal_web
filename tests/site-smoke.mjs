@@ -174,8 +174,19 @@ test('blog admin publishing plan defines test-first private publishing delivery'
   assert.match(plan, /POST   \/api\/admin\/posts\/:slug\/revise/);
   assert.match(plan, /multer@\^2\.3\.0/);
   assert.match(plan, /shell: false/);
+  assert.match(plan, /PUBLIC_ROOT_FILES/);
+  assert.match(plan, /PUBLIC_DIRECTORIES/);
+  assert.match(plan, /realpath/);
+  assert.match(plan, /path\.relative/);
+  assert.doesNotMatch(plan, /const BLOCKED/);
+  assert.doesNotMatch(plan, /express\.static\(config\.repoDir/);
   assert.match(plan, /npm test/);
   assert.match(plan, /git commit/);
+});
+
+test('npm test includes the site smoke suite', async () => {
+  const packageJson = JSON.parse(await read('package.json'));
+  assert.match(packageJson.scripts.test, /tests\/site-smoke\.mjs/);
 });
 
 test('home calendar design spec records the approved MVP boundaries', async () => {
