@@ -268,3 +268,16 @@ test('station glass card keeps desktop vertical centering while active', async (
   const css = await read('styles.css');
   assert.match(css, /@media\s*\(min-width:\s*921px\)[\s\S]*?\.station-panel\.liquid-glass\.is-glass-active\s*\{[^}]*transform:\s*translateY\(-50%\)[^}]*perspective\(900px\)/s);
 });
+
+test('home station presents wanderer with an accessible avatar placeholder', async () => {
+  const html = await read('index.html');
+
+  assert.match(html, /<span class="station-nebula" aria-hidden="true"><\/span>/);
+  assert.match(html, /<div class="avatar-stage">/);
+  assert.match(html, /class="avatar-placeholder" role="img" aria-label="Wanderer 头像占位符"/);
+  assert.match(html, /<span aria-hidden="true">W<\/span>/);
+  assert.match(html, /<small aria-hidden="true">AVATAR<\/small>/);
+  assert.match(html, /<h2>wanderer<\/h2>/);
+  assert.doesNotMatch(html, /class="planet(?:-stage)?"/);
+  assert.doesNotMatch(html, /把好奇心，变成可见的东西。/);
+});
