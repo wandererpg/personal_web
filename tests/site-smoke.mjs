@@ -181,6 +181,20 @@ test('liquid glass implementation plan defines test-first delivery steps', async
   assert.match(plan, /git commit/);
 });
 
+test('wanderer avatar ambient motion plan defines tested delivery steps', async () => {
+  const planPath = 'docs/superpowers/plans/2026-09-05-wanderer-avatar-ambient-motion.md';
+
+  assert.equal(await exists(planPath), true, `${planPath} is missing`);
+  const plan = await read(planPath);
+  assert.match(plan, /index\.html/);
+  assert.match(plan, /styles\.css/);
+  assert.match(plan, /tests\/site-smoke\.mjs/);
+  assert.match(plan, /cosmic-star-drift-near/);
+  assert.match(plan, /station-nebula/);
+  assert.match(plan, /prefers-reduced-motion/);
+  assert.match(plan, /git commit/);
+});
+
 test('home hero exposes the editable calendar interface', async () => {
   const html = await read('index.html');
   const css = await read('styles.css');
