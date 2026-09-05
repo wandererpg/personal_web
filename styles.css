@@ -1700,6 +1700,12 @@ svg {
   transition-duration: 90ms, 180ms, 180ms;
 }
 
+@media (min-width: 921px) {
+  .station-panel.liquid-glass.is-glass-active {
+    transform: translateY(-50%) rotate(2deg) perspective(900px) rotateX(var(--glass-rx)) rotateY(var(--glass-ry)) translateY(-4px) scale(var(--glass-scale));
+  }
+}
+
 .liquid-glass.is-glass-active .liquid-glass__shine {
   opacity: 1;
 }
