@@ -13,7 +13,7 @@ const musicFiles = [
 ];
 
 test('required site files exist', async () => {
-  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js']) {
+  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js', 'clock.js']) {
     assert.equal(await exists(file), true, `${file} is missing`);
   }
 });
@@ -27,6 +27,20 @@ test('pages expose shared navigation and semantic landmarks', async () => {
     assert.match(html, /href="projects\.html"/);
     assert.match(html, /href="notes\.html"/);
     assert.match(html, /href="https:\/\//);
+  }
+});
+
+test('pages expose the shared Beijing clock', async () => {
+  const clock = await read('clock.js');
+  assert.match(clock, /Asia\/Shanghai/);
+  assert.match(clock, /setInterval/);
+
+  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+    const html = await read(page);
+    assert.match(html, /<script src="clock\.js" defer><\/script>/);
+    assert.match(html, /class="header-status"/);
+    assert.match(html, /data-current-date/);
+    assert.match(html, /data-current-time/);
   }
 });
 

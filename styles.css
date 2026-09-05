@@ -249,7 +249,32 @@ svg {
 .site-nav {
   display: flex;
   align-items: center;
+  order: 2;
   gap: 28px;
+}
+
+.header-status {
+  display: grid;
+  order: 3;
+  min-width: max-content;
+  gap: 2px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.header-status__date {
+  color: var(--muted);
+}
+
+.header-status__time {
+  color: var(--cyan-soft);
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .site-nav a {
@@ -289,6 +314,7 @@ svg {
 
 .menu-toggle {
   display: none;
+  order: 4;
   width: 42px;
   height: 42px;
   padding: 0;
@@ -1833,6 +1859,16 @@ svg {
 
   .header-inner {
     min-height: 68px;
+  }
+
+  .header-status {
+    margin-left: auto;
+    margin-right: 8px;
+    font-size: 8px;
+  }
+
+  .header-status__time {
+    font-size: 10px;
   }
 
   .menu-toggle {

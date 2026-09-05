@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="styles.css">
     <script src="calendar.js" defer></script>
+    <script src="clock.js" defer></script>
     <script src="liquid-glass.js" defer></script>
     <script src="script.js" defer></script>
   </head>
@@ -23,6 +24,11 @@
             <span class="brand-mark" aria-hidden="true"></span>
             <span>WANDERER<span>.OS</span></span>
           </a>
+
+          <div class="header-status" aria-label="当前北京时间">
+            <time class="header-status__date" data-current-date datetime="2026-09-05T00:00:00+08:00">2026.09.05 · 周六</time>
+            <time class="header-status__time" data-current-time>00:00:00</time>
+          </div>
 
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航菜单">
             <span aria-hidden="true"></span>
