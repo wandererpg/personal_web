@@ -584,8 +584,9 @@ svg {
 
 .home-calendar {
   position: relative;
-  margin-top: 22px;
-  padding: clamp(16px, 2.5vw, 24px);
+  max-width: 540px;
+  margin-top: 16px;
+  padding: clamp(14px, 1.7vw, 18px);
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -634,7 +635,7 @@ svg {
 }
 
 .calendar-header h1 {
-  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
   letter-spacing: -0.04em;
 }
 
@@ -679,11 +680,11 @@ svg {
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
+  gap: 4px;
 }
 
 .calendar-weekdays {
-  margin: 18px 0 7px;
+  margin: 12px 0 5px;
   color: var(--muted);
   font: 9px var(--mono);
   text-align: center;
@@ -695,8 +696,8 @@ svg {
   align-items: flex-start;
   justify-content: flex-start;
   min-width: 0;
-  min-height: 48px;
-  padding: 8px;
+  min-height: 40px;
+  padding: 6px;
   border: 1px solid rgba(119, 230, 255, 0.1);
   border-radius: 9px;
   color: var(--muted-strong);
@@ -753,8 +754,8 @@ svg {
 }
 
 .calendar-events {
-  margin-top: 14px;
-  padding: 14px;
+  margin-top: 10px;
+  padding: 10px;
   border: 1px solid rgba(119, 230, 255, 0.12);
   border-radius: 13px;
   background: rgba(4, 10, 25, 0.56);
@@ -766,9 +767,9 @@ svg {
 
 .calendar-event-list {
   display: grid;
-  max-height: 190px;
+  max-height: 140px;
   gap: 7px;
-  margin-top: 12px;
+  margin-top: 9px;
   overflow-y: auto;
   scrollbar-color: rgba(119, 230, 255, 0.35) transparent;
 }
@@ -1756,6 +1757,7 @@ svg {
   }
 
   .home-calendar {
+    max-width: none;
     padding: 13px;
     border-radius: 20px;
   }

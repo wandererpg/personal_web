@@ -173,3 +173,12 @@ test('home hero exposes the editable calendar interface', async () => {
   assert.match(calendarJs, /saveEvents/);
   assert.match(calendarJs, /window\.confirm/);
 });
+
+test('home calendar uses a compact desktop footprint while staying fluid on mobile', async () => {
+  const css = await read('styles.css');
+
+  assert.match(css, /\.home-calendar\s*\{[^}]*max-width:\s*540px;/s);
+  assert.match(css, /\.calendar-day\s*\{[^}]*min-height:\s*40px;/s);
+  assert.match(css, /\.calendar-event-list\s*\{[^}]*max-height:\s*140px;/s);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.home-calendar\s*\{[^}]*max-width:\s*none;/s);
+});
