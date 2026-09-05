@@ -135,6 +135,17 @@ test('home calendar design spec records the approved MVP boundaries', async () =
   assert.match(spec, /不包含[：:].*云同步/);
 });
 
+test('liquid glass design spec defines material, motion, and accessibility boundaries', async () => {
+  const specPath = 'docs/superpowers/specs/2026-09-05-liquid-glass-cards-design.md';
+
+  assert.equal(await exists(specPath), true, `${specPath} is missing`);
+  const spec = await read(specPath);
+  assert.match(spec, /指针驱动/);
+  assert.match(spec, /项目卡片|知识卡片/);
+  assert.match(spec, /日历|音乐播放器/);
+  assert.match(spec, /prefers-reduced-motion/);
+});
+
 test('home calendar implementation plan defines tested delivery steps', async () => {
   const planPath = 'docs/superpowers/plans/2026-09-05-home-calendar.md';
   assert.equal(await exists(planPath), true, `${planPath} is missing`);
