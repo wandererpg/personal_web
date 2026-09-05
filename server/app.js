@@ -18,22 +18,28 @@ function isWithin(baseDir, targetPath) {
 
 function selectPublicPath(rawUrl) {
   const rawPath = rawUrl.split('?', 1)[0];
-  if (/%[0-9a-f]{2}/i.test(rawPath)) return null;
-  let decodedPath;
-  try {
-    decodedPath = decodeURIComponent(rawPath);
-  } catch {
-    return null;
+  if (!rawPath.startsWith('/')) return null;
+  if (rawPath === '/') return { rootFile: 'index.html' };
+  const rawSegments = rawPath.slice(1).split('/');
+  if (rawSegments.some(segment => !segment)) return null;
+  if (rawSegments.length === 1 && PUBLIC_ROOT_FILES.has(rawSegments[0])) {
+    return { rootFile: rawSegments[0] };
   }
-  if (!decodedPath.startsWith('/') || decodedPath.includes('\\') || decodedPath.includes('\0')) return null;
-  if (decodedPath === '/') return { rootFile: 'index.html' };
-  const segments = decodedPath.slice(1).split('/');
-  if (segments.some(segment => !segment || segment === '.' || segment === '..')) return null;
-  if (segments.length === 1 && PUBLIC_ROOT_FILES.has(segments[0])) {
-    return { rootFile: segments[0] };
-  }
-  if (segments.length > 1 && PUBLIC_DIRECTORIES.has(segments[0])) {
-    return { directory: segments[0], childSegments: segments.slice(1) };
+  if (rawSegments.length > 1 && PUBLIC_DIRECTORIES.has(rawSegments[0])) {
+    const childSegments = [];
+    for (const rawSegment of rawSegments.slice(1)) {
+      let segment;
+      try {
+        segment = decodeURIComponent(rawSegment);
+      } catch {
+        return null;
+      }
+      if (!segment || segment === '.' || segment === '..'
+          || segment.includes('/') || segment.includes('\\') || segment.includes('\0')
+          || /%[0-9a-f]{2}/i.test(segment)) return null;
+      childSegments.push(segment);
+    }
+    return { directory: rawSegments[0], childSegments };
   }
   return null;
 }

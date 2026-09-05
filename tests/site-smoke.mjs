@@ -178,6 +178,10 @@ test('blog admin publishing plan defines test-first private publishing delivery'
   assert.match(plan, /PUBLIC_DIRECTORIES/);
   assert.match(plan, /realpath/);
   assert.match(plan, /path\.relative/);
+  assert.match(plan, /safe percent-encoded child filenames/);
+  assert.match(plan, /first namespace segment as raw ASCII/);
+  for (const encodedPath of ['/%70osts/index.json', '/%73erver/app.js',
+    '/server%2Fapp.js', '/assets%2Fimage.txt']) assert.ok(plan.includes(encodedPath));
   assert.doesNotMatch(plan, /const BLOCKED/);
   assert.doesNotMatch(plan, /express\.static\(config\.repoDir/);
   assert.match(plan, /npm test/);

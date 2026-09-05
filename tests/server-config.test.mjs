@@ -4,9 +4,17 @@ import { createRequire } from 'node:module';
 import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import request from 'supertest';
 
 const require = createRequire(import.meta.url);
+const repoDir = fileURLToPath(new URL('../', import.meta.url));
+const musicFiles = [
+  '松本文紀 - 花弁となり 世界は大いに歌う.mp3',
+  '松本文紀 - 月の眼球譚.mp3',
+  '松本文紀 - 夢の歩みを見上げて (仰望梦想的脚步).mp3',
+  '松本文紀 - 夜の向日葵.flac'
+];
 
 function validEnv(repoDir, dataDir, overrides = {}) {
   return {
@@ -27,6 +35,7 @@ async function createSiteFixture() {
   await Promise.all(rootFiles.map(file => writeFile(join(root, file), `public:${file}`)));
   await Promise.all(['posts', 'assets', 'music', 'server'].map(dir => mkdir(join(root, dir))));
   await writeFile(join(root, 'posts', 'article.md'), 'public post');
+  await writeFile(join(root, 'posts', 'index.json'), '[]');
   await writeFile(join(root, 'assets', 'image.txt'), 'public asset');
   await writeFile(join(root, 'music', 'track.mp3'), 'public music');
   await writeFile(join(root, 'server', 'app.js'), 'must stay private');
@@ -97,14 +106,26 @@ test('public server serves only explicitly allowed root files and directories', 
     '/package-lock.json', '/server/app.js']) await request(app).get(url).expect(404);
 });
 
+test('public server serves browser-encoded real music filenames as audio', async () => {
+  const { createApp } = require('../server/app.js');
+  const app = createApp({ repoDir, env: 'test' }, { installAdmin: false });
+
+  for (const filename of musicFiles) {
+    const browserUrl = `/music/${encodeURIComponent(filename)}`;
+    await request(app).get(browserUrl).expect(200).expect('Content-Type', /^audio\//);
+  }
+});
+
 test('encoded, traversal, and backslash paths cannot bypass the public allowlist', async () => {
   const { createApp } = require('../server/app.js');
   const { root } = await createSiteFixture();
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
 
-  for (const url of ['/assets%2Fimage.txt', '/%70osts/article.md', '/server%2Fapp.js',
+  for (const url of ['/assets%2Fimage.txt', '/%70osts/index.json', '/server%2Fapp.js',
     '/%73erver/app.js', '/assets/../config.yml', '/assets/%2e%2e/config.yml',
-    '/assets%5C..%5Cconfig.yml']) {
+    '/assets%5Cimage.txt', '/assets/%2Fimage.txt',
+    '/assets/%5Cimage.txt', '/assets/%00image.txt', '/assets/%252e%252e/config.yml',
+    '/assets/%252Fimage.txt', '/assets%5C..%5Cconfig.yml']) {
     await request(app).get(url).expect(404);
   }
 });

@@ -143,6 +143,8 @@ test('public server serves the allowlist and rejects real sensitive files and pa
 });
 ```
 
+The static path contract keeps the first namespace segment as raw ASCII. It permits safe percent-encoded child filenames (including UTF-8 Chinese/Japanese characters and spaces) only beneath `posts/`, `assets/`, and `music/`. It rejects encoded `/`, `\\`, NUL, decoded `%` double-encoding payloads, and decoded dot segments. Encoded namespaces such as `/%70osts/index.json`, `/%73erver/app.js`, `/server%2Fapp.js`, and `/assets%2Fimage.txt` remain outside the allowlist.
+
 - [ ] **Step 2: Run the tests and verify RED**
 
 Run:
@@ -243,20 +245,28 @@ function isWithin(baseDir, targetPath) {
 
 function selectPublicPath(rawUrl) {
   const rawPath = rawUrl.split('?', 1)[0];
-  if (/%[0-9a-f]{2}/i.test(rawPath)) return null;
-  let decodedPath;
-  try {
-    decodedPath = decodeURIComponent(rawPath);
-  } catch {
-    return null;
+  if (!rawPath.startsWith('/')) return null;
+  if (rawPath === '/') return { rootFile: 'index.html' };
+  const rawSegments = rawPath.slice(1).split('/');
+  if (rawSegments.some(segment => !segment)) return null;
+  if (rawSegments.length === 1 && PUBLIC_ROOT_FILES.has(rawSegments[0])) {
+    return { rootFile: rawSegments[0] };
   }
-  if (!decodedPath.startsWith('/') || decodedPath.includes('\\') || decodedPath.includes('\0')) return null;
-  if (decodedPath === '/') return { rootFile: 'index.html' };
-  const segments = decodedPath.slice(1).split('/');
-  if (segments.some(segment => !segment || segment === '.' || segment === '..')) return null;
-  if (segments.length === 1 && PUBLIC_ROOT_FILES.has(segments[0])) return { rootFile: segments[0] };
-  if (segments.length > 1 && PUBLIC_DIRECTORIES.has(segments[0])) {
-    return { directory: segments[0], childSegments: segments.slice(1) };
+  if (rawSegments.length > 1 && PUBLIC_DIRECTORIES.has(rawSegments[0])) {
+    const childSegments = [];
+    for (const rawSegment of rawSegments.slice(1)) {
+      let segment;
+      try {
+        segment = decodeURIComponent(rawSegment);
+      } catch {
+        return null;
+      }
+      if (!segment || segment === '.' || segment === '..'
+          || segment.includes('/') || segment.includes('\\') || segment.includes('\0')
+          || /%[0-9a-f]{2}/i.test(segment)) return null;
+      childSegments.push(segment);
+    }
+    return { directory: rawSegments[0], childSegments };
   }
   return null;
 }
@@ -348,7 +358,7 @@ Run:
 node --test tests/server-config.test.mjs tests/site-smoke.mjs
 ```
 
-Expected: PASS; only allowlisted public files load, while unknown files, encoded paths, traversal, backslashes, and out-of-root links return 404.
+Expected: PASS; allowlisted files and safe percent-encoded child filenames load, while unknown files, encoded namespaces or separators, double encoding, NUL, traversal, backslashes, and out-of-root links return 404.
 
 - [ ] **Step 5: Commit**
 
