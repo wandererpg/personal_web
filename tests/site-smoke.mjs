@@ -134,3 +134,13 @@ test('home calendar design spec records the approved MVP boundaries', async () =
   assert.match(spec, /localStorage/);
   assert.match(spec, /不包含[：:].*云同步/);
 });
+
+test('home calendar implementation plan defines tested delivery steps', async () => {
+  const planPath = 'docs/superpowers/plans/2026-09-05-home-calendar.md';
+  assert.equal(await exists(planPath), true, `${planPath} is missing`);
+  const plan = await read(planPath);
+  assert.match(plan, /tests\/calendar\.test\.mjs/);
+  assert.match(plan, /calendar\.js/);
+  assert.match(plan, /localStorage/);
+  assert.match(plan, /git commit/);
+});
