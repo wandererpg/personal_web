@@ -95,6 +95,7 @@ test('pages include cross-page transition and music player hooks', async () => {
     assert.match(html, /data-music-toggle/);
     assert.match(html, /data-music-select/);
     assert.match(html, /data-music-audio/);
+    assert.match(html, /<audio[^>]*data-music-audio[^>]*autoplay/);
     assert.match(html, /<option value="0"(?: selected)?>/);
     assert.match(html, /<option value="3">/);
     assert.match(html, /aria-pressed="false"/);
@@ -119,6 +120,8 @@ test('music player stays fixed to the viewport during page transitions', async (
 test('music player defaults to 夜の向日葵 without legacy labels', async () => {
   const js = await read('script.js');
   assert.match(js, /defaultTrackIndex\s*=\s*2/);
+  assert.match(js, /loadTrack\(defaultTrackIndex, true\)/);
+  assert.match(js, /自动播放被拦截/);
   assert.doesNotMatch(js, /ORBITAL AMBIENCE|本地音乐/);
 
   for (const page of ['index.html', 'projects.html', 'notes.html']) {
@@ -303,9 +306,11 @@ test('liquid glass material provides responsive and reduced-motion feedback', as
   const css = await read('styles.css');
 
   assert.match(css, /\.liquid-glass\s*\{[^}]*backdrop-filter:/s);
-  assert.match(css, /\.liquid-glass__shine\s*\{[^}]*pointer-events:\s*none;/s);
+  assert.match(css, /\.liquid-glass__shine\s*\{[^}]*display:\s*none;/s);
+  assert.doesNotMatch(css, /radial-gradient\(circle 220px at var\(--glass-x\)/);
   assert.match(css, /\.liquid-glass\.is-glass-active\s*\{[^}]*perspective\(900px\)/s);
   assert.match(css, /\.liquid-glass\.is-glass-active\s*\{[^}]*transition-delay:\s*0ms\s*!important;/s);
+  assert.doesNotMatch(css, /\.liquid-glass\.is-glass-active\s*\{[\s\S]*?0 0 34px rgba\(119, 230, 255/);
   assert.match(css, /@media\s*\(hover:\s*none\)[\s\S]*?\.liquid-glass\.is-glass-active/s);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.liquid-glass[^}]*transform:\s*none\s*!important;/s);
 });

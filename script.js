@@ -145,9 +145,14 @@ const playCurrentTrack = async () => {
     await musicAudio.play();
     audioState.playing = true;
     updateMusicUI(true, '正在播放');
-  } catch {
+  } catch (error) {
     audioState.playing = false;
-    updateMusicUI(false, '播放失败 · 请检查音频文件');
+    updateMusicUI(
+      false,
+      error?.name === 'NotAllowedError'
+        ? '自动播放被拦截 · 点击播放'
+        : '播放失败 · 请检查音频文件',
+    );
   }
 };
 
@@ -168,7 +173,7 @@ const loadTrack = async (index, autoplay = false) => {
 
 if (musicPlayer && musicToggle && musicSelect && musicAudio) {
   musicAudio.volume = 0.58;
-  void loadTrack(defaultTrackIndex);
+  void loadTrack(defaultTrackIndex, true);
 
   musicToggle.addEventListener('click', async () => {
     if (musicBusy) return;
