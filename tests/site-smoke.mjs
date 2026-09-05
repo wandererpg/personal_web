@@ -195,6 +195,22 @@ test('wanderer avatar ambient motion plan defines tested delivery steps', async 
   assert.match(plan, /git commit/);
 });
 
+test('calendar clock autoplay design records the confirmed scope', async () => {
+  const specPath = 'docs/superpowers/specs/2026-09-05-calendar-clock-autoplay-design.md';
+
+  assert.equal(await exists(specPath), true, `${specPath} is missing`);
+  const spec = await read(specPath);
+  assert.match(spec, /北京时间/);
+  assert.match(spec, /autoplay/);
+  assert.match(spec, /liquid-glass__shine/);
+  assert.match(spec, /2026-09-25 至 2026-09-27/);
+  assert.match(spec, /2026-10-01 至 2026-10-07/);
+  assert.match(spec, /2027-01-11/);
+  assert.match(spec, /2027-02-21/);
+  assert.match(spec, /不加入校历中的“教师放寒假”和“教师上班”事项/);
+  assert.match(spec, /最近三项/);
+});
+
 test('home hero exposes the editable calendar interface', async () => {
   const html = await read('index.html');
   const css = await read('styles.css');
