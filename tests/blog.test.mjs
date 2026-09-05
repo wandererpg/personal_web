@@ -5,7 +5,9 @@ import test from 'node:test';
 const require = createRequire(import.meta.url);
 const {
   findPost,
+  formatBlogDate,
   getAdjacentPosts,
+  getBlogSlug,
   latestPosts,
   loadPostContent,
   loadPosts,
@@ -101,4 +103,10 @@ test('adjacent posts point older and newer navigation in archive order', () => {
   assert.deepEqual(getAdjacentPosts(posts, 'new'), { previous: 'middle', next: null });
   assert.deepEqual(getAdjacentPosts(posts, 'old'), { previous: null, next: 'middle' });
   assert.deepEqual(getAdjacentPosts(posts, 'missing'), { previous: null, next: null });
+});
+
+test('archive dates and article URLs are normalized for display and lookup', () => {
+  assert.equal(formatBlogDate('2026-03-15'), '2026.03.15');
+  assert.equal(getBlogSlug('?slug=small-projects'), 'small-projects');
+  assert.equal(getBlogSlug('?mode=preview'), null);
 });

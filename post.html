@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#050816">
-    <meta name="description" content="Wanderer 的博客归档与文章记录。">
-    <title>Blog · Wanderer.OS</title>
+    <meta name="description" content="Wanderer 的博客文章。">
+    <title>Blog article · Wanderer.OS</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +26,7 @@
           </a>
 
           <div class="header-status" aria-label="当前北京时间">
-            <time class="header-status__date" data-current-date datetime="2026-09-05T00:00:00+08:00">2026.09.05 · 周六</time>
+            <time class="header-status__date" data-current-date datetime="2026-09-06T00:00:00+08:00">2026.09.06 · 周日</time>
             <time class="header-status__time" data-current-time>00:00:00</time>
           </div>
 
@@ -67,30 +67,30 @@
       </aside>
 
       <main id="main">
-        <section class="page-hero container" aria-labelledby="page-title">
-          <p class="eyebrow">Blog signal · Personal archive</p>
-          <h1 id="page-title">我的博客。</h1>
-          <p>记录正在学习、制作和重新理解的东西。</p>
-        </section>
-
-        <section class="section listing-section container" aria-labelledby="blog-list-title">
-          <div class="section-heading reveal">
-            <div>
-              <span class="section-label">Transmission archive</span>
-              <h2 id="blog-list-title">所有博客记录。</h2>
+        <article class="blog-article container" data-blog-article aria-labelledby="blog-article-title">
+          <a class="text-link blog-article__back" href="notes.html">← 返回博客</a>
+          <div class="blog-article__hero">
+            <span class="section-label" data-blog-article-category></span>
+            <h1 id="blog-article-title" data-blog-article-title>载入文章…</h1>
+            <p data-blog-article-excerpt></p>
+            <div class="blog-article__meta">
+              <time data-blog-article-date></time>
+              <span data-blog-article-reading-time></span>
             </div>
-            <p>从项目经验到日常观察，把真正有用的部分整理成可以再次阅读的信号。</p>
+            <div class="blog-article__cover" data-blog-article-cover aria-hidden="true"></div>
           </div>
-
-          <div class="blog-list" data-blog-list aria-live="polite"></div>
-          <p class="blog-empty" data-blog-list-empty hidden>博客信号暂时为空。</p>
-          <p class="blog-error" data-blog-list-error role="status" hidden>博客暂时无法读取，请稍后再试。</p>
-        </section>
+          <div class="blog-article__content" data-blog-article-content></div>
+          <p class="blog-error" data-blog-article-error role="status" hidden>文章暂时无法读取，请返回博客列表。</p>
+          <nav class="blog-article__nav" aria-label="文章导航">
+            <a data-blog-article-previous hidden></a>
+            <a data-blog-article-next hidden></a>
+          </nav>
+        </article>
       </main>
 
       <footer class="site-footer">
         <div class="container footer-inner">
-          <p>© <span data-current-year>2026</span> WANDERER.OS / KNOWLEDGE SIGNAL</p>
+          <p>© <span data-current-year>2026</span> WANDERER.OS / BLOG ARCHIVE</p>
           <p><a href="https://github.com/wandererpg" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://space.bilibili.com/1065241718" target="_blank" rel="noreferrer">Bilibili</a></p>
         </div>
       </footer>

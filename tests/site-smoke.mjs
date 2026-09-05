@@ -19,7 +19,7 @@ test('required site files exist', async () => {
 });
 
 test('pages expose shared navigation and semantic landmarks', async () => {
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /<header[\s>]/);
     assert.match(html, /<main[\s>]/);
@@ -35,7 +35,7 @@ test('pages expose the shared Beijing clock', async () => {
   assert.match(clock, /Asia\/Shanghai/);
   assert.match(clock, /setInterval/);
 
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /<script src="clock\.js" defer><\/script>/);
     assert.match(html, /class="header-status"/);
@@ -57,21 +57,21 @@ test('page hero clips decorative overflow', async () => {
 
 test('pages provide a local favicon', async () => {
   assert.equal(await exists('favicon.svg'), true, 'favicon.svg is missing');
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /rel="icon" href="favicon\.svg"/);
   }
 });
 
 test('pages do not ship unfinished placeholder copy', async () => {
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.doesNotMatch(html, /lorem ipsum|TODO|TBD|coming soon/i);
   }
 });
 
 test('pages expose the owner platform links', async () => {
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /https:\/\/github\.com\/wandererpg/);
     assert.match(html, /https:\/\/space\.bilibili\.com\/1065241718/);
@@ -89,7 +89,7 @@ test('pages include cross-page transition and music player hooks', async () => {
   assert.match(js, /data-music-select/);
   assert.match(js, /\.play\(\)/);
 
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /data-music-player/);
     assert.match(html, /data-music-toggle/);
@@ -128,7 +128,7 @@ test('music player defaults to 夜の向日葵 without legacy labels', async () 
   assert.match(js, /document\.addEventListener\('keydown', handleAutoplayRecovery\)/);
   assert.doesNotMatch(js, /ORBITAL AMBIENCE|本地音乐/);
 
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /<strong data-music-title>夜の向日葵<\/strong>/);
     assert.match(html, /<option value="2" selected>夜の向日葵<\/option>/);
@@ -323,7 +323,8 @@ test('all primary glass surfaces load the shared interaction module', async () =
   const expectedTargets = new Map([
     ['index.html', 8],
     ['projects.html', 4],
-    ['notes.html', 4],
+    ['notes.html', 1],
+    ['post.html', 1],
   ]);
 
   for (const [page, count] of expectedTargets) {
@@ -373,7 +374,7 @@ test('home station presents wanderer with an accessible avatar placeholder', asy
 test('all pages share two composited drifting star layers', async () => {
   const css = await read('styles.css');
 
-  for (const page of ['index.html', 'projects.html', 'notes.html']) {
+  for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
     assert.match(html, /class="site-shell"/);
   }
@@ -418,4 +419,22 @@ test('home exposes the repository-driven blog preview', async () => {
   assert.match(blog, /post\.html\?slug=/);
   assert.match(blog, /const card = doc\.createElement\('a'\)/);
   assert.doesNotMatch(blog, /createTextElement\(doc, 'a', 'card-arrow'/);
+});
+
+test('blog archive and article pages expose dynamic content hooks', async () => {
+  const archive = await read('notes.html');
+  const article = await read('post.html');
+  const blogJs = await read('blog.js');
+
+  assert.match(archive, /<script src="blog\.js" defer><\/script>/);
+  assert.match(archive, /data-blog-list/);
+  assert.match(archive, /data-blog-list-empty/);
+  assert.match(archive, /我的博客/);
+  assert.match(article, /data-blog-article/);
+  assert.match(article, /data-blog-article-title/);
+  assert.match(article, /data-blog-article-content/);
+  assert.match(article, /data-blog-article-previous/);
+  assert.match(article, /data-blog-article-next/);
+  assert.match(blogJs, /loadPostContent\(/);
+  assert.match(blogJs, /URLSearchParams/);
 });
