@@ -211,6 +211,22 @@ test('calendar clock autoplay design records the confirmed scope', async () => {
   assert.match(spec, /最近三项/);
 });
 
+test('calendar clock autoplay plan defines the confirmed delivery steps', async () => {
+  const planPath = 'docs/superpowers/plans/2026-09-05-calendar-clock-autoplay.md';
+
+  assert.equal(await exists(planPath), true, `${planPath} is missing`);
+  const plan = await read(planPath);
+  assert.match(plan, /clock\.js/);
+  assert.match(plan, /calendar\.js/);
+  assert.match(plan, /autoplay/);
+  assert.match(plan, /液态玻璃/);
+  assert.match(plan, /2026-09-25/);
+  assert.match(plan, /2027-02-21/);
+  assert.match(plan, /教师放寒假/);
+  assert.match(plan, /不加入/);
+  assert.match(plan, /git commit/);
+});
+
 test('home hero exposes the editable calendar interface', async () => {
   const html = await read('index.html');
   const css = await read('styles.css');
