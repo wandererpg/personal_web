@@ -489,3 +489,46 @@ test('styles provide cosmic blog archive surfaces and responsive states', async 
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.blog-card:hover[\s\S]*?transform:\s*none\s*!important;/);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.blog-card__cover-image[\s\S]*?filter:\s*none\s*!important;/);
 });
+
+test('README documents the repository-driven blog publishing workflow', async () => {
+  const readme = await read('README.md');
+
+  for (const pattern of [
+    /posts\/index\.json/,
+    /assets\/blog/,
+    /Markdown/,
+    /小写短横线/,
+    /本地静态服务器/,
+    /post\.html\?slug=<slug>/,
+    /git add posts assets\/blog/,
+    /git commit -m/,
+    /git push/,
+    /没有网页在线上传后台/,
+  ]) {
+    assert.match(readme, pattern);
+  }
+});
+
+test('public page inventory preserves blog entry, shared hooks, and external links', async () => {
+  const publicPages = ['index.html', 'projects.html', 'notes.html', 'post.html'];
+  const blogPages = ['index.html', 'notes.html', 'post.html'];
+
+  for (const page of publicPages) {
+    const html = await read(page);
+    assert.match(html, /<nav[^>]*id="site-nav"[\s\S]*href="notes\.html"/);
+    assert.match(html, /https:\/\/github\.com\/wandererpg/);
+    assert.match(html, /https:\/\/space\.bilibili\.com\/1065241718/);
+    assert.match(html, /<link rel="icon" href="favicon\.svg"/);
+    assert.match(html, /<script src="clock\.js" defer><\/script>/);
+    assert.match(html, /class="header-status"/);
+    assert.match(html, /data-current-date/);
+    assert.match(html, /data-current-time/);
+    assert.match(html, /data-music-player/);
+    assert.match(html, /data-music-audio/);
+  }
+
+  for (const page of blogPages) {
+    const html = await read(page);
+    assert.match(html, /<script src="blog\.js" defer><\/script>/);
+  }
+});
