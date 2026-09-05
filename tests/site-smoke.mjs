@@ -442,9 +442,12 @@ test('blog archive and article pages expose dynamic content hooks', async () => 
 test('styles provide cosmic blog archive surfaces and responsive states', async () => {
   const css = await read('styles.css');
 
+  assert.match(css, /\.blog-section\s+\.card-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,[^}]*grid-template-rows:\s*repeat\(2,/s);
+  assert.match(css, /\.blog-card--featured\s*\{[^}]*grid-column:\s*span\s+2;[^}]*grid-row:\s*1\s*\/\s*span\s+2;/s);
+  assert.match(css, /\.blog-card--compact\s*\{[^}]*height:\s*161px;/s);
+  assert.match(css, /\.blog-card--compact\s*\{[^}]*min-height:\s*161px;/s);
   assert.match(css, /\.blog-card\s*\{[\s\S]*?position:\s*relative;[\s\S]*?overflow:\s*hidden;/);
-  assert.match(css, /\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*span\s+2;[\s\S]*?min-height:/);
-  assert.match(css, /\.blog-card--compact\s*\{[\s\S]*?min-height:/);
+  assert.match(css, /\.blog-card--featured\s*\{[\s\S]*?min-height:/);
   assert.match(css, /\.blog-card__cover\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/);
   assert.match(css, /\.blog-card__cover-image\s*\{[\s\S]*?object-fit:\s*cover;/);
   assert.match(css, /\.blog-card__cover-fallback[\s\S]*?\{[\s\S]*?background:/);
@@ -474,7 +477,10 @@ test('styles provide cosmic blog archive surfaces and responsive states', async 
   assert.match(css, /\.blog-article__nav\s*\{[\s\S]*?display:\s*grid;/);
   assert.match(css, /\.blog-empty,[\s\S]*?\.blog-error,[\s\S]*?\{[\s\S]*?border:/);
 
-  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*auto;/);
+  assert.match(css, /@media\s*\(max-width:\s*920px\)[\s\S]*?\.blog-section\s+\.card-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,/);
+  assert.match(css, /@media\s*\(max-width:\s*920px\)[\s\S]*?\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*span\s+2;[\s\S]*?grid-row:\s*auto;/);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-section\s+\.card-grid\s*\{[\s\S]*?grid-template-columns:\s*1fr;[\s\S]*?grid-template-rows:\s*auto;/);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*auto;[\s\S]*?grid-row:\s*auto;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-row\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-article__nav\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-article\s*\{[\s\S]*?padding-bottom:/);

@@ -1872,6 +1872,11 @@ svg {
   padding-bottom: 178px;
 }
 
+.blog-section .card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
 .blog-card {
   position: relative;
   overflow: hidden;
@@ -1891,11 +1896,14 @@ svg {
 
 .blog-card--featured {
   grid-column: span 2;
+  grid-row: 1 / span 2;
   min-height: 338px;
 }
 
 .blog-card--compact {
-  min-height: 338px;
+  grid-column: 3;
+  height: 161px;
+  min-height: 161px;
 }
 
 .blog-card__cover {
@@ -2490,6 +2498,22 @@ svg {
   .project-card--wide {
     grid-column: span 2;
   }
+
+  .blog-section .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+  }
+
+  .blog-card--featured {
+    grid-column: span 2;
+    grid-row: auto;
+  }
+
+  .blog-card--compact {
+    grid-column: auto;
+    height: auto;
+    min-height: 270px;
+  }
 }
 
 @media (max-width: 680px) {
@@ -2684,10 +2708,18 @@ svg {
 
   .blog-card--featured {
     grid-column: auto;
+    grid-row: auto;
   }
 
   .blog-card--compact {
+    grid-column: auto;
+    height: auto;
     min-height: 270px;
+  }
+
+  .blog-section .card-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
   }
 
   .project-card,
