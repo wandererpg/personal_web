@@ -148,6 +148,7 @@ test('home calendar implementation plan defines tested delivery steps', async ()
 test('home hero exposes the editable calendar interface', async () => {
   const html = await read('index.html');
   const css = await read('styles.css');
+  const calendarJs = await read('calendar.js');
 
   assert.doesNotMatch(html, /探索、建造|欢迎来到我的个人空间/);
   assert.match(html, /src="calendar\.js"/);
@@ -166,4 +167,9 @@ test('home hero exposes the editable calendar interface', async () => {
   }
   assert.match(css, /\.home-calendar\s*\{/);
   assert.match(css, /\.calendar-grid(?:\s*\{|\s*,)/);
+  assert.match(calendarJs, /wanderer\.calendar\.events\.v1/);
+  assert.match(calendarJs, /data-calendar-date/);
+  assert.match(calendarJs, /data-calendar-form/);
+  assert.match(calendarJs, /saveEvents/);
+  assert.match(calendarJs, /window\.confirm/);
 });
