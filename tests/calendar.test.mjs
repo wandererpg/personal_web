@@ -7,7 +7,9 @@ const {
   addEvent,
   buildMonthDays,
   eventsForDate,
+  loadEvents,
   removeEvent,
+  saveEvents,
   updateEvent,
 } = require('../calendar.js');
 
@@ -47,4 +49,37 @@ test('event titles are required after trimming', () => {
     () => addEvent([], { date: '2026-09-05', title: '   ', note: '' }),
     /事件标题不能为空/,
   );
+});
+
+test('loadEvents filters malformed records and handles invalid JSON', () => {
+  const valid = {
+    id: 'event-1',
+    date: '2026-09-05',
+    title: '发布网站',
+    note: '',
+    createdAt: '2026-09-05T12:00:00.000Z',
+  };
+
+  assert.deepEqual(
+    loadEvents({ getItem: () => JSON.stringify([valid, { title: '' }]) }),
+    [valid],
+  );
+  assert.deepEqual(loadEvents({ getItem: () => '{broken' }), []);
+  assert.deepEqual(loadEvents({ getItem: () => { throw new Error('denied'); } }), []);
+});
+
+test('saveEvents reports whether persistence succeeded', () => {
+  let savedKey = '';
+  let savedValue = '';
+  const storage = {
+    setItem: (key, value) => {
+      savedKey = key;
+      savedValue = value;
+    },
+  };
+
+  assert.equal(saveEvents(storage, []), true);
+  assert.equal(savedKey, 'wanderer.calendar.events.v1');
+  assert.equal(savedValue, '[]');
+  assert.equal(saveEvents({ setItem: () => { throw new Error('full'); } }, []), false);
 });

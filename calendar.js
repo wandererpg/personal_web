@@ -1,5 +1,7 @@
 (function initCalendarModule(globalScope) {
+  const STORAGE_KEY = 'wanderer.calendar.events.v1';
   const pad = (value) => String(value).padStart(2, '0');
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 
   const formatDateKey = (date) => (
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
@@ -59,12 +61,42 @@
     events.filter((event) => event.date === dateKey)
   );
 
+  const isStoredEvent = (event) => Boolean(
+    event
+    && typeof event.id === 'string'
+    && datePattern.test(event.date)
+    && typeof event.title === 'string'
+    && event.title.trim()
+    && typeof event.note === 'string'
+    && typeof event.createdAt === 'string'
+  );
+
+  const loadEvents = (storage) => {
+    try {
+      const parsed = JSON.parse(storage.getItem(STORAGE_KEY) ?? '[]');
+      return Array.isArray(parsed) ? parsed.filter(isStoredEvent) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveEvents = (storage, events) => {
+    try {
+      storage.setItem(STORAGE_KEY, JSON.stringify(events));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const api = {
     addEvent,
     buildMonthDays,
     eventsForDate,
     formatDateKey,
+    loadEvents,
     removeEvent,
+    saveEvents,
     updateEvent,
   };
 
