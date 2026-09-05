@@ -146,6 +146,19 @@ test('liquid glass design spec defines material, motion, and accessibility bound
   assert.match(spec, /prefers-reduced-motion/);
 });
 
+test('wanderer avatar and ambient motion spec records the approved visual direction', async () => {
+  const specPath = 'docs/superpowers/specs/2026-09-05-wanderer-avatar-ambient-motion-design.md';
+
+  assert.equal(await exists(specPath), true, `${specPath} is missing`);
+  const spec = await read(specPath);
+  assert.match(spec, /A.*星尘漂移/);
+  assert.match(spec, /B.*星云呼吸/);
+  assert.match(spec, /45%.*50%/);
+  assert.match(spec, /`wanderer`/);
+  assert.match(spec, /头像占位符/);
+  assert.match(spec, /prefers-reduced-motion/);
+});
+
 test('home calendar implementation plan defines tested delivery steps', async () => {
   const planPath = 'docs/superpowers/plans/2026-09-05-home-calendar.md';
   assert.equal(await exists(planPath), true, `${planPath} is missing`);
