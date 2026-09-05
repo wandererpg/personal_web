@@ -1,0 +1,35 @@
+[
+  {
+    "slug": "small-projects",
+    "title": "为什么我喜欢把想法做成小项目？",
+    "date": "2026-03-15",
+    "category": "MAKING",
+    "excerpt": "当一个念头变成可以点击、运行或被别人使用的东西，它才真正开始和世界发生联系。",
+    "cover": "assets/blog/small-projects/cover.svg",
+    "tags": ["Making", "Project"],
+    "readingTime": "4 min",
+    "content": "posts/small-projects.md"
+  },
+  {
+    "slug": "visible-steps",
+    "title": "把复杂问题拆成可见的步骤。",
+    "date": "2026-02-20",
+    "category": "METHOD",
+    "excerpt": "先找到边界，再决定下一步，最后让结果能够被复用。",
+    "cover": "",
+    "tags": ["Process"],
+    "readingTime": "3 min",
+    "content": "posts/visible-steps.md"
+  },
+  {
+    "slug": "first-orbit",
+    "title": "个人知识库的第一条轨道。",
+    "date": "2026-01-12",
+    "category": "LEARNING",
+    "excerpt": "比起收藏更多内容，更重要的是为真正会再次使用的知识留出位置。",
+    "cover": "",
+    "tags": ["Learning"],
+    "readingTime": "3 min",
+    "content": "posts/first-orbit.md"
+  }
+]
