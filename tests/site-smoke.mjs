@@ -124,3 +124,13 @@ test('README documents the GitHub SSH upload workflow', async () => {
   assert.match(readme, /git commit -m/);
   assert.match(readme, /git push/);
 });
+
+test('home calendar design spec records the approved MVP boundaries', async () => {
+  const specPath = 'docs/superpowers/specs/2026-09-05-home-calendar-design.md';
+  assert.equal(await exists(specPath), true, `${specPath} is missing`);
+  const spec = await read(specPath);
+  assert.match(spec, /wanderer\.calendar\.events\.v1/);
+  assert.match(spec, /同一天允许添加多条事件/);
+  assert.match(spec, /localStorage/);
+  assert.match(spec, /不包含[：:].*云同步/);
+});
