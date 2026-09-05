@@ -637,6 +637,13 @@ svg {
   max-width: 680px;
 }
 
+.calendar-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(154px, 0.38fr);
+  align-items: start;
+  gap: 12px;
+}
+
 .home-calendar {
   position: relative;
   max-width: 540px;
@@ -650,6 +657,103 @@ svg {
     linear-gradient(145deg, rgba(18, 37, 78, 0.74), rgba(7, 12, 31, 0.88));
   box-shadow: var(--shadow-card), inset 0 1px rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(18px);
+}
+
+.calendar-layout .home-calendar {
+  max-width: none;
+}
+
+.upcoming-events {
+  min-width: 0;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(145deg, rgba(20, 43, 89, 0.34), rgba(5, 10, 29, 0.5)),
+    rgba(7, 13, 31, 0.14);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08), 0 16px 44px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(18px) saturate(1.18);
+}
+
+.upcoming-events h2 {
+  margin: 6px 0 14px;
+  color: var(--ink-strong);
+  font-family: var(--display);
+  font-size: 1rem;
+  letter-spacing: -0.04em;
+}
+
+.upcoming-events__list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: upcoming;
+}
+
+.upcoming-event {
+  position: relative;
+  min-width: 0;
+  padding: 10px 0 10px 24px;
+  border-top: 1px solid rgba(148, 170, 255, 0.12);
+  counter-increment: upcoming;
+}
+
+.upcoming-event::before {
+  position: absolute;
+  top: 11px;
+  left: 0;
+  color: var(--cyan);
+  content: counter(upcoming, decimal-leading-zero);
+  font: 700 9px/1 var(--mono);
+}
+
+.upcoming-event__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.upcoming-event__title {
+  min-width: 0;
+  color: var(--ink-strong);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.upcoming-event__date,
+.upcoming-event__relative {
+  display: block;
+  font: 9px/1.5 var(--mono);
+}
+
+.upcoming-event__date {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.upcoming-event__relative {
+  flex: 0 0 auto;
+  color: var(--lime);
+  white-space: nowrap;
+}
+
+.upcoming-event--workday .upcoming-event__relative {
+  color: var(--rose);
+}
+
+.upcoming-event--personal .upcoming-event__relative {
+  color: var(--cyan);
+}
+
+.upcoming-events__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .home-calendar::before {
@@ -774,6 +878,22 @@ svg {
   background: rgba(5, 10, 25, 0.2);
 }
 
+.calendar-day.is-holiday,
+.calendar-day.is-break {
+  border-color: rgba(183, 244, 123, 0.38);
+  background: rgba(183, 244, 123, 0.06);
+}
+
+.calendar-day.is-workday {
+  border-color: rgba(255, 142, 173, 0.48);
+  background: rgba(255, 142, 173, 0.07);
+}
+
+.calendar-day.is-school {
+  border-color: rgba(169, 140, 255, 0.4);
+  background: rgba(169, 140, 255, 0.07);
+}
+
 .calendar-day.is-today::before {
   position: absolute;
   top: 5px;
@@ -806,6 +926,22 @@ svg {
   box-shadow: 0 0 8px rgba(183, 244, 123, 0.5);
   font: 700 9px/15px var(--mono);
   text-align: center;
+}
+
+.calendar-day__marker {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  color: var(--lime);
+  font: 700 8px/1 var(--mono);
+}
+
+.calendar-day.is-workday .calendar-day__marker {
+  color: var(--rose);
+}
+
+.calendar-day.is-school .calendar-day__marker {
+  color: var(--violet);
 }
 
 .calendar-events {
@@ -856,11 +992,46 @@ svg {
   font-size: 0.85rem;
 }
 
+.calendar-event__titleline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.calendar-event__source {
+  color: var(--violet);
+  font: 700 8px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .calendar-event p {
   margin: 3px 0 0;
   color: var(--muted);
   font-size: 0.76rem;
   line-height: 1.5;
+}
+
+.calendar-event__meta {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+}
+
+.calendar-event--school {
+  border-left-color: var(--violet);
+  background: rgba(91, 70, 160, 0.2);
+}
+
+.calendar-event--holiday,
+.calendar-event--break {
+  border-left-color: var(--lime);
+  background: rgba(91, 132, 67, 0.18);
+}
+
+.calendar-event--workday {
+  border-left-color: var(--rose);
+  background: rgba(132, 55, 85, 0.18);
 }
 
 .calendar-event__actions {
@@ -1917,6 +2088,15 @@ svg {
     max-width: none;
     padding: 13px;
     border-radius: 20px;
+  }
+
+  .calendar-layout {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .upcoming-events {
+    margin-top: 12px;
   }
 
   .calendar-header,

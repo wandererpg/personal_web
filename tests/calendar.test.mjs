@@ -6,10 +6,14 @@ const require = createRequire(import.meta.url);
 const {
   addEvent,
   buildMonthDays,
+  expandDateRange,
   eventsForDate,
+  getSchoolCalendarEvents,
+  getUpcomingEvents,
   loadEvents,
   removeEvent,
   saveEvents,
+  schoolEventsForDate,
   updateEvent,
 } = require('../calendar.js');
 
@@ -82,4 +86,45 @@ test('saveEvents reports whether persistence succeeded', () => {
   assert.equal(savedKey, 'wanderer.calendar.events.v1');
   assert.equal(savedValue, '[]');
   assert.equal(saveEvents({ setItem: () => { throw new Error('full'); } }, []), false);
+});
+
+test('school calendar contains confirmed student and holiday dates only', () => {
+  const schedule = getSchoolCalendarEvents();
+
+  assert.equal(schedule.some((event) => event.title.includes('教师')), false);
+  assert.deepEqual(
+    schoolEventsForDate('2026-09-26').map((event) => event.title),
+    ['中秋节放假'],
+  );
+  assert.deepEqual(
+    schoolEventsForDate('2026-10-03').map((event) => event.title),
+    ['国庆节放假'],
+  );
+  assert.deepEqual(
+    schoolEventsForDate('2027-01-11').map((event) => event.title),
+    ['学生寒假'],
+  );
+  assert.deepEqual(
+    schoolEventsForDate('2027-02-21').map((event) => event.title),
+    ['学生注册'],
+  );
+});
+
+test('school date ranges expand and upcoming events keep holiday ranges grouped', () => {
+  assert.deepEqual(
+    expandDateRange('2026-09-25', '2026-09-27'),
+    ['2026-09-25', '2026-09-26', '2026-09-27'],
+  );
+
+  const upcoming = getUpcomingEvents(
+    [{ id: 'event-1', date: '2026-09-18', title: '整理网站', note: '', createdAt: '2026-09-05T12:00:00.000Z' }],
+    '2026-09-05',
+  );
+
+  assert.equal(upcoming.length, 3);
+  assert.deepEqual(upcoming.map((event) => [event.title, event.start, event.end]), [
+    ['整理网站', '2026-09-18', '2026-09-18'],
+    ['国庆调休上班', '2026-09-20', '2026-09-20'],
+    ['中秋节放假', '2026-09-25', '2026-09-27'],
+  ]);
 });

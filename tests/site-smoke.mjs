@@ -282,6 +282,27 @@ test('home calendar uses a compact desktop footprint while staying fluid on mobi
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.home-calendar\s*\{[^}]*max-width:\s*none;/s);
 });
 
+test('home calendar exposes the school schedule and nearby events panel', async () => {
+  const html = await read('index.html');
+  const calendarJs = await read('calendar.js');
+  const css = await read('styles.css');
+
+  assert.match(html, /class="calendar-layout"/);
+  assert.match(html, /data-upcoming-events/);
+  assert.match(html, /data-upcoming-list/);
+  assert.match(html, /id="upcoming-events-title">近期事件<\/h2>/);
+  assert.match(calendarJs, /getSchoolCalendarEvents/);
+  assert.match(calendarJs, /getUpcomingEvents/);
+  assert.match(calendarJs, /中秋节放假/);
+  assert.match(calendarJs, /国庆节放假/);
+  assert.match(calendarJs, /学生寒假/);
+  assert.match(calendarJs, /学生注册/);
+  assert.doesNotMatch(calendarJs, /title:\s*['"]教师放寒假/);
+  assert.doesNotMatch(calendarJs, /title:\s*['"]教师上班/);
+  assert.match(css, /\.calendar-layout\s*\{/);
+  assert.match(css, /\.upcoming-events\s*\{/);
+});
+
 test('all primary glass surfaces load the shared interaction module', async () => {
   const expectedTargets = new Map([
     ['index.html', 11],
