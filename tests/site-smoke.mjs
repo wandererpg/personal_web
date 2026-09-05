@@ -162,6 +162,22 @@ test('blog admin publishing spec preserves private drafts and repository publish
   assert.match(spec, /JPEG、PNG 和 WebP/);
 });
 
+test('blog admin publishing plan defines test-first private publishing delivery', async () => {
+  const planPath = 'docs/superpowers/plans/2026-09-06-blog-admin-publishing.md';
+
+  assert.equal(await exists(planPath), true, `${planPath} is missing`);
+  const plan = await read(planPath);
+  assert.match(plan, /tests\/auth\.test\.mjs/);
+  assert.match(plan, /tests\/draft-store\.test\.mjs/);
+  assert.match(plan, /tests\/media-store\.test\.mjs/);
+  assert.match(plan, /tests\/publish-service\.test\.mjs/);
+  assert.match(plan, /POST   \/api\/admin\/posts\/:slug\/revise/);
+  assert.match(plan, /multer@\^2\.3\.0/);
+  assert.match(plan, /shell: false/);
+  assert.match(plan, /npm test/);
+  assert.match(plan, /git commit/);
+});
+
 test('home calendar design spec records the approved MVP boundaries', async () => {
   const specPath = 'docs/superpowers/specs/2026-09-05-home-calendar-design.md';
   assert.equal(await exists(specPath), true, `${specPath} is missing`);
