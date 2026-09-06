@@ -300,7 +300,7 @@
     const remove = event.target.closest('[data-course-delete]');
     if (remove) void deleteCourse(remove.dataset.courseDelete);
   });
-  one('[data-admin-logout]').addEventListener('click', async () => {
+  document.querySelector('[data-admin-logout]')?.addEventListener('click', async () => {
     await adminApi.request('/api/admin/logout', { method: 'POST' });
     globalScope.location.replace('/admin/login');
   });
