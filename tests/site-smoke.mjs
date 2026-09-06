@@ -81,10 +81,12 @@ test('admin schedule editor exposes the protected course form', async () => {
     'data-schedule-settings-form',
     'data-course-list',
     'data-course-form',
+    'data-course-add',
     'data-course-weeks',
     'data-course-save',
     'data-schedule-save-state',
   ]) assert.match(html, new RegExp(hook));
+  assert.match(html, /data-course-add[^>]*disabled/);
   for (const field of ['data-course-start-period', 'data-course-end-period']) {
     const options = html.match(new RegExp(`<select[^>]*${field}[^>]*>([\\s\\S]*?)</select>`))?.[1] || '';
     assert.equal((options.match(/<option value="/g) || []).length, 12, `${field} should expose all periods without JavaScript`);
@@ -94,6 +96,8 @@ test('admin schedule editor exposes the protected course form', async () => {
   assert.match(html, /schedule-model\.js/);
   assert.match(html, /schedule\.js/);
   assert.match(js, /\/api\/admin\/schedule/);
+  assert.match(js, /if \(!state\.schedule\)/);
+  assert.match(js, /courseAdd\.disabled/);
   assert.match(js, /AdminApi/);
   assert.match(js, /window\.confirm/);
   assert.match(css, /\.schedule-admin/);

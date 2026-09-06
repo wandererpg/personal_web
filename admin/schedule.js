@@ -15,6 +15,7 @@
 
   const elements = {
     settingsForm: one('[data-schedule-settings-form]'),
+    courseAdd: one('[data-course-add]'),
     termStart: one('[data-term-start]'),
     totalWeeks: one('[data-total-weeks]'),
     list: one('[data-course-list]'),
@@ -145,6 +146,11 @@
   };
 
   const openForm = (course = null) => {
+    if (!state.schedule) {
+      setError('课表仍在读取，请稍后再试。');
+      setStatus('请稍候', 'pending');
+      return;
+    }
     state.selectedId = course?.id || '';
     elements.form.hidden = false;
     elements.formTitle.textContent = course ? '编辑课程' : '新增课程';
@@ -217,6 +223,11 @@
 
   const saveCourse = async event => {
     event.preventDefault();
+    if (!state.schedule) {
+      setError('课表仍在读取，请稍后再试。');
+      setStatus('请稍候', 'pending');
+      return;
+    }
     const course = readCourse();
     const courses = state.schedule.courses.some(item => item.id === course.id)
       ? state.schedule.courses.map(item => item.id === course.id ? course : item)
@@ -259,6 +270,7 @@
     try {
       const response = await adminApi.request('/api/admin/schedule');
       state.schedule = model.validateSchedule(response.schedule);
+      elements.courseAdd.disabled = false;
       renderSettings();
       renderPeriodOptions();
       renderList();
