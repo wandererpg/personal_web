@@ -51,6 +51,24 @@ test('public schedule page exposes the full weekly view and safe asset allowlist
   }
 });
 
+test('homepage exposes the compact schedule summary below the station card', async () => {
+  const html = await read('index.html');
+  const css = await read('styles.css');
+  const controller = await read('schedule.js');
+
+  assert.match(html, /class="hero-visual__stack"/);
+  assert.match(html, /data-schedule-summary/);
+  assert.match(html, /data-schedule-summary-link="schedule\.html"/);
+  assert.match(html, /data-schedule-summary-week/);
+  assert.match(html, /data-schedule-summary-range/);
+  assert.match(html, /data-schedule-summary-list/);
+  assert.match(html, /data-schedule-summary-empty/);
+  assert.match(controller, /data-schedule-summary-list/);
+  assert.match(css, /\.hero-visual__stack\s*\{/);
+  assert.match(css, /\.home-schedule\s*\{/);
+  assert.match(css, /align-self:\s*start/);
+});
+
 test('pages expose shared navigation and semantic landmarks', async () => {
   for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
@@ -443,7 +461,7 @@ test('home calendar exposes the school schedule and nearby events panel', async 
 
 test('all primary glass surfaces load the shared interaction module', async () => {
   const expectedTargets = new Map([
-    ['index.html', 8],
+    ['index.html', 9],
     ['projects.html', 4],
     ['notes.html', 4],
     ['post.html', 1],

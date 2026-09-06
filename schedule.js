@@ -88,10 +88,16 @@
     grid.replaceChildren();
 
     const dates = getDatesForWeek(state.viewWeek);
+    if (state.loading || state.error) {
+      if (empty) empty.hidden = true;
+      return;
+    }
     if (!dates.length) {
+      if (empty) empty.textContent = '请先在管理页设置学期开始日期。';
       if (empty) empty.hidden = false;
       return;
     }
+    if (empty) empty.textContent = '这一周还没有安排课程。';
     if (empty) empty.hidden = false;
 
     const corner = createElement('div', 'schedule-grid__corner', '节次');
@@ -178,7 +184,12 @@
       item.append(createElement('span', 'home-schedule__item-marker'), copy);
       return item;
     }));
-    if (empty) empty.hidden = state.loading || state.error || items.length > 0;
+    if (empty) {
+      empty.textContent = state.error
+        ? '课表暂时无法加载'
+        : state.schedule?.termStart ? '本周暂无课程' : '尚未设置学期';
+      empty.hidden = state.loading || items.length > 0;
+    }
     const week = summary.querySelector('[data-schedule-summary-week]');
     if (week) week.textContent = weekLabel(info.week, info);
   };
@@ -260,6 +271,20 @@
   summary?.querySelector('[data-schedule-summary-link]')?.addEventListener('click', () => {
     state.followCurrent = false;
   });
+  if (summary) {
+    const summaryLink = summary.querySelector('[data-schedule-summary-link]');
+    const openSummary = () => summaryLink?.click();
+    summary.addEventListener('click', event => {
+      if (event.target.closest('a, button')) return;
+      openSummary();
+    });
+    summary.addEventListener('keydown', event => {
+      if (['Enter', ' '].includes(event.key)) {
+        event.preventDefault();
+        openSummary();
+      }
+    });
+  }
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') refreshCurrentWeek();
   });
