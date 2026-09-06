@@ -54,7 +54,8 @@
   };
 
   const sortPosts = (posts) => [...posts].sort((left, right) => (
-    Date.parse(right.createdAt) - Date.parse(left.createdAt) || left.slug.localeCompare(right.slug)
+    Date.parse(right.updatedAt || right.createdAt) - Date.parse(left.updatedAt || left.createdAt)
+      || left.slug.localeCompare(right.slug)
   ));
 
   const latestPosts = (posts, limit = 3) => sortPosts(posts).slice(0, Math.max(0, limit));
@@ -147,6 +148,17 @@
     }).formatToParts(date);
     const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
     return `${values.year}.${values.month}.${values.day}`;
+  };
+
+  const formatBlogTimestamp = (timestamp, now = Date.now()) => {
+    const date = new Date(String(timestamp ?? ''));
+    const reference = new Date(now);
+    if (Number.isNaN(date.getTime()) || Number.isNaN(reference.getTime())) return '';
+    const seconds = Math.max(0, Math.floor((reference.getTime() - date.getTime()) / 1000));
+    if (seconds < 60) return 'just now';
+    if (seconds < 60 * 60) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 24 * 60 * 60) return `${Math.floor(seconds / (60 * 60))}h ago`;
+    return formatBlogDate(timestamp);
   };
 
   const getBlogSlug = (search) => new URLSearchParams(String(search ?? '')).get('slug');
@@ -247,10 +259,12 @@
     row.dataset.blogRow = '';
     row.dataset.liquidGlass = '';
 
-    const date = createTextElement(doc, 'span', 'blog-row__date', '');
+    const timestamp = post.updatedAt || post.createdAt;
+    const date = createTextElement(doc, 'time', 'blog-row__date', '');
+    date.dateTime = timestamp;
     date.dataset.blogDate = '';
     date.append(
-      createTextElement(doc, 'span', 'blog-row__date-value', formatBlogDate(post.createdAt)),
+      createTextElement(doc, 'span', 'blog-row__date-value', formatBlogTimestamp(timestamp)),
       doc.createElement('br'),
       createTextElement(doc, 'span', 'blog-row__category', moduleLabel(post)),
     );
@@ -269,7 +283,7 @@
 
     const arrow = createTextElement(doc, 'span', 'blog-row__arrow', '↗');
     arrow.setAttribute('aria-hidden', 'true');
-    row.append(createBlogCover(doc, post), date, content, arrow);
+    row.append(createBlogCover(doc, post), content, date, arrow);
     return row;
   };
 
@@ -438,8 +452,9 @@
         if (elements.title) elements.title.textContent = post.title;
         if (elements.excerpt) elements.excerpt.textContent = post.excerpt;
         if (elements.date) {
-          elements.date.textContent = formatBlogDate(post.createdAt);
-          elements.date.dateTime = post.createdAt;
+          const timestamp = post.updatedAt || post.createdAt;
+          elements.date.textContent = formatBlogTimestamp(timestamp);
+          elements.date.dateTime = timestamp;
         }
         if (elements.readingTime) elements.readingTime.textContent = post.readingTime;
         renderBlogCover(doc, elements.cover, post);
@@ -555,7 +570,10 @@
 
     const arrow = createTextElement(doc, 'span', 'card-arrow', '↗');
     arrow.setAttribute('aria-hidden', 'true');
-    bottom.append(tags, arrow);
+    const timestamp = post.updatedAt || post.createdAt;
+    const date = createTextElement(doc, 'time', 'blog-card__date', formatBlogTimestamp(timestamp));
+    date.dateTime = timestamp;
+    bottom.append(tags, date, arrow);
     card.append(bottom);
 
     return card;
@@ -724,6 +742,7 @@
     loadPosts,
     loadPostContent,
     formatBlogDate,
+    formatBlogTimestamp,
     getBlogModule,
     getBlogSlug,
     moduleHref,

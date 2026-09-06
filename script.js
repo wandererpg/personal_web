@@ -149,11 +149,11 @@ const playCurrentTrack = async () => {
     updateMusicUI(true, '正在播放');
   } catch (error) {
     audioState.playing = false;
-    autoplayBlocked = error?.name === 'NotAllowedError';
+    autoplayBlocked = ['NotAllowedError', 'AbortError'].includes(error?.name);
     updateMusicUI(
       false,
-      error?.name === 'NotAllowedError'
-        ? '自动播放被拦截 · 点击页面启用声音'
+      autoplayBlocked
+        ? '自动播放未授权 · 点击页面开启声音'
         : '播放失败 · 请检查音频文件',
     );
   }
@@ -185,6 +185,7 @@ if (musicPlayer && musicToggle && musicSelect && musicAudio) {
   musicAudio.volume = 0.58;
   void loadTrack(defaultTrackIndex, true);
   document.addEventListener('click', handleAutoplayRecovery);
+  document.addEventListener('pointerdown', handleAutoplayRecovery, { passive: true });
   document.addEventListener('keydown', handleAutoplayRecovery);
 
   musicToggle.addEventListener('click', async () => {

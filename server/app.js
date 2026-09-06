@@ -10,6 +10,7 @@ const { createDraftStore } = require('./draft-store.js');
 const { createMediaStore } = require('./media-store.js');
 const { createGitPublisher } = require('./git-publisher.js');
 const { createPublishService } = require('./publish-service.js');
+const { createDeleteService } = require('./delete-service.js');
 
 const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
@@ -119,6 +120,13 @@ function installAdmin(app, config, options) {
     mediaStore,
     gitPublisher
   });
+  const deleteService = options.deleteService || createDeleteService({
+    repoDir: config.repoDir,
+    dataDir: config.dataDir,
+    draftStore,
+    mediaStore,
+    gitPublisher
+  });
   app.get('/api/admin/session', auth.ensureCsrf, (req, res) => res.json({
     authenticated: req.session.authenticated === true,
     csrfToken: req.session.csrfToken
@@ -132,6 +140,7 @@ function installAdmin(app, config, options) {
     draftStore,
     mediaStore,
     publishService,
+    deleteService,
     auth
   }));
 
@@ -147,7 +156,7 @@ function installAdmin(app, config, options) {
   app.get('/admin/editor', requireAdminPage, (_req, res) => res.sendFile(adminFile('editor.html')));
 
   if (typeof options.installAdmin === 'function') {
-    options.installAdmin(app, { auth, store, draftStore, mediaStore, gitPublisher, publishService });
+    options.installAdmin(app, { auth, store, draftStore, mediaStore, gitPublisher, publishService, deleteService });
   }
 }
 

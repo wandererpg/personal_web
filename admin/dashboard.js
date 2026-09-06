@@ -20,7 +20,8 @@
   }
 
   function postRow(post) {
-    const button = element('button', 'admin-post');
+    const row = element('article', 'admin-post');
+    const button = element('button', 'admin-post__open');
     button.type = 'button';
     button.dataset.postId = post.id || '';
     button.dataset.postSlug = post.slug || '';
@@ -44,8 +45,41 @@
     const arrow = element('span', 'admin-post__arrow', '↗');
     arrow.setAttribute('aria-hidden', 'true');
     button.append(marker, content, time, arrow);
+
+    const actions = element('span', 'admin-post__actions');
+    const edit = element('button', 'admin-post__action', '编辑');
+    edit.type = 'button';
+    edit.setAttribute('aria-label', `编辑：${post.title || '未命名文章'}`);
+    const remove = element('button', 'admin-post__action admin-post__action--delete', '删除');
+    remove.type = 'button';
+    remove.dataset.adminDelete = '';
+    remove.setAttribute('aria-label', `删除：${post.title || '未命名文章'}`);
+    actions.append(edit, remove);
+    row.append(button, actions);
     button.addEventListener('click', () => openPost(post, button));
-    return button;
+    edit.addEventListener('click', () => openPost(post, edit));
+    remove.addEventListener('click', () => deletePost(post, remove));
+    return row;
+  }
+
+  async function deletePost(post, button) {
+    const target = window.AdminModel.getDeleteTarget(post);
+    if (!target || !window.confirm(`确定删除「${post.title || '未命名文章'}」吗？此操作会同步删除文章内容。`)) return;
+    button.disabled = true;
+    try {
+      const endpoint = target.type === 'draft'
+        ? `/api/admin/posts/drafts/${encodeURIComponent(target.id)}`
+        : `/api/admin/posts/published/${encodeURIComponent(target.slug)}`;
+      await window.AdminApi.request(endpoint, { method: 'DELETE' });
+      state.posts = state.posts.filter(item => target.type === 'draft'
+        ? item.id !== target.id
+        : !(item.status === 'published' && item.slug === target.slug));
+      render();
+    } catch {
+      button.disabled = false;
+      state.error = true;
+      render();
+    }
   }
 
   function render() {

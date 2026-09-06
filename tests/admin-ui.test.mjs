@@ -37,6 +37,15 @@ test('dashboard reopens pending publications but revises synced public posts', (
   }), { type: 'revise', slug: 'public-post' });
 });
 
+test('dashboard maps draft and published rows to safe delete targets', () => {
+  assert.deepEqual(AdminModel.getDeleteTarget({ status: 'draft', id: 'draft-id' }), {
+    type: 'draft', id: 'draft-id'
+  });
+  assert.deepEqual(AdminModel.getDeleteTarget({ status: 'published', slug: 'public-post' }), {
+    type: 'published', slug: 'public-post'
+  });
+});
+
 test('dashboard page exposes private archive controls and safe rendering hooks', async () => {
   const [html, script] = await Promise.all([read('admin/index.html'), read('admin/dashboard.js')]);
   for (const hook of [
@@ -82,4 +91,13 @@ test('editor page exposes Markdown preview, upload, autosave, and publication co
   assert.match(script, /beforeunload/);
   assert.doesNotMatch(script, /post\.html\?slug=/);
   assert.match(script, /getPostPublishDestination/);
+});
+
+test('dashboard exposes edit and delete actions for every private archive row', async () => {
+  const html = await read('admin/index.html');
+  const script = await read('admin/dashboard.js');
+  assert.match(script, /dataset\.adminDelete/);
+  assert.match(script, /posts\/drafts/);
+  assert.match(script, /posts\/published/);
+  assert.match(script, /method: 'DELETE'/);
 });

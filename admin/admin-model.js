@@ -67,12 +67,18 @@
     return { type: 'revise', slug: post.slug };
   }
 
+  function getDeleteTarget(post) {
+    if (post.status === 'draft' && post.id) return { type: 'draft', id: post.id };
+    if (post.status === 'published' && post.slug) return { type: 'published', slug: post.slug };
+    return null;
+  }
+
   function getPostPublishDestination(result) {
     return result?.syncStatus === 'synced' ? '/admin/login' : null;
   }
 
   return {
-    MODULES, filterPosts, getOpenAction, getPostPublishDestination, insertMarkdown,
+    MODULES, filterPosts, getDeleteTarget, getOpenAction, getPostPublishDestination, insertMarkdown,
     normalizeEditorPayload, summarizePosts, validateForPublish
   };
 }));

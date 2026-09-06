@@ -60,12 +60,14 @@ function statusFor(error) {
     GIT_PUSH_PENDING: 502,
     GIT_REMOTE_DIVERGED: 409,
     SYNC_NOT_PENDING: 409,
+    DRAFT_DELETE_INVALID: 409,
+    MEDIA_PATH_INVALID: 409,
     PUBLIC_INDEX_INVALID: 500,
     PUBLISHED_CONTENT_INVALID: 500
   }[error.code] || (String(error.code || '').endsWith('_INVALID') ? 400 : 500);
 }
 
-function createAdminRouter({ repoDir, draftStore, mediaStore, publishService, auth }) {
+function createAdminRouter({ repoDir, draftStore, mediaStore, publishService, deleteService, auth }) {
   const router = express.Router();
   const upload = multer({
     storage: multer.memoryStorage(),
@@ -147,6 +149,16 @@ function createAdminRouter({ repoDir, draftStore, mediaStore, publishService, au
 
   router.post('/posts/:id/publish', ...mutate, async (req, res, next) => {
     try { res.json(await publishService.publish(validateDraftId(req.params.id))); }
+    catch (error) { next(error); }
+  });
+
+  router.delete('/posts/drafts/:id', ...mutate, async (req, res, next) => {
+    try { res.json(await deleteService.deleteDraft(validateDraftId(req.params.id))); }
+    catch (error) { next(error); }
+  });
+
+  router.delete('/posts/published/:slug', ...mutate, async (req, res, next) => {
+    try { res.json(await deleteService.deletePublished(validateSlug(req.params.slug))); }
     catch (error) { next(error); }
   });
 

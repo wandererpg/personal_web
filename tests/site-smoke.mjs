@@ -102,6 +102,12 @@ test('pages include cross-page transition and music player hooks', async () => {
   }
 });
 
+test('homepage presents small moments from everyday life', async () => {
+  const html = await read('index.html');
+  assert.match(html, /记录生活的点点滴滴/);
+  assert.doesNotMatch(html, /项目、实验、笔记，以及那些还在路上的答案/);
+});
+
 test('music playlist assets exist and are wired into the player', async () => {
   const js = await read('script.js');
   for (const file of musicFiles) {
@@ -121,9 +127,11 @@ test('music player defaults to 夜の向日葵 without legacy labels', async () 
   const js = await read('script.js');
   assert.match(js, /defaultTrackIndex\s*=\s*2/);
   assert.match(js, /loadTrack\(defaultTrackIndex, true\)/);
-  assert.match(js, /自动播放被拦截/);
+  assert.match(js, /自动播放未授权/);
   assert.match(js, /autoplayBlocked/);
   assert.match(js, /handleAutoplayRecovery/);
+  assert.match(js, /AbortError/);
+  assert.match(js, /pointerdown/);
   assert.match(js, /document\.addEventListener\('click', handleAutoplayRecovery\)/);
   assert.match(js, /document\.addEventListener\('keydown', handleAutoplayRecovery\)/);
   assert.doesNotMatch(js, /ORBITAL AMBIENCE|本地音乐/);

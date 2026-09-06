@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, writeFile } from 'node:fs/promises';
+import { access, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import request from 'supertest';
 import { createAdminFixture, pngFixture } from './helpers/admin-fixture.mjs';
@@ -116,4 +116,46 @@ test('sync retry updates a pending draft after Git push succeeds', async () => {
   await agent.post('/api/admin/sync').set('x-csrf-token', csrfToken)
     .send({ draftId: created.body.post.id }).expect(200, { syncStatus: 'synced' });
   assert.deepEqual(fixture.gitCalls.at(-1), { retry: true });
+});
+
+test('admin can delete a draft and its private staged media', async () => {
+  const fixture = await createAdminFixture();
+  const { agent, csrfToken } = await fixture.login();
+  const created = await agent.post('/api/admin/posts').set('x-csrf-token', csrfToken)
+    .send({ module: 'projects' }).expect(201);
+  const upload = await agent.post(`/api/admin/posts/${created.body.post.id}/media`)
+    .set('x-csrf-token', csrfToken).field('alt', '草稿图').attach('image', pngFixture, 'image.png').expect(201);
+
+  await agent.delete(`/api/admin/posts/drafts/${created.body.post.id}`).expect(403, { error: 'CSRF_TOKEN_INVALID' });
+  await agent.delete(`/api/admin/posts/drafts/${created.body.post.id}`).set('x-csrf-token', csrfToken)
+    .expect(200, { deleted: true, type: 'draft', id: created.body.post.id });
+  await assert.rejects(() => fixture.draftStore.get(created.body.post.id), error => error.code === 'DRAFT_NOT_FOUND');
+  await assert.rejects(() => access(join(fixture.dataDir, 'media', created.body.post.id, upload.body.asset.name)));
+  const listed = await agent.get('/api/admin/posts').expect(200);
+  assert.equal(listed.body.posts.some(post => post.id === created.body.post.id), false);
+});
+
+test('admin can delete a published article through a Git-backed mutation', async () => {
+  const fixture = await createAdminFixture();
+  const { agent, csrfToken } = await fixture.login();
+  const created = await agent.post('/api/admin/posts').set('x-csrf-token', csrfToken)
+    .send({ module: 'projects' }).expect(201);
+  await agent.put(`/api/admin/posts/${created.body.post.id}`).set('x-csrf-token', csrfToken).send({
+    version: 1, title: '待删除文章', slug: 'to-delete', module: 'projects', excerpt: '摘要',
+    tags: [], cover: '', body: '# 正文'
+  }).expect(200);
+  await agent.post(`/api/admin/posts/${created.body.post.id}/publish`).set('x-csrf-token', csrfToken).expect(200);
+
+  await agent.delete('/api/admin/posts/published/to-delete').expect(403, { error: 'CSRF_TOKEN_INVALID' });
+  const deleted = await agent.delete('/api/admin/posts/published/to-delete').set('x-csrf-token', csrfToken)
+    .expect(200);
+  assert.deepEqual(
+    { deleted: deleted.body.deleted, type: deleted.body.type, slug: deleted.body.slug },
+    { deleted: true, type: 'published', slug: 'to-delete' }
+  );
+  assert.equal(deleted.body.syncStatus, 'synced');
+  const index = JSON.parse(await readFile(join(fixture.repoDir, 'posts', 'index.json'), 'utf8'));
+  assert.equal(index.some(post => post.slug === 'to-delete'), false);
+  await assert.rejects(() => access(join(fixture.repoDir, 'posts', 'to-delete.md')));
+  assert.equal(fixture.gitCalls.at(-1).message, 'blog: delete 待删除文章');
 });

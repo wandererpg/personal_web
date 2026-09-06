@@ -2113,7 +2113,7 @@ svg {
 .blog-row {
   position: relative;
   display: grid;
-  grid-template-columns: 154px minmax(0, 1fr) minmax(0, 1.9fr) 38px;
+  grid-template-columns: 154px minmax(0, 1.9fr) minmax(108px, 0.5fr) 38px;
   align-items: center;
   gap: 22px;
   min-height: 142px;
@@ -2162,11 +2162,13 @@ svg {
 }
 
 .blog-row__date {
+  justify-self: end;
   color: var(--muted);
   font-family: var(--mono);
   font-size: 10px;
   line-height: 1.7;
   text-transform: uppercase;
+  text-align: right;
 }
 
 .blog-row__date-value {
@@ -2176,6 +2178,14 @@ svg {
 .blog-row__category {
   color: var(--violet);
   letter-spacing: 0.07em;
+}
+
+.blog-card__date {
+  margin-left: auto;
+  color: var(--muted-strong);
+  font-family: var(--mono);
+  font-size: 9px;
+  white-space: nowrap;
 }
 
 .blog-row__content {
@@ -2872,6 +2882,12 @@ svg {
   .blog-row__media {
     width: 100%;
     aspect-ratio: 16 / 8;
+  }
+
+  .blog-row__date {
+    grid-column: 1 / -1;
+    justify-self: start;
+    text-align: left;
   }
 
   .blog-row__content > span:not(.tag-list) {

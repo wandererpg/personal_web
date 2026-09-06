@@ -1,5 +1,5 @@
 const { randomUUID } = require('node:crypto');
-const { mkdir, readFile, readdir, rename, writeFile } = require('node:fs/promises');
+const { mkdir, readFile, readdir, rename, rm, writeFile } = require('node:fs/promises');
 const path = require('node:path');
 const {
   contentError,
@@ -119,7 +119,11 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
     return drafts.sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
   }
 
-  return { create, get, list, update, updateSystem };
+  async function removeDraft(id) {
+    await rm(fileFor(id), { force: true });
+  }
+
+  return { create, get, list, remove: removeDraft, update, updateSystem };
 }
 
 module.exports = { atomicJson, createDraftStore };

@@ -9,6 +9,7 @@ const {
   findPost,
   findBlogModule,
   formatBlogDate,
+  formatBlogTimestamp,
   getAdjacentPosts,
   getBlogModule,
   getBlogSlug,
@@ -33,6 +34,16 @@ test('sortPosts returns a date-descending copy and latestPosts limits the result
   assert.deepEqual(sortPosts(posts).map((post) => post.slug), ['new', 'middle', 'old']);
   assert.deepEqual(latestPosts(posts, 2).map((post) => post.slug), ['new', 'middle']);
   assert.deepEqual(posts.map((post) => post.slug), ['old', 'new', 'middle']);
+});
+
+test('sortPosts uses the latest published update timestamp', () => {
+  const updated = {
+    ...posts[0],
+    slug: 'recently-updated',
+    createdAt: '2026-01-02T09:00:00+08:00',
+    updatedAt: '2026-04-01T09:00:00+08:00'
+  };
+  assert.equal(sortPosts([posts[1], updated])[0].slug, 'recently-updated');
 });
 
 test('latestPosts limits the home preview to the three newest posts', () => {
@@ -149,6 +160,8 @@ test('adjacent posts point older and newer navigation in archive order', () => {
 
 test('archive dates and article URLs are normalized for display and lookup', () => {
   assert.equal(formatBlogDate('2026-03-15T23:30:00+08:00'), '2026.03.15');
+  assert.equal(formatBlogTimestamp('2026-09-06T09:00:00Z', '2026-09-06T12:30:00Z'), '3h ago');
+  assert.equal(formatBlogTimestamp('2026-09-04T09:00:00Z', '2026-09-06T12:30:00Z'), '2026.09.04');
   assert.equal(getBlogSlug('?slug=small-projects'), 'small-projects');
   assert.equal(getBlogSlug('?mode=preview'), null);
 });

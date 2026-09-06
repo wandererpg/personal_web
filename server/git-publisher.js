@@ -2,7 +2,7 @@ const { spawn } = require('node:child_process');
 const path = require('node:path');
 const { contentError } = require('./content-model.js');
 
-const PUBLIC_GIT_PATH = /^(?:posts\/index\.json|posts\/[a-z0-9]+(?:-[a-z0-9]+)*\.md|assets\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*\/[0-9a-f-]+\.(?:png|jpg|webp))$/i;
+const PUBLIC_GIT_PATH = /^(?:posts\/index\.json|posts\/[a-z0-9]+(?:-[a-z0-9]+)*\.md|assets\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9][a-z0-9._-]{0,159}\.(?:png|jpg|webp|svg))$/i;
 
 function validateGitPaths(paths) {
   if (!Array.isArray(paths) || paths.length === 0 || paths.length > 64

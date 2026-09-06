@@ -1,5 +1,5 @@
 const { randomUUID } = require('node:crypto');
-const { copyFile, mkdir, readFile, realpath, rename, stat, writeFile } = require('node:fs/promises');
+const { copyFile, mkdir, readFile, realpath, rename, rm, stat, writeFile } = require('node:fs/promises');
 const path = require('node:path');
 const { contentError, validateDraftId, validateSlug } = require('./content-model.js');
 
@@ -119,7 +119,29 @@ function createMediaStore({ dataDir, repoDir }) {
     return { paths };
   }
 
-  return { publish, readPrivate, stage };
+  async function removeDraft(draftId) {
+    validateDraftId(draftId);
+    let mediaBase;
+    try {
+      mediaBase = await realpath(mediaRoot);
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw error;
+    }
+    const directory = path.join(mediaRoot, draftId);
+    let directoryReal;
+    try {
+      directoryReal = await realpath(directory);
+    } catch (error) {
+      if (error.code === 'ENOENT') return;
+      throw error;
+    }
+    if (!isWithin(mediaBase, directoryReal) || directoryReal === mediaBase
+        || !(await stat(directoryReal)).isDirectory()) throw contentError('MEDIA_PATH_INVALID');
+    await rm(directoryReal, { recursive: true, force: true });
+  }
+
+  return { publish, readPrivate, removeDraft, stage };
 }
 
 module.exports = {
