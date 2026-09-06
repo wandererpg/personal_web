@@ -504,9 +504,13 @@ test('home exposes the repository-driven blog preview', async () => {
   assert.match(html, /BLOG: IN TRANSMISSION/);
   assert.doesNotMatch(html, /值得留下的想法/);
 
-  assert.match(blog, /latestPosts\([^)]*,\s*3\)/);
-  assert.match(blog, /post\.html\?slug=/);
-  assert.match(blog, /const card = doc\.createElement\('a'\)/);
+  assert.match(blog, /BLOG_MODULES\.map/);
+  assert.match(blog, /latestPostForModule/);
+  assert.match(blog, /blog-card__surface/);
+  assert.match(blog, /blog-card__latest/);
+  assert.match(blog, /if \(!post\.cover\) return null;/);
+  assert.match(blog, /cover\.remove\(\)/);
+  assert.doesNotMatch(blog, /COVER \/ SIGNAL LOST|IMAGE \/ SIGNAL LOST/);
   assert.doesNotMatch(blog, /createTextElement\(doc, 'a', 'card-arrow'/);
 });
 
@@ -541,30 +545,27 @@ test('blog archive and article pages expose dynamic content hooks', async () => 
 test('styles provide cosmic blog archive surfaces and responsive states', async () => {
   const css = await read('styles.css');
 
-  assert.match(css, /\.blog-section\s+\.card-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,[^}]*grid-template-rows:\s*repeat\(2,/s);
-  assert.match(css, /\.blog-card--featured\s*\{[^}]*grid-column:\s*span\s+2;[^}]*grid-row:\s*1\s*\/\s*span\s+2;/s);
-  assert.match(css, /\.blog-card--compact\s*\{[^}]*height:\s*161px;/s);
-  assert.match(css, /\.blog-card--compact\s*\{[^}]*min-height:\s*161px;/s);
+  assert.match(css, /\.blog-section\s+\.card-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,/s);
+  assert.match(css, /\.blog-card\s*\{[\s\S]*?min-height:/);
+  assert.match(css, /\.blog-card__latest\s*\{[\s\S]*?border/);
+  assert.match(css, /\.blog-card__latest--empty\s*\{[^}]*pointer-events:\s*none;/);
+  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-section\s+\.card-grid[\s\S]*?grid-template-columns:\s*1fr;/);
   assert.match(css, /\.blog-card\s*\{[\s\S]*?position:\s*relative;[\s\S]*?overflow:\s*hidden;/);
-  assert.match(css, /\.blog-card--featured\s*\{[\s\S]*?min-height:/);
-  assert.match(css, /\.blog-card__cover\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?inset:\s*0;/);
-  assert.match(css, /\.blog-card__cover-image\s*\{[\s\S]*?object-fit:\s*cover;/);
-  assert.match(css, /\.blog-card__cover-fallback[\s\S]*?\{[\s\S]*?background:/);
+  assert.doesNotMatch(css, /blog-card__cover-fallback|blog-cover-fallback|blog-image-fallback/);
 
   assert.match(css, /\.blog-card:hover[\s\S]*?transform:\s*translateY\(-[23]px\)/);
-  assert.match(css, /\.blog-card:hover \.blog-card__cover-image[\s\S]*?transform:\s*scale\(1\.0[4-9]\)/);
-  assert.match(css, /\.blog-card:hover \.card-arrow[\s\S]*?transform:\s*rotate\(45deg\)/);
+  assert.match(css, /\.blog-card:hover \.blog-card__footer > :last-child[\s\S]*?transform:\s*rotate\(45deg\)/);
   assert.match(css, /\.blog-card\.is-glass-pressed[\s\S]*?transform:\s*translateY\(-[23]px\)/);
   assert.match(css, /\.liquid-glass__shine\s*\{[^}]*display:\s*none;/s);
   assert.doesNotMatch(css, /\.blog-card\s*\{[^}]*radial-gradient/);
 
   assert.match(css, /\.blog-list\s*\{[\s\S]*?display:\s*grid;[\s\S]*?gap:/);
   assert.match(css, /\.blog-row\s*\{[\s\S]*?display:\s*grid;[\s\S]*?grid-template-columns:/);
+  assert.match(css, /\.blog-row--no-cover\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.9fr\)/);
   assert.match(css, /\.blog-row__media\s*\{[\s\S]*?aspect-ratio:/);
   assert.match(css, /\.blog-row__date\s*\{[\s\S]*?font-family:\s*var\(--mono\)/);
   assert.match(css, /\.blog-row__arrow\s*\{[\s\S]*?border-radius:\s*50%/);
   assert.match(css, /\.blog-row:hover \.blog-row__arrow[\s\S]*?transform:\s*translate\(/);
-  assert.match(css, /\.blog-cover-fallback\s*\{[\s\S]*?background:/);
 
   assert.match(css, /\.blog-article\s*\{[\s\S]*?max-width:/);
   assert.match(css, /\.blog-article__hero\s*\{[\s\S]*?padding:/);
@@ -577,16 +578,13 @@ test('styles provide cosmic blog archive surfaces and responsive states', async 
   assert.match(css, /\.blog-empty,[\s\S]*?\.blog-error,[\s\S]*?\{[\s\S]*?border:/);
 
   assert.match(css, /@media\s*\(max-width:\s*920px\)[\s\S]*?\.blog-section\s+\.card-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,/);
-  assert.match(css, /@media\s*\(max-width:\s*920px\)[\s\S]*?\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*span\s+2;[\s\S]*?grid-row:\s*auto;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-section\s+\.card-grid\s*\{[\s\S]*?grid-template-columns:\s*1fr;[\s\S]*?grid-template-rows:\s*auto;/);
-  assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-card--featured\s*\{[\s\S]*?grid-column:\s*auto;[\s\S]*?grid-row:\s*auto;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-row\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-article__nav\s*\{[\s\S]*?grid-template-columns:\s*1fr;/);
   assert.match(css, /@media\s*\(max-width:\s*680px\)[\s\S]*?\.blog-article\s*\{[\s\S]*?padding-bottom:/);
   assert.match(css, /\.blog-article\s*\{[^}]*padding-bottom:/s);
 
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.blog-card:hover[\s\S]*?transform:\s*none\s*!important;/);
-  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.blog-card__cover-image[\s\S]*?filter:\s*none\s*!important;/);
 });
 
 test('README documents the repository-driven blog publishing workflow', async () => {

@@ -13,6 +13,7 @@ const {
   getAdjacentPosts,
   getBlogModule,
   getBlogSlug,
+  latestPostForModule,
   latestPosts,
   loadPostContent,
   loadPosts,
@@ -54,6 +55,17 @@ test('latestPosts limits the home preview to the three newest posts', () => {
 
   assert.deepEqual(latestPosts(archive, 3).map((post) => post.slug), ['newest', 'new', 'middle']);
   assert.equal(latestPosts(archive, 3).length, 3);
+});
+
+test('homepage selects only the latest published article for each module', () => {
+  const archive = [
+    { ...posts[0], slug: 'learning-old', module: 'learning', updatedAt: '2026-01-02T09:00:00+08:00' },
+    { ...posts[0], slug: 'learning-new', module: 'learning', updatedAt: '2026-04-02T09:00:00+08:00' },
+    { ...posts[1], slug: 'project-new', module: 'projects' },
+  ];
+  assert.equal(latestPostForModule(archive, 'learning').slug, 'learning-new');
+  assert.equal(latestPostForModule(archive, 'projects').slug, 'project-new');
+  assert.equal(latestPostForModule(archive, 'insights'), null);
 });
 
 test('findPost and getAdjacentPosts use the normalized archive order', () => {

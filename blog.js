@@ -60,6 +60,10 @@
 
   const latestPosts = (posts, limit = 3) => sortPosts(posts).slice(0, Math.max(0, limit));
 
+  const latestPostForModule = (posts, moduleId) => (
+    latestPosts(filterPostsByModule(posts, moduleId), 1)[0] || null
+  );
+
   const findPost = (posts, slug) => {
     if (typeof slug !== 'string' || !slugPattern.test(slug)) return null;
     return sortPosts(posts).find((post) => post.slug === slug) ?? null;
@@ -213,40 +217,22 @@
     next: doc?.querySelector('[data-blog-article-next]') ?? null,
   });
 
-  const createBlogImageFallback = (doc, label = 'IMAGE / SIGNAL LOST') => {
-    const fallback = createTextElement(doc, 'span', 'blog-image-fallback', label);
-    fallback.setAttribute('role', 'img');
-    fallback.setAttribute('aria-label', '图片暂时无法读取');
-    return fallback;
-  };
+  const createBlogCover = (doc, post, className = 'blog-row__media', onRemove) => {
+    if (!post.cover) return null;
 
-  const createBlogCover = (doc, post, className = 'blog-row__media') => {
     const cover = doc.createElement('span');
     cover.className = className;
     cover.dataset.blogCover = '';
 
-    const fallback = createTextElement(doc, 'span', 'blog-cover-fallback', 'COVER / SIGNAL LOST');
-    fallback.setAttribute('aria-hidden', 'true');
-    cover.append(fallback);
-
-    const showFallback = () => {
-      cover.classList.add('is-cover-fallback');
-      fallback.hidden = false;
-      cover.replaceChildren(fallback);
-    };
-
-    if (!post.cover) {
-      showFallback();
-      return cover;
-    }
-
-    fallback.hidden = true;
     const image = doc.createElement('img');
     image.src = post.cover;
     image.alt = `文章封面：${post.title}`;
     image.loading = 'lazy';
     image.decoding = 'async';
-    image.addEventListener('error', showFallback, { once: true });
+    image.addEventListener('error', () => {
+      cover.remove();
+      onRemove?.();
+    }, { once: true });
     cover.append(image);
     return cover;
   };
@@ -283,7 +269,11 @@
 
     const arrow = createTextElement(doc, 'span', 'blog-row__arrow', '↗');
     arrow.setAttribute('aria-hidden', 'true');
-    row.append(createBlogCover(doc, post), content, date, arrow);
+    const cover = createBlogCover(doc, post, 'blog-row__media', () => {
+      row.classList.add('blog-row--no-cover');
+    });
+    if (!cover) row.classList.add('blog-row--no-cover');
+    row.append(...(cover ? [cover] : []), content, date, arrow);
     return row;
   };
 
@@ -378,35 +368,30 @@
   const renderBlogCover = (doc, cover, post) => {
     if (!cover) return;
     cover.replaceChildren();
-    cover.classList.remove('is-cover-fallback');
-    const fallback = createTextElement(doc, 'span', 'blog-cover-fallback', 'COVER / SIGNAL LOST');
-    fallback.setAttribute('aria-hidden', 'true');
-
-    const showFallback = () => {
-      cover.classList.add('is-cover-fallback');
-      cover.replaceChildren(fallback);
-    };
-
     if (!post.cover) {
-      showFallback();
+      cover.hidden = true;
       return;
     }
 
+    cover.hidden = false;
     const image = doc.createElement('img');
     image.src = post.cover;
     image.alt = `文章封面：${post.title}`;
     image.loading = 'eager';
     image.decoding = 'async';
-    image.addEventListener('error', showFallback, { once: true });
+    image.addEventListener('error', () => {
+      cover.replaceChildren();
+      cover.hidden = true;
+    }, { once: true });
     cover.append(image);
   };
 
-  const bindBlogContentImages = (doc, content) => {
+  const bindBlogContentImages = (_doc, content) => {
     content?.querySelectorAll?.('[data-blog-content-image]').forEach((image) => {
       if (image.dataset.blogImageReady === 'true') return;
       image.dataset.blogImageReady = 'true';
       image.addEventListener('error', () => {
-        image.replaceWith(createBlogImageFallback(doc));
+        (image.closest('figure') || image).remove();
       }, { once: true });
     });
   };
@@ -510,72 +495,61 @@
     return element;
   };
 
-  const createBlogCard = (doc, post, index) => {
-    const featured = index === 0;
-    const card = doc.createElement('a');
-    card.className = `${featured ? 'project-card project-card--wide' : 'note-card'} blog-card blog-card--${featured ? 'featured' : 'compact'} liquid-glass reveal delay-${index + 1}`;
-    card.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
-    card.setAttribute('aria-label', `阅读文章：${post.title}`);
+  const createBlogModulePreviewCard = (doc, module, post, index) => {
+    const card = doc.createElement('article');
+    card.className = `blog-card blog-module-preview-card liquid-glass reveal delay-${index + 1}`;
     card.dataset.liquidGlass = '';
-    card.dataset.blogSlug = post.slug;
+    card.dataset.blogPreviewCard = module.id;
+
+    const surface = doc.createElement('a');
+    surface.className = 'blog-card__surface';
+    surface.href = moduleHref(module.id);
+    surface.setAttribute('aria-label', `查看${module.label}`);
+
+    const content = doc.createElement('div');
+    content.className = 'blog-card__content';
 
     const topLine = doc.createElement('div');
     topLine.className = 'card-topline';
     topLine.append(
-      createTextElement(doc, 'span', 'card-index', `BLOG / ${String(index + 1).padStart(2, '0')}`),
-      createTextElement(doc, 'span', 'status', moduleLabel(post)),
+      createTextElement(doc, 'span', 'card-index', `MODULE / ${String(index + 1).padStart(2, '0')}`),
+      createTextElement(doc, 'span', 'status', module.signal),
     );
-    card.append(topLine);
+    content.append(topLine);
+    content.append(
+      createTextElement(doc, 'h3', '', module.label),
+      createTextElement(doc, 'p', '', module.description),
+    );
 
-    const cover = doc.createElement('div');
-    cover.className = 'blog-card__cover';
-    cover.setAttribute('aria-hidden', 'true');
-    cover.style.cssText = 'position:absolute;inset:0 0 auto;height:132px;overflow:hidden;opacity:.42;pointer-events:none;';
-
-    const fallback = createTextElement(doc, 'span', 'blog-card__cover-fallback', 'COVER / SIGNAL LOST');
-    fallback.style.cssText = 'display:grid;height:100%;place-items:center;color:rgba(183,244,255,.72);font:10px/1 var(--mono);letter-spacing:.16em;';
-    fallback.hidden = Boolean(post.cover);
-    cover.append(fallback);
-
-    if (post.cover) {
-      const image = doc.createElement('img');
-      image.className = 'blog-card__cover-image';
-      image.src = post.cover;
-      image.alt = `文章封面：${post.title}`;
-      image.loading = 'lazy';
-      image.decoding = 'async';
-      image.style.cssText = 'display:block;width:100%;height:100%;object-fit:cover;';
-      image.addEventListener('error', () => {
-        card.classList.add('is-cover-fallback');
-        image.hidden = true;
-        fallback.hidden = false;
-      });
-      cover.append(image);
+    const latest = doc.createElement(post ? 'a' : 'div');
+    latest.className = `blog-card__latest${post ? '' : ' blog-card__latest--empty'}`;
+    if (post) {
+      const timestamp = post.updatedAt || post.createdAt;
+      latest.href = `post.html?slug=${encodeURIComponent(post.slug)}`;
+      latest.setAttribute('aria-label', `阅读文章：${post.title}`);
+      latest.append(
+        createTextElement(doc, 'small', '', `LATEST ARTICLE · ${formatBlogTimestamp(timestamp)}`),
+        createTextElement(doc, 'strong', '', post.title),
+        createTextElement(doc, 'span', '', `${post.excerpt} · ${post.readingTime}`),
+      );
     } else {
-      card.classList.add('is-cover-fallback');
+      latest.append(
+        createTextElement(doc, 'small', '', 'LATEST ARTICLE'),
+        createTextElement(doc, 'span', '', '暂无公开文章'),
+      );
     }
-    card.append(cover);
+    content.append(latest);
 
-    card.append(
-      createTextElement(doc, 'h3', '', post.title),
-      createTextElement(doc, 'p', '', post.excerpt),
+    const footer = doc.createElement('div');
+    footer.className = 'blog-card__footer';
+    footer.setAttribute('aria-hidden', 'true');
+    footer.append(
+      createTextElement(doc, 'span', '', 'VIEW MODULE'),
+      createTextElement(doc, 'span', '', '↗'),
     );
+    content.append(footer);
 
-    const bottom = doc.createElement('div');
-    bottom.className = 'card-bottom';
-    const tags = doc.createElement('div');
-    tags.className = 'tag-list';
-    for (const tag of post.tags) tags.append(createTextElement(doc, 'span', 'tag', tag));
-    tags.append(createTextElement(doc, 'span', 'tag', post.readingTime));
-
-    const arrow = createTextElement(doc, 'span', 'card-arrow', '↗');
-    arrow.setAttribute('aria-hidden', 'true');
-    const timestamp = post.updatedAt || post.createdAt;
-    const date = createTextElement(doc, 'time', 'blog-card__date', formatBlogTimestamp(timestamp));
-    date.dateTime = timestamp;
-    bottom.append(tags, date, arrow);
-    card.append(bottom);
-
+    card.append(surface, content);
     return card;
   };
 
@@ -587,12 +561,9 @@
     setVisibility(empty, false);
     setVisibility(error, false);
 
-    const cards = latestPosts(posts, 3).map((post, index) => createBlogCard(doc, post, index));
-    if (!cards.length) {
-      setVisibility(empty, true);
-      return cards;
-    }
-
+    const cards = BLOG_MODULES.map((module, index) => (
+      createBlogModulePreviewCard(doc, module, latestPostForModule(posts, module.id), index)
+    ));
     preview.append(...cards);
     liquidGlass?.initLiquidGlass?.(doc, typeof globalThis !== 'undefined' ? globalThis : undefined);
     return cards;
@@ -737,6 +708,7 @@
     normalizePosts,
     sortPosts,
     latestPosts,
+    latestPostForModule,
     findPost,
     getAdjacentPosts,
     loadPosts,
@@ -757,7 +729,7 @@
     createBlogArticleController,
     initBlogArticle,
     getBlogPreviewElements,
-    createBlogCard,
+    createBlogModulePreviewCard,
     renderBlogPreview,
     createBlogPreviewController,
     initBlogPreview,
