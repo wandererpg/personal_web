@@ -155,44 +155,65 @@
     if (next) next.disabled = state.viewWeek >= maximum;
   };
 
-  const renderSummary = () => {
-    if (!summary) return;
-    const list = summary.querySelector('[data-schedule-summary-list]');
-    const empty = summary.querySelector('[data-schedule-summary-empty]');
-    if (!list) return;
-    const info = currentInfo();
-    const dates = getDatesForWeek(info.week);
-    const range = summary.querySelector('[data-schedule-summary-range]');
-    const currentDay = model.currentWeekday(beijingDateKey());
-    if (range) range.textContent = displayRange(dates);
-    const weekCourses = model.coursesForWeek(state.schedule?.courses || [], info.week);
-    const items = weekCourses
-      .sort((left, right) => (left.weekday === currentDay ? -1 : 0) - (right.weekday === currentDay ? -1 : 0)
-        || left.weekday - right.weekday || left.startPeriod - right.startPeriod)
-      .slice(0, 5);
-    list.replaceChildren(...items.map(course => {
-      const item = createElement('li', `home-schedule__item home-schedule__item--${course.color}`);
-      const copy = createElement('div', 'home-schedule__item-copy');
-      copy.append(
-        createElement('strong', '', course.name),
-        createElement('span', '', [
-          `周${dayNames[course.weekday - 1]}`,
-          `${course.startPeriod}–${course.endPeriod} 节`,
-          course.teacher,
-          course.room,
-        ].filter(Boolean).join(' · ')),
-      );
-      item.append(createElement('span', 'home-schedule__item-marker'), copy);
-      return item;
-    }));
+  const renderSummaryCourse = course => {
+    const item = createElement('li', `home-schedule__item home-schedule__item--${course.color}`);
+    const copy = createElement('div', 'home-schedule__item-copy');
+    copy.append(
+      createElement('strong', '', course.name),
+      createElement('span', '', [
+        `第 ${course.startPeriod}–${course.endPeriod} 节`,
+        model.periodRange(course),
+        course.teacher,
+        course.room,
+      ].filter(Boolean).join(' · ')),
+    );
+    item.append(createElement('span', 'home-schedule__item-marker'), copy);
+    return item;
+  };
+
+  const renderSummaryDay = ({ key, label, dateKey, week }) => {
+    const day = summary.querySelector(`[data-schedule-summary-day="${key}"]`);
+    if (!day) return;
+    const list = day.querySelector('[data-schedule-summary-day-list]');
+    const empty = day.querySelector('[data-schedule-summary-day-empty]');
+    const weekday = model.currentWeekday(dateKey);
+    const courses = state.schedule?.termStart && !state.loading && !state.error
+      ? model.coursesForDate(state.schedule.courses, dateKey, week)
+      : [];
+    const dayLabel = day.querySelector('[data-schedule-summary-day-label]');
+    const date = day.querySelector('[data-schedule-summary-day-date]');
+    if (dayLabel) dayLabel.textContent = `${label} · 周${dayNames[weekday - 1]}`;
+    if (date) date.textContent = displayDate(dateKey);
+    if (list) list.replaceChildren(...courses.map(renderSummaryCourse));
     if (empty) {
       empty.textContent = state.error
         ? '课表暂时无法加载'
-        : state.schedule?.termStart ? '本周暂无课程' : '尚未设置学期';
-      empty.hidden = state.loading || items.length > 0;
+        : state.schedule?.termStart ? `${label}暂无课程` : '尚未设置学期';
+      empty.hidden = state.loading || courses.length > 0;
     }
+  };
+
+  const renderSummary = () => {
+    if (!summary) return;
+    const info = currentInfo();
+    const today = beijingDateKey();
+    const tomorrow = addDays(today, 1);
+    const range = summary.querySelector('[data-schedule-summary-range]');
     const week = summary.querySelector('[data-schedule-summary-week]');
+    if (range) range.textContent = displayRange(getDatesForWeek(info.week));
     if (week) week.textContent = weekLabel(info.week, info);
+    renderSummaryDay({
+      key: 'today',
+      label: '今天',
+      dateKey: today,
+      week: model.calculateWeek(today, state.schedule || {}).week,
+    });
+    renderSummaryDay({
+      key: 'tomorrow',
+      label: '明天',
+      dateKey: tomorrow,
+      week: model.calculateWeek(tomorrow, state.schedule || {}).week,
+    });
   };
 
   const render = () => {

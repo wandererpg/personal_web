@@ -175,8 +175,30 @@
                   <a class="text-link" data-schedule-summary-link="schedule.html" href="schedule.html">完整课表 ↗</a>
                 </header>
                 <p class="home-schedule__range" data-schedule-summary-range>日期待设置</p>
-                <ol class="home-schedule__list" data-schedule-summary-list></ol>
-                <p class="home-schedule__empty" data-schedule-summary-empty hidden>本周暂无课程</p>
+                <div class="home-schedule__days" data-schedule-summary-list>
+                  <section class="home-schedule__day home-schedule__day--today" data-schedule-summary-day="today" aria-labelledby="home-schedule-today-title">
+                    <header class="home-schedule__day-header">
+                      <div>
+                        <span class="home-schedule__day-kicker">TODAY</span>
+                        <h3 id="home-schedule-today-title" data-schedule-summary-day-label>今天 · 周一</h3>
+                      </div>
+                      <time data-schedule-summary-day-date>日期待设置</time>
+                    </header>
+                    <ol class="home-schedule__day-list" data-schedule-summary-day-list></ol>
+                    <p class="home-schedule__day-empty" data-schedule-summary-day-empty hidden>今天暂无课程</p>
+                  </section>
+                  <section class="home-schedule__day home-schedule__day--tomorrow" data-schedule-summary-day="tomorrow" aria-labelledby="home-schedule-tomorrow-title">
+                    <header class="home-schedule__day-header">
+                      <div>
+                        <span class="home-schedule__day-kicker">TOMORROW</span>
+                        <h3 id="home-schedule-tomorrow-title" data-schedule-summary-day-label>明天 · 周二</h3>
+                      </div>
+                      <time data-schedule-summary-day-date>日期待设置</time>
+                    </header>
+                    <ol class="home-schedule__day-list" data-schedule-summary-day-list></ol>
+                    <p class="home-schedule__day-empty" data-schedule-summary-day-empty hidden>明天暂无课程</p>
+                  </section>
+                </div>
               </section>
             </div>
           </div>

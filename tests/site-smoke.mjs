@@ -63,10 +63,18 @@ test('homepage exposes the compact schedule summary below the station card', asy
   assert.match(html, /data-schedule-summary-week/);
   assert.match(html, /data-schedule-summary-range/);
   assert.match(html, /data-schedule-summary-list/);
-  assert.match(html, /data-schedule-summary-empty/);
-  assert.match(controller, /data-schedule-summary-list/);
+  assert.match(html, /data-schedule-summary-day="today"/);
+  assert.match(html, /data-schedule-summary-day="tomorrow"/);
+  assert.equal((html.match(/data-schedule-summary-day-list/g) || []).length, 2);
+  assert.match(html, /data-schedule-summary-day-label/);
+  assert.match(html, /data-schedule-summary-day-date/);
+  assert.match(controller, /data-schedule-summary-day/);
+  assert.match(controller, /coursesForDate/);
+  assert.match(controller, /addDays\(today, 1\)/);
   assert.match(css, /\.hero-visual__stack\s*\{/);
   assert.match(css, /\.home-schedule\s*\{/);
+  assert.match(css, /\.home-schedule__days\s*\{/);
+  assert.match(css, /\.home-schedule__day\s*\{/);
   assert.match(css, /align-self:\s*start/);
 });
 
