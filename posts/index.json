@@ -1,5 +1,20 @@
 [
   {
+    "slug": "wanderer",
+    "title": "111",
+    "module": "insights",
+    "createdAt": "2026-09-06T06:59:23.188Z",
+    "updatedAt": "2026-09-06T06:59:50.779Z",
+    "publishedAt": "2026-09-06T06:59:50.779Z",
+    "excerpt": "111",
+    "cover": "",
+    "tags": [
+      "111"
+    ],
+    "readingTime": "1 min",
+    "content": "posts/wanderer.md"
+  },
+  {
     "slug": "small-projects",
     "title": "为什么我喜欢把想法做成小项目？",
     "module": "projects",
