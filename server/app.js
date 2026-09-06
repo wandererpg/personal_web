@@ -1,7 +1,10 @@
 const express = require('express');
 const helmet = require('helmet');
+const session = require('express-session');
+const createFileStore = require('session-file-store');
 const path = require('node:path');
 const { realpath, stat } = require('node:fs/promises');
+const { createAuth } = require('./auth.js');
 
 const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
@@ -76,14 +79,60 @@ function installPublicFiles(app, repoDir) {
   });
 }
 
+function installAdmin(app, config, options) {
+  const FileStore = createFileStore(session);
+  const store = options.sessionStore || new FileStore({
+    path: path.join(config.dataDir, 'sessions'),
+    retries: 1,
+    logFn() {}
+  });
+  app.use(session({
+    name: 'wanderer.admin',
+    secret: config.sessionSecret,
+    store,
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: config.env === 'production',
+      maxAge: 8 * 60 * 60_000
+    }
+  }));
+
+  const auth = createAuth(config, options);
+  app.get('/api/admin/session', auth.ensureCsrf, (req, res) => res.json({
+    authenticated: req.session.authenticated === true,
+    csrfToken: req.session.csrfToken
+  }));
+  app.post('/api/admin/login', auth.loginLimiter, auth.ensureCsrf, auth.requireCsrf, auth.login);
+  app.post('/api/admin/logout', auth.requireAuth, auth.requireCsrf, (req, res, next) => {
+    req.session.destroy(error => error ? next(error) : res.sendStatus(204));
+  });
+  app.get('/api/admin/posts', auth.requireAuth, (_req, res) => res.json({ posts: [] }));
+
+  const adminFile = name => path.join(config.repoDir, 'admin', name);
+  app.get('/admin/login', (_req, res) => res.sendFile(adminFile('login.html')));
+  app.get('/admin/login.js', (_req, res) => res.sendFile(adminFile('login.js')));
+  app.get('/admin/admin-api.js', (_req, res) => res.sendFile(adminFile('admin-api.js')));
+  app.get(['/admin', '/admin/editor'], auth.requireAuth, (_req, res) => res.sendStatus(501));
+
+  if (typeof options.installAdmin === 'function') options.installAdmin(app, { auth, store });
+}
+
 function createApp(config, options = {}) {
   const app = express();
   app.disable('x-powered-by');
   if (config.env === 'production') app.set('trust proxy', 1);
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(express.json({ limit: '256kb' }));
-  if (options.installAdmin !== false && options.installAdmin) options.installAdmin(app);
+  if (options.installAdmin !== false) installAdmin(app, config, options);
   installPublicFiles(app, config.repoDir);
+  app.use((error, _req, res, _next) => {
+    console.error(error);
+    res.status(500).json({ error: 'INTERNAL_ERROR' });
+  });
   app.use((req, res) => res.sendStatus(404));
   return app;
 }

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#050816">
+    <title>Content Station · Wanderer.OS</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <style>
+      :root { color-scheme: dark; font-family: "Microsoft YaHei UI", sans-serif; background:#040714; color:#edf6ff; }
+      * { box-sizing:border-box; }
+      body { min-height:100vh; margin:0; display:grid; place-items:center; overflow:hidden; background:radial-gradient(circle at 22% 18%,rgba(41,120,183,.22),transparent 32%),radial-gradient(circle at 78% 74%,rgba(25,72,153,.18),transparent 28%),#040714; }
+      body::before { content:""; position:fixed; inset:0; opacity:.32; background-image:radial-gradient(circle,#8ceaff 0 1px,transparent 1.5px); background-size:91px 91px; transform:rotate(-8deg) scale(1.2); }
+      main { position:relative; width:min(430px,calc(100vw - 34px)); padding:34px; border:1px solid rgba(113,205,244,.25); border-radius:24px; background:linear-gradient(145deg,rgba(17,34,66,.74),rgba(6,12,28,.88)); box-shadow:0 32px 90px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08); backdrop-filter:blur(24px); }
+      .signal { margin:0 0 26px; color:#69def7; font:700 11px/1.4 ui-monospace,monospace; letter-spacing:.16em; }
+      h1 { margin:0; font:700 clamp(30px,8vw,44px)/1.05 Georgia,serif; }
+      .intro { margin:12px 0 30px; color:#8fa2bd; line-height:1.65; }
+      label { display:grid; gap:8px; margin-top:16px; color:#758aa9; font:700 10px ui-monospace,monospace; letter-spacing:.13em; }
+      input { width:100%; padding:13px 14px; border:1px solid #293c5e; border-radius:10px; outline:none; color:#eff8ff; background:#081226; font:inherit; }
+      input:focus { border-color:#68dff7; box-shadow:0 0 0 3px rgba(104,223,247,.12); }
+      button { width:100%; margin-top:24px; padding:13px; border:0; border-radius:999px; color:#03131e; background:#70e5fc; font-weight:800; cursor:pointer; box-shadow:0 10px 32px rgba(55,208,240,.2); }
+      button:disabled { cursor:wait; opacity:.6; }
+      [role="status"] { min-height:22px; margin:14px 0 0; color:#a7b7cd; font-size:13px; text-align:center; }
+      .back { display:block; margin-top:20px; color:#77dff3; font-size:12px; text-align:center; text-decoration:none; }
+      @media (prefers-reduced-motion:no-preference) { main { animation:arrive .55s ease-out both; } @keyframes arrive { from { opacity:0; transform:translateY(12px); } } }
+    </style>
+    <script src="/admin/admin-api.js" defer></script>
+    <script src="/admin/login.js" defer></script>
+  </head>
+  <body>
+    <main aria-labelledby="login-title">
+      <p class="signal">PRIVATE CHANNEL / AUTH REQUIRED</p>
+      <h1 id="login-title">Content<br>Station.</h1>
+      <p class="intro">登录后管理草稿、图片与发布任务。访客无法访问这里的内容。</p>
+      <form data-admin-login>
+        <label>ADMIN ID<input name="username" autocomplete="username" required></label>
+        <label>ACCESS KEY<input name="password" type="password" autocomplete="current-password" required></label>
+        <button type="submit">建立安全连接</button>
+        <p role="status" aria-live="polite" data-admin-login-status></p>
+      </form>
+      <a class="back" href="/">← 返回 Wanderer.OS</a>
+    </main>
+  </body>
+</html>
