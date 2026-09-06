@@ -14,6 +14,9 @@ async function makeApp(overrides = {}) {
   const repoDir = await mkdtemp(join(tmpdir(), 'wanderer-auth-site-'));
   const dataDir = await mkdtemp(join(tmpdir(), 'wanderer-auth-data-'));
   await writeFile(join(repoDir, 'index.html'), '<h1>home</h1>');
+  await mkdir(join(repoDir, 'posts'));
+  await mkdir(join(repoDir, 'assets', 'blog'), { recursive: true });
+  await writeFile(join(repoDir, 'posts', 'index.json'), '[]\n');
   await mkdir(join(repoDir, 'admin'));
   for (const name of ['login.html', 'login.js', 'admin-api.js']) {
     await copyFile(new URL(`../admin/${name}`, import.meta.url), join(repoDir, 'admin', name));

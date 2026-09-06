@@ -5,6 +5,11 @@ const createFileStore = require('session-file-store');
 const path = require('node:path');
 const { realpath, stat } = require('node:fs/promises');
 const { createAuth } = require('./auth.js');
+const { createAdminRouter } = require('./admin-api.js');
+const { createDraftStore } = require('./draft-store.js');
+const { createMediaStore } = require('./media-store.js');
+const { createGitPublisher } = require('./git-publisher.js');
+const { createPublishService } = require('./publish-service.js');
 
 const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
@@ -102,6 +107,18 @@ function installAdmin(app, config, options) {
   }));
 
   const auth = createAuth(config, options);
+  const draftStore = options.draftStore || createDraftStore({ dataDir: config.dataDir });
+  const mediaStore = options.mediaStore || createMediaStore({ dataDir: config.dataDir, repoDir: config.repoDir });
+  const gitPublisher = options.gitPublisher || createGitPublisher({
+    repoDir: config.repoDir,
+    branch: config.gitBranch
+  });
+  const publishService = options.publishService || createPublishService({
+    repoDir: config.repoDir,
+    draftStore,
+    mediaStore,
+    gitPublisher
+  });
   app.get('/api/admin/session', auth.ensureCsrf, (req, res) => res.json({
     authenticated: req.session.authenticated === true,
     csrfToken: req.session.csrfToken
@@ -110,7 +127,13 @@ function installAdmin(app, config, options) {
   app.post('/api/admin/logout', auth.requireAuth, auth.requireCsrf, (req, res, next) => {
     req.session.destroy(error => error ? next(error) : res.sendStatus(204));
   });
-  app.get('/api/admin/posts', auth.requireAuth, (_req, res) => res.json({ posts: [] }));
+  app.use('/api/admin', auth.requireAuth, createAdminRouter({
+    repoDir: config.repoDir,
+    draftStore,
+    mediaStore,
+    publishService,
+    auth
+  }));
 
   const adminFile = name => path.join(config.repoDir, 'admin', name);
   app.get('/admin/login', (_req, res) => res.sendFile(adminFile('login.html')));
@@ -118,7 +141,9 @@ function installAdmin(app, config, options) {
   app.get('/admin/admin-api.js', (_req, res) => res.sendFile(adminFile('admin-api.js')));
   app.get(['/admin', '/admin/editor'], auth.requireAuth, (_req, res) => res.sendStatus(501));
 
-  if (typeof options.installAdmin === 'function') options.installAdmin(app, { auth, store });
+  if (typeof options.installAdmin === 'function') {
+    options.installAdmin(app, { auth, store, draftStore, mediaStore, gitPublisher, publishService });
+  }
 }
 
 function createApp(config, options = {}) {
