@@ -27,5 +27,48 @@
     }, { all: 0, drafts: 0, published: 0, pending: 0 });
   }
 
-  return { MODULES, filterPosts, summarizePosts };
+  function insertMarkdown(value, start, end, markdown) {
+    const source = String(value || '');
+    const from = Math.max(0, Math.min(source.length, Number(start) || 0));
+    const to = Math.max(from, Math.min(source.length, Number(end) || from));
+    const insertion = String(markdown || '');
+    return {
+      value: `${source.slice(0, from)}${insertion}${source.slice(to)}`,
+      cursor: from + insertion.length
+    };
+  }
+
+  function normalizeEditorPayload(fields) {
+    const tags = [...new Set(String(fields.tags || '').split(',')
+      .map(tag => tag.trim()).filter(Boolean))].slice(0, 10);
+    return {
+      title: String(fields.title || '').trim(),
+      slug: String(fields.slug || '').trim(),
+      module: fields.module,
+      excerpt: String(fields.excerpt || '').trim(),
+      tags,
+      cover: String(fields.cover || '').trim(),
+      body: String(fields.body || '')
+    };
+  }
+
+  function validateForPublish(post) {
+    const required = [['title', post.title], ['slug', post.slug], ['module', post.module],
+      ['excerpt', post.excerpt], ['body', String(post.body || '').trim()]];
+    const errors = required.filter(([, value]) => !value).map(([field]) => field);
+    if (post.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug)) errors.push('slug');
+    return [...new Set(errors)];
+  }
+
+  function getOpenAction(post) {
+    if (post.status === 'draft' || (post.syncStatus === 'pending' && post.id)) {
+      return { type: 'draft', id: post.id };
+    }
+    return { type: 'revise', slug: post.slug };
+  }
+
+  return {
+    MODULES, filterPosts, getOpenAction, insertMarkdown, normalizeEditorPayload,
+    summarizePosts, validateForPublish
+  };
 }));

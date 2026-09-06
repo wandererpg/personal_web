@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#050816">
+    <title>编辑文章 · Wanderer.OS</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/admin/admin.css">
+    <script src="/blog.js" defer></script>
+    <script src="/admin/admin-api.js" defer></script>
+    <script src="/admin/admin-model.js" defer></script>
+    <script src="/admin/editor.js" defer></script>
+  </head>
+  <body class="editor-page">
+    <header class="editor-topbar">
+      <a class="editor-back" href="/admin">← <span>返回档案库</span></a>
+      <div class="editor-document-state">
+        <span class="editor-private-dot"></span>
+        <div><strong data-editor-document-title>未命名文章</strong><small>PRIVATE DRAFT · 仅自己可见</small></div>
+      </div>
+      <div class="editor-actions">
+        <span class="editor-save-state" data-editor-status role="status" aria-live="polite">正在载入…</span>
+        <button class="editor-button" type="button" data-editor-save>保存草稿</button>
+        <button class="editor-button editor-button--publish" type="button" data-editor-publish>发布文章 ↗</button>
+      </div>
+    </header>
+
+    <main class="editor-shell" data-editor-shell aria-busy="true">
+      <aside class="editor-meta" aria-label="文章信息">
+        <div class="editor-meta__heading">
+          <p class="admin-eyebrow">DOCUMENT SIGNAL</p>
+          <h1>文章信息</h1>
+        </div>
+        <label class="editor-field">
+          <span>标题 <b>必填</b></span>
+          <input maxlength="160" placeholder="给这篇文章一个名字" data-editor-title>
+          <small data-error-for="title"></small>
+        </label>
+        <label class="editor-field">
+          <span>链接标识 <b>必填</b></span>
+          <input maxlength="96" placeholder="my-project-log" spellcheck="false" data-editor-slug>
+          <em>仅使用小写字母、数字和连字符</em>
+          <small data-error-for="slug"></small>
+        </label>
+        <label class="editor-field">
+          <span>内容模块 <b>必填</b></span>
+          <select data-editor-module>
+            <option value="projects">我的项目</option>
+            <option value="insights">心得分享</option>
+            <option value="learning">日常学习</option>
+          </select>
+          <small data-error-for="module"></small>
+        </label>
+        <label class="editor-field">
+          <span>预览摘要 <b>必填</b></span>
+          <textarea rows="4" maxlength="500" placeholder="在文章列表中展示的一小段介绍" data-editor-excerpt></textarea>
+          <small data-error-for="excerpt"></small>
+        </label>
+        <label class="editor-field">
+          <span>标签</span>
+          <input placeholder="Web, Design, Node" data-editor-tags>
+          <em>使用英文逗号分隔，最多 10 个</em>
+        </label>
+        <div class="editor-field">
+          <span>封面图片</span>
+          <input type="hidden" data-editor-cover>
+          <button class="editor-upload-card" type="button" data-editor-cover-upload>
+            <span>＋</span><strong>上传封面</strong><small data-editor-cover-name>PNG / JPG / WebP，最大 8 MB</small>
+          </button>
+          <input class="sr-only" type="file" accept="image/png,image/jpeg,image/webp" data-editor-cover-file>
+        </div>
+      </aside>
+
+      <section class="editor-workspace">
+        <div class="editor-tabs" role="tablist" aria-label="编辑视图">
+          <button class="is-active" type="button" role="tab" data-editor-tab="write">Markdown</button>
+          <button type="button" role="tab" data-editor-tab="preview">预览</button>
+        </div>
+        <div class="editor-toolbar" aria-label="Markdown 工具">
+          <button type="button" data-editor-format="## ">H2</button>
+          <button type="button" data-editor-wrap="**">B</button>
+          <button type="button" data-editor-wrap="_">I</button>
+          <button type="button" data-editor-format="- ">列表</button>
+          <button type="button" data-editor-format="> ">引用</button>
+          <button type="button" data-editor-wrap="`">代码</button>
+          <span></span>
+          <button type="button" data-editor-upload>图片 ＋</button>
+          <input class="sr-only" type="file" accept="image/png,image/jpeg,image/webp" data-editor-file>
+        </div>
+        <div class="editor-panes">
+          <label class="editor-write-pane" data-editor-write-pane>
+            <span class="sr-only">Markdown 正文</span>
+            <textarea spellcheck="true" placeholder="# 从这里开始写作…" data-editor-body></textarea>
+            <small data-error-for="body"></small>
+          </label>
+          <article class="editor-preview prose" data-editor-preview aria-label="文章预览"></article>
+        </div>
+        <footer class="editor-footer">
+          <span>支持拖放或粘贴图片 · Markdown 自动预览</span>
+          <button type="button" data-editor-sync hidden>重试 Git 同步</button>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>

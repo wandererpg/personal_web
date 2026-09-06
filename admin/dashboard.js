@@ -84,14 +84,15 @@
   async function openPost(post, button) {
     button.disabled = true;
     try {
-      let id = post.id;
-      if (post.status === 'published') {
+      const action = window.AdminModel.getOpenAction(post);
+      let targetId = action.id;
+      if (action.type === 'revise') {
         const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(post.slug)}/revise`, {
           method: 'POST'
         });
-        id = response.post.id;
+        targetId = response.post.id;
       }
-      window.location.assign(`/admin/editor?id=${encodeURIComponent(id)}`);
+      window.location.assign(`/admin/editor?id=${encodeURIComponent(targetId)}`);
     } catch (error) {
       button.disabled = false;
       state.error = true;

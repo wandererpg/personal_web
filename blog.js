@@ -44,10 +44,12 @@
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
-  const safeContentUrl = (value) => {
+  const safeContentUrl = (value, options = {}) => {
     const url = String(value ?? '').trim();
     if (/^https?:\/\//i.test(url) || /^mailto:/i.test(url)) return url;
     if (/^assets\/[a-zA-Z0-9._/-]+$/.test(url) && !url.includes('..')) return url;
+    if (options.allowPrivateMedia
+        && /^\/api\/admin\/media\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/[0-9a-f-]{36}\.(?:png|jpe?g|webp)$/i.test(url)) return url;
     return '';
   };
 
@@ -609,7 +611,7 @@
     return controller;
   };
 
-  const renderInline = (text) => {
+  const renderInline = (text, options = {}) => {
     const tokenPattern = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)|\[([^\]]+)\]\(([^)\s]+)\)/g;
     let html = '';
     let cursor = 0;
@@ -618,7 +620,7 @@
     while ((match = tokenPattern.exec(text))) {
       html += escapeHtml(text.slice(cursor, match.index));
       if (match[1] !== undefined) {
-        const src = safeContentUrl(match[2]);
+        const src = safeContentUrl(match[2], options);
         if (src) {
           html += `<figure><img src="${escapeHtml(src)}" alt="${escapeHtml(match[1])}" data-blog-content-image>`;
           if (match[3]) html += `<figcaption>${escapeHtml(match[3])}</figcaption>`;
@@ -627,7 +629,7 @@
           html += escapeHtml(match[0]);
         }
       } else {
-        const href = safeContentUrl(match[5]);
+        const href = safeContentUrl(match[5], options);
         html += href
           ? `<a href="${escapeHtml(href)}">${escapeHtml(match[4])}</a>`
           : escapeHtml(match[4]);
@@ -638,7 +640,7 @@
     return html + escapeHtml(text.slice(cursor));
   };
 
-  const renderMarkdown = (markdown) => {
+  const renderMarkdown = (markdown, options = {}) => {
     const lines = String(markdown ?? '').replace(/\r\n?/g, '\n').split('\n');
     const blocks = [];
     let index = 0;
@@ -668,7 +670,7 @@
       const heading = line.match(/^(#{1,2})\s+(.+)$/);
       if (heading) {
         const level = heading[1].length === 1 ? 2 : 3;
-        blocks.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+        blocks.push(`<h${level}>${renderInline(heading[2], options)}</h${level}>`);
         index += 1;
         continue;
       }
@@ -676,7 +678,7 @@
       if (/^-\s+/.test(line)) {
         const items = [];
         while (index < lines.length && /^-\s+/.test(lines[index])) {
-          items.push(`<li>${renderInline(lines[index].replace(/^-\s+/, ''))}</li>`);
+          items.push(`<li>${renderInline(lines[index].replace(/^-\s+/, ''), options)}</li>`);
           index += 1;
         }
         blocks.push(`<ul>${items.join('')}</ul>`);
@@ -685,7 +687,7 @@
 
       const image = line.match(/^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]*)")?\)$/);
       if (image) {
-        blocks.push(renderInline(line));
+        blocks.push(renderInline(line, options));
         index += 1;
         continue;
       }
@@ -702,7 +704,7 @@
         paragraph.push(lines[index]);
         index += 1;
       }
-      blocks.push(`<p>${renderInline(paragraph.join(' '))}</p>`);
+      blocks.push(`<p>${renderInline(paragraph.join(' '), options)}</p>`);
     }
 
     return blocks.join('');

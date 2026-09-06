@@ -59,6 +59,7 @@ function statusFor(error) {
     IMAGE_SIZE_INVALID: 413,
     GIT_PUSH_PENDING: 502,
     GIT_REMOTE_DIVERGED: 409,
+    SYNC_NOT_PENDING: 409,
     PUBLIC_INDEX_INVALID: 500,
     PUBLISHED_CONTENT_INVALID: 500
   }[error.code] || (String(error.code || '').endsWith('_INVALID') ? 400 : 500);

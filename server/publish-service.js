@@ -110,6 +110,8 @@ function createPublishService({ repoDir, draftStore, mediaStore, gitPublisher, n
   }
 
   async function retrySync(draftId) {
+    const draft = await draftStore.get(draftId);
+    if (draft.syncStatus !== 'pending' || !draft.lastCommit) throw contentError('SYNC_NOT_PENDING');
     await gitPublisher.retryPush();
     await draftStore.updateSystem(draftId, { syncStatus: 'synced' });
     return { syncStatus: 'synced' };

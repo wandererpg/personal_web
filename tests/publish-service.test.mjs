@@ -28,7 +28,11 @@ async function fixture(overrides = {}) {
     now: () => '2026-09-06T15:00:00+08:00',
     draftStore: {
       get: async () => draft,
-      updateSystem: async (_id, value) => { systemUpdates.push(value); return { ...draft, ...value }; }
+      updateSystem: async (_id, value) => {
+        systemUpdates.push(value);
+        Object.assign(draft, value);
+        return { ...draft };
+      }
     },
     mediaStore: {
       publish: async () => ({ paths: [`assets/blog/site-log/${IMAGE_NAME}`] })

@@ -19,7 +19,8 @@ async function makeApp(overrides = {}) {
   await writeFile(join(repoDir, 'posts', 'index.json'), '[]\n');
   await mkdir(join(repoDir, 'admin'));
   for (const name of [
-    'login.html', 'login.js', 'admin-api.js', 'index.html', 'dashboard.js', 'admin-model.js', 'admin.css'
+    'login.html', 'login.js', 'admin-api.js', 'index.html', 'dashboard.js', 'admin-model.js',
+    'admin.css', 'editor.html', 'editor.js'
   ]) {
     await copyFile(new URL(`../admin/${name}`, import.meta.url), join(repoDir, 'admin', name));
   }
@@ -113,4 +114,5 @@ test('login page and scripts are available without exposing the dashboard', asyn
 test('authenticated browser can load the private dashboard', async () => {
   const { agent } = await loggedInAgent();
   await agent.get('/admin').expect(200, /data-admin-posts/);
+  await agent.get('/admin/editor?id=private').expect(200, /data-editor-body/);
 });

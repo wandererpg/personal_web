@@ -114,6 +114,13 @@ test('renderMarkdown supports headings, images, links, lists, code, and escapes 
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
 });
 
+test('Markdown preview allows private draft images only when explicitly enabled', () => {
+  const privateUrl = '/api/admin/media/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.png';
+  assert.doesNotMatch(renderMarkdown(`![草稿图](${privateUrl})`), /<img/);
+  assert.match(renderMarkdown(`![草稿图](${privateUrl})`, { allowPrivateMedia: true }), /<img/);
+  assert.doesNotMatch(renderMarkdown('![越界](/api/admin/posts)', { allowPrivateMedia: true }), /<img/);
+});
+
 test('safeContentUrl only allows local assets and safe external links', () => {
   assert.equal(safeContentUrl('assets/blog/demo/image.jpg'), 'assets/blog/demo/image.jpg');
   assert.equal(safeContentUrl('https://example.com/image.jpg'), 'https://example.com/image.jpg');

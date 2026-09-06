@@ -28,6 +28,15 @@ test('dashboard summarizes private workflow states', () => {
   assert.deepEqual(summary, { all: 3, drafts: 1, published: 2, pending: 1 });
 });
 
+test('dashboard reopens pending publications but revises synced public posts', () => {
+  assert.deepEqual(AdminModel.getOpenAction({
+    id: 'pending-id', slug: 'pending-post', status: 'published', syncStatus: 'pending'
+  }), { type: 'draft', id: 'pending-id' });
+  assert.deepEqual(AdminModel.getOpenAction({
+    id: null, slug: 'public-post', status: 'published', syncStatus: 'synced'
+  }), { type: 'revise', slug: 'public-post' });
+});
+
 test('dashboard page exposes private archive controls and safe rendering hooks', async () => {
   const [html, script] = await Promise.all([read('admin/index.html'), read('admin/dashboard.js')]);
   for (const hook of [
@@ -39,3 +48,31 @@ test('dashboard page exposes private archive controls and safe rendering hooks',
   assert.doesNotMatch(script, /\.innerHTML\s*=/);
 });
 
+test('editor inserts uploaded Markdown at the current selection', () => {
+  assert.deepEqual(AdminModel.insertMarkdown('before after', 7, 7, '![结构图](/private/image.png)'), {
+    value: 'before ![结构图](/private/image.png)after',
+    cursor: 33
+  });
+});
+
+test('editor normalizes tags and detects publication requirements', () => {
+  const post = AdminModel.normalizeEditorPayload({
+    title: ' 项目日志 ', slug: 'project-log', module: 'projects', excerpt: ' 摘要 ',
+    tags: 'Web, Design,Web', cover: '', body: '## 正文'
+  });
+  assert.deepEqual(post.tags, ['Web', 'Design']);
+  assert.deepEqual(AdminModel.validateForPublish(post), []);
+  assert.deepEqual(AdminModel.validateForPublish({ ...post, title: '', body: '  ' }), ['title', 'body']);
+});
+
+test('editor page exposes Markdown preview, upload, autosave, and publication controls', async () => {
+  const [html, script] = await Promise.all([read('admin/editor.html'), read('admin/editor.js')]);
+  for (const hook of [
+    'data-editor-body', 'data-editor-preview', 'data-editor-upload', 'data-editor-save',
+    'data-editor-publish', 'data-editor-status', 'data-editor-title', 'data-editor-slug'
+  ]) assert.match(html, new RegExp(hook));
+  assert.match(script, /new URLSearchParams\(window\.location\.search\)/);
+  assert.match(script, /Blog\.renderMarkdown/);
+  assert.match(script, /1500/);
+  assert.match(script, /beforeunload/);
+});

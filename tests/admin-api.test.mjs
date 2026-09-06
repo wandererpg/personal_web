@@ -107,6 +107,11 @@ test('sync retry updates a pending draft after Git push succeeds', async () => {
   const { agent, csrfToken } = await fixture.login();
   const created = await agent.post('/api/admin/posts').set('x-csrf-token', csrfToken)
     .send({ module: 'projects' }).expect(201);
+  await agent.post('/api/admin/sync').set('x-csrf-token', csrfToken)
+    .send({ draftId: created.body.post.id }).expect(409, { error: 'SYNC_NOT_PENDING' });
+  await fixture.draftStore.updateSystem(created.body.post.id, {
+    status: 'published', syncStatus: 'pending', lastCommit: 'pendingcommit123'
+  });
 
   await agent.post('/api/admin/sync').set('x-csrf-token', csrfToken)
     .send({ draftId: created.body.post.id }).expect(200, { syncStatus: 'synced' });
