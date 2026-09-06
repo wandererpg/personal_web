@@ -13,6 +13,72 @@ test('draft and media routes stay private without an authenticated session', asy
   await request(app).get('/api/admin/media/11111111-1111-4111-8111-111111111111/image.png').expect(401);
 });
 
+test('public schedule API returns an empty default schedule', async () => {
+  const fixture = await createAdminFixture();
+  const response = await request(fixture.app).get('/api/schedule').expect(200);
+  assert.deepEqual(response.body.schedule, {
+    version: 1,
+    termStart: '',
+    totalWeeks: 20,
+    courses: [],
+  });
+});
+
+test('schedule mutations require authentication and CSRF', async () => {
+  const fixture = await createAdminFixture();
+  await request(fixture.app).get('/api/admin/schedule').expect(401, { error: 'AUTH_REQUIRED' });
+  const { agent } = await fixture.login();
+  await agent.put('/api/admin/schedule').send({}).expect(403, { error: 'CSRF_TOKEN_INVALID' });
+});
+
+test('authenticated admin can save and read a schedule', async () => {
+  const fixture = await createAdminFixture();
+  const { agent, csrfToken } = await fixture.login();
+  const schedule = {
+    version: 1,
+    termStart: '2026-09-07',
+    totalWeeks: 20,
+    courses: [{
+      id: 'course-1',
+      name: '计算物理基础',
+      teacher: '赵虎',
+      room: '九 202',
+      weekday: 3,
+      startPeriod: 1,
+      endPeriod: 2,
+      weeks: [1, 2],
+      color: 'mint',
+    }],
+  };
+
+  await agent.put('/api/admin/schedule').set('x-csrf-token', csrfToken)
+    .send(schedule).expect(200, { schedule });
+  await request(fixture.app).get('/api/schedule').expect(200, { schedule });
+});
+
+test('schedule API rejects overlapping courses without replacing the saved version', async () => {
+  const fixture = await createAdminFixture();
+  const { agent, csrfToken } = await fixture.login();
+  const schedule = {
+    version: 1,
+    termStart: '2026-09-07',
+    totalWeeks: 20,
+    courses: [{
+      id: 'course-a', name: '课程 A', teacher: '老师 A', room: '一 101', weekday: 1,
+      startPeriod: 1, endPeriod: 2, weeks: [1], color: 'mint',
+    }, {
+      id: 'course-b', name: '课程 B', teacher: '老师 B', room: '一 102', weekday: 1,
+      startPeriod: 2, endPeriod: 3, weeks: [1], color: 'pink',
+    }],
+  };
+
+  await agent.put('/api/admin/schedule').set('x-csrf-token', csrfToken)
+    .send(schedule).expect(409, { error: 'SCHEDULE_CONFLICT' });
+  await request(fixture.app).get('/api/schedule').expect(200, {
+    schedule: { version: 1, termStart: '', totalWeeks: 20, courses: [] },
+  });
+});
+
 test('authenticated admin can create, save, upload, publish, and revise an article', async () => {
   const fixture = await createAdminFixture();
   const { agent, csrfToken } = await fixture.login();

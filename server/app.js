@@ -11,6 +11,8 @@ const { createMediaStore } = require('./media-store.js');
 const { createGitPublisher } = require('./git-publisher.js');
 const { createPublishService } = require('./publish-service.js');
 const { createDeleteService } = require('./delete-service.js');
+const { createScheduleStore } = require('./schedule-store.js');
+const { createAdminScheduleRouter, createPublicScheduleRouter } = require('./schedule-api.js');
 
 const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
@@ -127,6 +129,7 @@ function installAdmin(app, config, options) {
     mediaStore,
     gitPublisher
   });
+  const scheduleStore = options.scheduleStore || createScheduleStore({ dataDir: config.dataDir });
   app.get('/api/admin/session', auth.ensureCsrf, (req, res) => res.json({
     authenticated: req.session.authenticated === true,
     csrfToken: req.session.csrfToken
@@ -143,6 +146,7 @@ function installAdmin(app, config, options) {
     deleteService,
     auth
   }));
+  app.use('/api/admin/schedule', auth.requireAuth, createAdminScheduleRouter({ scheduleStore, auth }));
 
   const adminFile = name => path.join(config.repoDir, 'admin', name);
   const requireAdminPage = (req, res, next) => (
@@ -166,7 +170,9 @@ function createApp(config, options = {}) {
   if (config.env === 'production') app.set('trust proxy', 1);
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(express.json({ limit: '256kb' }));
-  if (options.installAdmin !== false) installAdmin(app, config, options);
+  const scheduleStore = options.scheduleStore || createScheduleStore({ dataDir: config.dataDir });
+  app.use('/api/schedule', createPublicScheduleRouter({ scheduleStore }));
+  if (options.installAdmin !== false) installAdmin(app, config, { ...options, scheduleStore });
   installPublicFiles(app, config.repoDir);
   app.use((error, _req, res, _next) => {
     console.error(error);
