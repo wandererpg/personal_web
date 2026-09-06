@@ -146,6 +146,40 @@ test('README documents the GitHub SSH upload workflow', async () => {
   assert.match(readme, /git push/);
 });
 
+test('operations docs define secure admin deployment without secrets', async () => {
+  for (const file of [
+    '.env.example', 'scripts/hash-password.js', 'deploy/nginx.conf.example',
+    'deploy/personal-website.service.example'
+  ]) assert.equal(await exists(file), true, `${file} is missing`);
+
+  const env = await read('.env.example');
+  assert.match(env, /BLOG_ADMIN_PASSWORD_HASH=/);
+  assert.match(env, /BLOG_SESSION_SECRET=/);
+  assert.doesNotMatch(env, /jianhaolin03|BEGIN OPENSSH PRIVATE KEY|password123/i);
+  const readme = await read('README.md');
+  assert.match(readme, /BLOG_DATA_DIR/);
+  assert.match(readme, /npm start/);
+  assert.match(readme, /草稿备份/);
+  assert.match(readme, /待同步/);
+
+  const hashScript = await read('scripts/hash-password.js');
+  assert.match(hashScript, /setRawMode\(true\)/);
+  assert.match(hashScript, /password\.length < 12/);
+  assert.match(hashScript, /bcrypt\.hash/);
+
+  const nginx = await read('deploy/nginx.conf.example');
+  assert.match(nginx, /listen 443 ssl/);
+  assert.match(nginx, /proxy_pass http:\/\/127\.0\.0\.1:3000/);
+  assert.match(nginx, /X-Forwarded-Proto/);
+  assert.match(nginx, /client_max_body_size 9m/);
+
+  const service = await read('deploy/personal-website.service.example');
+  assert.match(service, /User=personal-website/);
+  assert.match(service, /EnvironmentFile=\/etc\/personal-website\.env/);
+  assert.match(service, /Restart=on-failure/);
+  assert.doesNotMatch(service, /User=root/);
+});
+
 test('blog admin publishing spec preserves private drafts and repository publishing', async () => {
   const specPath = 'docs/superpowers/specs/2026-09-06-blog-admin-publishing-design.md';
 
@@ -554,13 +588,11 @@ test('README documents the repository-driven blog publishing workflow', async ()
     /posts\/index\.json/,
     /assets\/blog/,
     /Markdown/,
-    /小写短横线/,
-    /本地静态服务器/,
-    /post\.html\?slug=<slug>/,
-    /git add posts assets\/blog/,
-    /git commit -m/,
-    /git push/,
-    /没有网页在线上传后台/,
+    /后台入口为 `\/admin`/,
+    /自动保存/,
+    /访客无法读取或修改/,
+    /创建对应 Git commit/,
+    /重试 Git 同步/,
   ]) {
     assert.match(readme, pattern);
   }

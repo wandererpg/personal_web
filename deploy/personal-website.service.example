@@ -1,0 +1,22 @@
+[Unit]
+Description=Wanderer personal website and private blog editor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=personal-website
+Group=personal-website
+WorkingDirectory=/srv/personal_website
+EnvironmentFile=/etc/personal-website.env
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/srv/personal_website /srv/personal_website-data
+
+[Install]
+WantedBy=multi-user.target
