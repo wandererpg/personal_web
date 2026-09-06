@@ -106,6 +106,21 @@ test('public server serves only explicitly allowed root files and directories', 
     '/package-lock.json', '/server/app.js']) await request(app).get(url).expect(404);
 });
 
+test('public app keeps the schedule API available without an optional data directory', async () => {
+  const { createApp } = require('../server/app.js');
+  const { root } = await createSiteFixture();
+  const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
+
+  await request(app).get('/api/schedule').expect(200).expect(response => {
+    assert.deepEqual(response.body.schedule, {
+      version: 1,
+      termStart: '',
+      totalWeeks: 20,
+      courses: [],
+    });
+  });
+});
+
 test('public server serves browser-encoded real music filenames as audio', async () => {
   const { createApp } = require('../server/app.js');
   const app = createApp({ repoDir, env: 'test' }, { installAdmin: false });

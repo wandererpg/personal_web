@@ -9,7 +9,23 @@ function scheduleError(code, message, cause) {
   return error;
 }
 
-function createScheduleStore({ dataDir }) {
+function createMemoryScheduleStore() {
+  let current = validateSchedule(DEFAULT_SCHEDULE);
+
+  return {
+    async read() {
+      return validateSchedule(current);
+    },
+    async write(schedule) {
+      current = validateSchedule(schedule);
+      return validateSchedule(current);
+    },
+  };
+}
+
+function createScheduleStore({ dataDir } = {}) {
+  if (!dataDir) return createMemoryScheduleStore();
+
   const file = path.join(dataDir, 'schedule.json');
 
   async function read() {
