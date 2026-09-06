@@ -148,6 +148,36 @@
   };
 
   const getBlogSlug = (search) => new URLSearchParams(String(search ?? '')).get('slug');
+  const getBlogModule = (search) => {
+    const id = new URLSearchParams(String(search ?? '')).get('module');
+    return findBlogModule(id) ? id : null;
+  };
+  const moduleHref = (id) => findBlogModule(id)
+    ? `notes.html?module=${encodeURIComponent(id)}`
+    : 'notes.html';
+
+  const getBlogModuleElements = (doc) => ({
+    overview: doc?.querySelector('[data-blog-modules-section]') ?? null,
+    modules: doc?.querySelector('[data-blog-modules]') ?? null,
+    overviewError: doc?.querySelector('[data-blog-modules-error]') ?? null,
+    section: doc?.querySelector('[data-blog-module-section]') ?? null,
+    current: doc?.querySelector('[data-blog-module-current]') ?? null,
+    signal: doc?.querySelector('[data-blog-module-signal]') ?? null,
+    description: doc?.querySelector('[data-blog-module-description]') ?? null,
+  });
+
+  const renderBlogModules = (doc, posts) => {
+    const elements = getBlogModuleElements(doc);
+    if (!elements.modules) return [];
+    const counts = BLOG_MODULES.map((module) => {
+      const count = filterPostsByModule(posts, module.id).length;
+      const card = elements.modules.querySelector(`[data-blog-module-card="${module.id}"]`);
+      const countElement = card?.querySelector('[data-blog-module-count]');
+      if (countElement) countElement.textContent = `${count} 篇已发布文章`;
+      return { id: module.id, count };
+    });
+    return counts;
+  };
 
   const getBlogListElements = (doc) => ({
     list: doc?.querySelector('[data-blog-list]') ?? null,
@@ -264,17 +294,57 @@
     const fetchImpl = options.fetchImpl ?? (typeof scope.fetch === 'function' ? scope.fetch.bind(scope) : null);
     const liquidGlass = options.liquidGlass ?? scope.WandererLiquidGlass;
     const { list, empty, error } = getBlogListElements(doc);
+    const moduleElements = getBlogModuleElements(doc);
 
     const load = async () => {
       if (!list) return [];
       setVisibility(empty, false);
       setVisibility(error, false);
+      setVisibility(moduleElements.overviewError, false);
+      const search = scope.location?.search ?? '';
+      const parameters = new URLSearchParams(String(search));
+      const requestedModule = parameters.has('module');
+      const moduleId = getBlogModule(search);
       try {
-        return renderBlogArchive(doc, await loadPosts(fetchImpl), liquidGlass);
+        const posts = await loadPosts(fetchImpl);
+        if (!requestedModule) {
+          setVisibility(moduleElements.overview, true);
+          setVisibility(moduleElements.section, false);
+          renderBlogModules(doc, posts);
+          liquidGlass?.initLiquidGlass?.(doc, scope);
+          return posts;
+        }
+
+        setVisibility(moduleElements.overview, false);
+        setVisibility(moduleElements.section, true);
+        const module = findBlogModule(moduleId);
+        if (!module) {
+          list.replaceChildren();
+          if (moduleElements.current) moduleElements.current.textContent = '未知内容轨道';
+          if (moduleElements.signal) moduleElements.signal.textContent = 'SIGNAL / NOT FOUND';
+          if (moduleElements.description) moduleElements.description.textContent = '这个博客模块不存在，请返回三模块入口。';
+          if (error) error.textContent = '找不到这个博客模块。';
+          setVisibility(error, true);
+          return [];
+        }
+
+        if (moduleElements.current) moduleElements.current.textContent = module.label;
+        if (moduleElements.signal) moduleElements.signal.textContent = module.signal;
+        if (moduleElements.description) moduleElements.description.textContent = module.description;
+        if (doc) doc.title = `${module.label} · Blog · Wanderer.OS`;
+        return renderBlogArchive(doc, filterPostsByModule(posts, module.id), liquidGlass);
       } catch (loadError) {
         list.replaceChildren();
         setVisibility(empty, false);
-        setVisibility(error, true);
+        if (requestedModule) {
+          setVisibility(moduleElements.overview, false);
+          setVisibility(moduleElements.section, true);
+          setVisibility(error, true);
+        } else {
+          setVisibility(moduleElements.overview, true);
+          setVisibility(moduleElements.section, false);
+          setVisibility(moduleElements.overviewError, true);
+        }
         return [];
       }
     };
@@ -652,7 +722,11 @@
     loadPosts,
     loadPostContent,
     formatBlogDate,
+    getBlogModule,
     getBlogSlug,
+    moduleHref,
+    getBlogModuleElements,
+    renderBlogModules,
     getBlogListElements,
     getBlogArticleElements,
     createBlogArchiveRow,

@@ -73,17 +73,52 @@
           <p>记录正在学习、制作和重新理解的东西。</p>
         </section>
 
-        <section class="section listing-section container" aria-labelledby="blog-list-title">
+        <section class="section listing-section blog-modules container" data-blog-modules-section aria-labelledby="blog-modules-title">
           <div class="section-heading reveal">
             <div>
-              <span class="section-label">Transmission archive</span>
-              <h2 id="blog-list-title">所有博客记录。</h2>
+              <span class="section-label">Three orbital archives</span>
+              <h2 id="blog-modules-title">选择一条记录轨道。</h2>
             </div>
-            <p>从项目经验到日常观察，把真正有用的部分整理成可以再次阅读的信号。</p>
+            <p>项目、思考与学习记录，沿着三条彼此清晰的轨道持续归档。</p>
           </div>
 
+          <div class="blog-module-grid" data-blog-modules>
+            <a class="blog-module-card liquid-glass reveal delay-1" data-liquid-glass data-blog-module-card="projects" href="notes.html?module=projects">
+              <span class="blog-module-card__orbit" aria-hidden="true"></span>
+              <span class="card-index">MODULE / 01</span>
+              <h3>我的项目</h3>
+              <p>记录正在制作的东西、实现过程与阶段成果。</p>
+              <span class="blog-module-card__footer"><span data-blog-module-count>读取中…</span><span aria-hidden="true">↗</span></span>
+            </a>
+            <a class="blog-module-card liquid-glass reveal delay-2" data-liquid-glass data-blog-module-card="insights" href="notes.html?module=insights">
+              <span class="blog-module-card__orbit" aria-hidden="true"></span>
+              <span class="card-index">MODULE / 02</span>
+              <h3>心得分享</h3>
+              <p>整理实践后的判断、方法和值得留下的想法。</p>
+              <span class="blog-module-card__footer"><span data-blog-module-count>读取中…</span><span aria-hidden="true">↗</span></span>
+            </a>
+            <a class="blog-module-card liquid-glass reveal delay-3" data-liquid-glass data-blog-module-card="learning" href="notes.html?module=learning">
+              <span class="blog-module-card__orbit" aria-hidden="true"></span>
+              <span class="card-index">MODULE / 03</span>
+              <h3>日常学习</h3>
+              <p>保存近期学过并真正理解的知识。</p>
+              <span class="blog-module-card__footer"><span data-blog-module-count>读取中…</span><span aria-hidden="true">↗</span></span>
+            </a>
+          </div>
+          <p class="blog-error" data-blog-modules-error role="status" hidden>博客模块暂时无法读取，请稍后再试。</p>
+        </section>
+
+        <section class="section listing-section blog-module-list container" data-blog-module-section hidden aria-labelledby="blog-module-title">
+          <a class="text-link blog-module-list__back" href="notes.html">← 返回三个模块</a>
+          <div class="section-heading reveal">
+            <div>
+              <span class="section-label" data-blog-module-signal>MODULE ARCHIVE</span>
+              <h2 id="blog-module-title" data-blog-module-current>正在读取模块…</h2>
+            </div>
+            <p data-blog-module-description>正在连接博客信号。</p>
+          </div>
           <div class="blog-list" data-blog-list aria-live="polite"></div>
-          <p class="blog-empty" data-blog-list-empty hidden>博客信号暂时为空。</p>
+          <p class="blog-empty" data-blog-list-empty hidden>这条轨道还没有已发布文章。</p>
           <p class="blog-error" data-blog-list-error role="status" hidden>博客暂时无法读取，请稍后再试。</p>
         </section>
       </main>

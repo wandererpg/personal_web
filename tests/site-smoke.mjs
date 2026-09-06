@@ -370,7 +370,7 @@ test('all primary glass surfaces load the shared interaction module', async () =
   const expectedTargets = new Map([
     ['index.html', 8],
     ['projects.html', 4],
-    ['notes.html', 1],
+    ['notes.html', 4],
     ['post.html', 1],
   ]);
 
@@ -476,6 +476,14 @@ test('blog archive and article pages expose dynamic content hooks', async () => 
   assert.match(archive, /<script src="blog\.js" defer><\/script>/);
   assert.match(archive, /data-blog-list/);
   assert.match(archive, /data-blog-list-empty/);
+  assert.match(archive, /data-blog-modules-section/);
+  assert.match(archive, /data-blog-modules/);
+  assert.match(archive, /data-blog-module-section/);
+  assert.match(archive, /data-blog-module-current/);
+  assert.match(archive, /data-blog-module-signal/);
+  assert.match(archive, /我的项目/);
+  assert.match(archive, /心得分享/);
+  assert.match(archive, /日常学习/);
   assert.match(archive, /我的博客/);
   assert.match(article, /data-blog-article/);
   assert.match(article, /data-blog-article-title/);
@@ -484,6 +492,8 @@ test('blog archive and article pages expose dynamic content hooks', async () => 
   assert.match(article, /data-blog-article-next/);
   assert.match(blogJs, /loadPostContent\(/);
   assert.match(blogJs, /URLSearchParams/);
+  assert.match(blogJs, /filterPostsByModule/);
+  assert.match(blogJs, /moduleHref/);
 });
 
 test('styles provide cosmic blog archive surfaces and responsive states', async () => {

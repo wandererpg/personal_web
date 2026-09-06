@@ -10,10 +10,12 @@ const {
   findBlogModule,
   formatBlogDate,
   getAdjacentPosts,
+  getBlogModule,
   getBlogSlug,
   latestPosts,
   loadPostContent,
   loadPosts,
+  moduleHref,
   normalizePost,
   normalizePosts,
   renderMarkdown,
@@ -65,6 +67,14 @@ test('blog modules are stable and filter posts without falling back on unknown v
   assert.equal(findBlogModule('unknown'), null);
   assert.deepEqual(filterPostsByModule(posts, 'projects').map((post) => post.slug), ['new']);
   assert.deepEqual(filterPostsByModule(posts, 'unknown'), []);
+});
+
+test('module route resolves only known modules and produces stable links', () => {
+  assert.equal(getBlogModule('?module=projects'), 'projects');
+  assert.equal(getBlogModule('?module=unknown'), null);
+  assert.equal(getBlogModule(''), null);
+  assert.equal(moduleHref('insights'), 'notes.html?module=insights');
+  assert.equal(moduleHref('unknown'), 'notes.html');
 });
 
 test('normalizePosts filters invalid records without changing valid input', () => {
