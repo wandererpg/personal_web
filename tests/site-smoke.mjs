@@ -42,6 +42,7 @@ test('public schedule page exposes the full weekly view and safe asset allowlist
   assert.match(css, /\.schedule-page\s*\{/);
   assert.match(css, /\.schedule-grid\s*\{/);
   assert.match(css, /\.schedule-course\s*\{/);
+  assert.match(controller, /schedule-course__period/);
   assert.match(css, /08:00/);
   assert.match(css, /20:55/);
   assert.match(css, /overflow/);
@@ -84,6 +85,12 @@ test('admin schedule editor exposes the protected course form', async () => {
     'data-course-save',
     'data-schedule-save-state',
   ]) assert.match(html, new RegExp(hook));
+  for (const field of ['data-course-start-period', 'data-course-end-period']) {
+    const options = html.match(new RegExp(`<select[^>]*${field}[^>]*>([\\s\\S]*?)</select>`))?.[1] || '';
+    assert.equal((options.match(/<option value="/g) || []).length, 12, `${field} should expose all periods without JavaScript`);
+    assert.match(options, /第 1 节/);
+    assert.match(options, /第 12 节/);
+  }
   assert.match(html, /schedule-model\.js/);
   assert.match(html, /schedule\.js/);
   assert.match(js, /\/api\/admin\/schedule/);

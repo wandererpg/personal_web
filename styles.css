@@ -3238,6 +3238,12 @@ svg {
   text-wrap: balance;
 }
 
+.schedule-course__period {
+  margin-top: 7px;
+  color: rgba(245, 255, 254, 0.88);
+  font: 700 0.58rem/1.35 var(--mono);
+}
+
 .schedule-course__meta {
   display: grid;
   gap: 2px;

@@ -72,10 +72,11 @@
     block.setAttribute('role', 'gridcell');
 
     const name = createElement('strong', 'schedule-course__name', course.name);
+    const period = createElement('span', 'schedule-course__period', `第 ${course.startPeriod}–${course.endPeriod} 节 · ${model.periodRange(course)}`);
     const meta = createElement('span', 'schedule-course__meta');
     if (course.teacher) meta.append(createElement('span', '', course.teacher));
     if (course.room) meta.append(createElement('span', '', course.room));
-    block.append(name, meta);
+    block.append(name, period, meta);
     block.setAttribute('aria-label', [course.name, course.teacher, course.room].filter(Boolean).join('，'));
     return block;
   };
