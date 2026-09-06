@@ -87,6 +87,31 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
     return next;
   }
 
+  async function updateSystem(id, input) {
+    const current = await get(id);
+    const status = input.status ?? current.status;
+    const syncStatus = input.syncStatus ?? current.syncStatus;
+    if (!['draft', 'published'].includes(status)) throw contentError('STATUS_INVALID');
+    if (!['private', 'pending', 'synced'].includes(syncStatus)) throw contentError('SYNC_STATUS_INVALID');
+    if (input.publishedAt !== undefined && input.publishedAt !== null
+        && Number.isNaN(Date.parse(input.publishedAt))) throw contentError('PUBLISHED_AT_INVALID');
+    if (input.lastCommit !== undefined
+        && (typeof input.lastCommit !== 'string' || input.lastCommit.length > 64)) {
+      throw contentError('COMMIT_INVALID');
+    }
+    const next = {
+      ...current,
+      version: current.version + 1,
+      status,
+      syncStatus,
+      publishedAt: input.publishedAt ?? current.publishedAt,
+      lastCommit: input.lastCommit ?? current.lastCommit ?? null,
+      updatedAt: now()
+    };
+    await atomicJson(fileFor(id), next);
+    return next;
+  }
+
   async function list() {
     await ensureRoot();
     const names = (await readdir(root)).filter(name => /^[0-9a-f-]{36}\.json$/i.test(name));
@@ -94,7 +119,7 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
     return drafts.sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
   }
 
-  return { create, get, list, update };
+  return { create, get, list, update, updateSystem };
 }
 
 module.exports = { atomicJson, createDraftStore };

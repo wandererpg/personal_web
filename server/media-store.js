@@ -42,6 +42,15 @@ function rewriteDraftMediaUrls(body, draftId, slug) {
   return String(body).split(prefix).join(`assets/blog/${slug}/`);
 }
 
+function extractDraftMediaNames(content, draftId) {
+  validateDraftId(draftId);
+  const pattern = new RegExp(`/api/admin/media/${draftId}/([0-9a-f-]{36}\\.(?:png|jpg|webp))`, 'gi');
+  const names = [];
+  let match;
+  while ((match = pattern.exec(String(content)))) names.push(validateMediaName(match[1]));
+  return [...new Set(names)];
+}
+
 async function containedDirectory(basePath, childPath) {
   const baseReal = await realpath(basePath);
   const childReal = await realpath(childPath);
@@ -117,6 +126,7 @@ module.exports = {
   MAX_IMAGE_BYTES,
   createMediaStore,
   detectImage,
+  extractDraftMediaNames,
   rewriteDraftMediaUrls,
   validateMediaName
 };

@@ -52,7 +52,7 @@ test('stage rejects empty and oversized image buffers', async () => {
 });
 
 test('draft media URLs are rewritten only for the publishing draft', () => {
-  const { rewriteDraftMediaUrls } = require('../server/media-store.js');
+  const { extractDraftMediaNames, rewriteDraftMediaUrls } = require('../server/media-store.js');
   const name = '22222222-2222-4222-8222-222222222222.png';
   const other = '33333333-3333-4333-8333-333333333333';
   const body = `![结构图](/api/admin/media/${DRAFT_ID}/${name})\n![其他](/api/admin/media/${other}/${name})`;
@@ -60,6 +60,7 @@ test('draft media URLs are rewritten only for the publishing draft', () => {
 
   assert.match(rewritten, /assets\/blog\/site-log\/22222222-2222-4222-8222-222222222222\.png/);
   assert.match(rewritten, new RegExp(`/api/admin/media/${other}/`));
+  assert.deepEqual(extractDraftMediaNames(body, DRAFT_ID), [name]);
 });
 
 test('publish copies staged files into the article asset directory', async () => {
