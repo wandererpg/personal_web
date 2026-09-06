@@ -18,6 +18,39 @@ test('required site files exist', async () => {
   }
 });
 
+test('public schedule page exposes the full weekly view and safe asset allowlist', async () => {
+  const html = await read('schedule.html');
+  const model = await read('schedule-model.js');
+  const controller = await read('schedule.js');
+  const css = await read('styles.css');
+  const app = await read('server/app.js');
+
+  for (const hook of [
+    'data-schedule',
+    'data-schedule-grid',
+    'data-schedule-week',
+    'data-schedule-prev',
+    'data-schedule-current',
+    'data-schedule-next',
+    'data-schedule-settings-link',
+    'data-schedule-status',
+  ]) assert.match(html, new RegExp(hook));
+  assert.match(html, /<script src="schedule-model\.js" defer><\/script>/);
+  assert.match(html, /<script src="schedule\.js" defer><\/script>/);
+  assert.match(model, /WandererSchedule/);
+  assert.match(controller, /\/api\/schedule/);
+  assert.match(css, /\.schedule-page\s*\{/);
+  assert.match(css, /\.schedule-grid\s*\{/);
+  assert.match(css, /\.schedule-course\s*\{/);
+  assert.match(css, /08:00/);
+  assert.match(css, /20:55/);
+  assert.match(css, /overflow/);
+  assert.match(css, /prefers-reduced-motion/);
+  for (const asset of ['schedule.html', 'schedule-model.js', 'schedule.js']) {
+    assert.match(app, new RegExp(`'${asset}'`));
+  }
+});
+
 test('pages expose shared navigation and semantic landmarks', async () => {
   for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);

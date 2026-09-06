@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#050816">
+    <meta name="description" content="Wanderer 的每周课程表：按学期周次查看课程、老师和上课地点。">
+    <title>Schedule · Wanderer.OS</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <script src="clock.js" defer></script>
+    <script src="liquid-glass.js" defer></script>
+    <script src="schedule-model.js" defer></script>
+    <script src="schedule.js" defer></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要内容</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="index.html" aria-label="Wanderer.OS 首页">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>WANDERER<span>.OS</span></span>
+          </a>
+
+          <div class="header-status" aria-label="当前北京时间">
+            <time class="header-status__date" data-current-date datetime="2026-09-06T00:00:00+08:00">2026.09.06 · 周日</time>
+            <time class="header-status__time" data-current-time>00:00:00</time>
+          </div>
+
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航菜单">
+            <span aria-hidden="true"></span>
+          </button>
+
+          <nav class="site-nav" id="site-nav" aria-label="主要导航">
+            <a href="index.html">Home</a>
+            <a href="projects.html">Projects</a>
+            <a href="notes.html">Blog</a>
+            <a href="index.html#links">Comms</a>
+          </nav>
+        </div>
+      </header>
+
+      <aside class="music-player liquid-glass" data-liquid-glass data-music-player aria-label="星际音乐播放器">
+        <div class="music-player__main">
+          <button class="music-player__toggle" type="button" data-music-toggle aria-pressed="false" aria-label="播放背景音乐">
+            <span class="music-player__disc" aria-hidden="true"><span></span></span>
+          </button>
+          <div class="music-player__copy">
+            <strong data-music-title>夜の向日葵</strong>
+            <span class="music-player__status" data-music-status aria-live="polite">选择曲目 · 点击播放</span>
+          </div>
+          <div class="music-player__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <label class="music-player__select-wrap">
+          <span class="music-player__select-label">TRACK SELECT</span>
+          <select class="music-player__select" data-music-select aria-label="选择音乐">
+            <option value="0">花弁となり 世界は大いに歌う</option>
+            <option value="1">夢の歩みを見上げて · 仰望梦想的脚步</option>
+            <option value="2" selected>夜の向日葵</option>
+            <option value="3">月の眼球譚</option>
+          </select>
+        </label>
+        <audio class="music-player__audio" data-music-audio autoplay preload="metadata"></audio>
+      </aside>
+
+      <main id="main" class="schedule-page" data-schedule aria-labelledby="schedule-title">
+        <section class="page-hero container" aria-labelledby="schedule-title">
+          <p class="eyebrow">Weekly orbit · Public schedule</p>
+          <h1 id="schedule-title">我的每周课表</h1>
+          <p>课程随着周次移动，时间轴替我记住这一周要去哪里。</p>
+        </section>
+
+        <section class="schedule-shell container liquid-glass" data-liquid-glass aria-labelledby="schedule-week-title">
+          <header class="schedule-toolbar">
+            <div class="schedule-toolbar__copy">
+              <span class="section-label">CURRENT WEEK</span>
+              <h2 id="schedule-week-title" data-schedule-week>第 1 周</h2>
+              <p data-schedule-range>正在读取日期…</p>
+              <p class="schedule-status" data-schedule-status aria-live="polite">正在读取课表…</p>
+            </div>
+            <nav class="schedule-nav" aria-label="周次导航">
+              <button type="button" data-schedule-prev aria-label="上一周">←</button>
+              <button type="button" data-schedule-current>本周</button>
+              <button type="button" data-schedule-next aria-label="下一周">→</button>
+            </nav>
+          </header>
+
+          <p class="schedule-error" data-schedule-error role="alert" hidden>课表暂时无法加载，请稍后重试。</p>
+          <div class="schedule-scroll" data-schedule-scroll>
+            <div class="schedule-grid" data-schedule-grid role="grid" aria-label="每周课表"></div>
+          </div>
+          <p class="schedule-empty" data-schedule-empty hidden>这一周还没有安排课程。</p>
+
+          <footer class="schedule-footer">
+            <span>12 PERIODS · MONDAY FIRST</span>
+            <a class="text-link" data-schedule-settings-link href="/admin/schedule">进入管理 ↗</a>
+          </footer>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <p>© <span data-current-year>2026</span> WANDERER.OS / WEEKLY ORBIT</p>
+          <p><a href="https://github.com/wandererpg" target="_blank" rel="noreferrer">GitHub</a> · <a href="https://space.bilibili.com/1065241718" target="_blank" rel="noreferrer">Bilibili</a></p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

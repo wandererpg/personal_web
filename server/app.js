@@ -15,8 +15,9 @@ const { createScheduleStore } = require('./schedule-store.js');
 const { createAdminScheduleRouter, createPublicScheduleRouter } = require('./schedule-api.js');
 
 const PUBLIC_ROOT_FILES = new Set([
-  'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
-  'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'favicon.svg'
+  'index.html', 'projects.html', 'notes.html', 'post.html', 'schedule.html', 'styles.css',
+  'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'schedule-model.js',
+  'schedule.js', 'favicon.svg'
 ]);
 const PUBLIC_DIRECTORIES = new Set(['posts', 'assets', 'music']);
 
