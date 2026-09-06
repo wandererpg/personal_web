@@ -105,6 +105,18 @@ test('admin schedule editor exposes the protected course form', async () => {
   assert.match(app, /admin\/schedule/);
 });
 
+test('admin schedule editor keeps its visual assets when opened as a local file', async () => {
+  const html = await read('admin/schedule.html');
+  const localPage = 'file:///C:/Users/HONOR/Documents/Codex/personal_website/admin/schedule.html';
+  const assets = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map(match => match[1]);
+  const expected = ['../favicon.svg', 'admin.css', '../schedule-model.js', 'admin-api.js', 'schedule.js'];
+
+  for (const asset of expected) {
+    assert.equal(assets.includes(asset), true, `${asset} should resolve from the local admin page`);
+    assert.match(new URL(asset, localPage).href, /file:\/\/\/C:\/Users\/HONOR\/Documents\/Codex\/personal_website\//);
+  }
+});
+
 test('pages expose shared navigation and semantic landmarks', async () => {
   for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);
