@@ -18,7 +18,9 @@ async function makeApp(overrides = {}) {
   await mkdir(join(repoDir, 'assets', 'blog'), { recursive: true });
   await writeFile(join(repoDir, 'posts', 'index.json'), '[]\n');
   await mkdir(join(repoDir, 'admin'));
-  for (const name of ['login.html', 'login.js', 'admin-api.js']) {
+  for (const name of [
+    'login.html', 'login.js', 'admin-api.js', 'index.html', 'dashboard.js', 'admin-model.js', 'admin.css'
+  ]) {
     await copyFile(new URL(`../admin/${name}`, import.meta.url), join(repoDir, 'admin', name));
   }
   return createApp({
@@ -100,5 +102,15 @@ test('login page and scripts are available without exposing the dashboard', asyn
   await request(app).get('/admin/login').expect(200, /data-admin-login/);
   await request(app).get('/admin/login.js').expect(200, /AdminLogin/);
   await request(app).get('/admin/admin-api.js').expect(200, /AdminApi/);
-  await request(app).get('/admin').expect(401);
+  await request(app).get('/admin/admin.css').expect(200, /admin-shell/);
+  await request(app).get('/admin/dashboard.js').expect(200, /AdminDashboard/);
+  await request(app).get('/admin/admin-model.js').expect(200, /AdminModel/);
+  await request(app).get('/admin').expect(302, /Redirecting to \/admin\/login/)
+    .expect('Location', '/admin/login');
+  await request(app).get('/admin/editor?id=private').expect(302).expect('Location', '/admin/login');
+});
+
+test('authenticated browser can load the private dashboard', async () => {
+  const { agent } = await loggedInAgent();
+  await agent.get('/admin').expect(200, /data-admin-posts/);
 });

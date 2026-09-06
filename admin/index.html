@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#050816">
+    <title>文章控制台 · Wanderer.OS</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/admin/admin.css">
+    <script src="/admin/admin-api.js" defer></script>
+    <script src="/admin/admin-model.js" defer></script>
+    <script src="/admin/dashboard.js" defer></script>
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="admin-sidebar">
+        <a class="admin-brand" href="/" aria-label="返回个人网站">
+          <span class="admin-brand__mark">W</span>
+          <span><strong>Wanderer.OS</strong><small>CONTENT STATION</small></span>
+        </a>
+
+        <nav class="admin-nav" aria-label="文章模块">
+          <p class="admin-eyebrow">ARCHIVE MODULES</p>
+          <button class="admin-nav__item is-active" type="button" data-module-filter="">
+            <span>全部文章</span><output data-count="all">0</output>
+          </button>
+          <button class="admin-nav__item" type="button" data-module-filter="projects">
+            <span>我的项目</span><i class="admin-nav__dot admin-nav__dot--cyan"></i>
+          </button>
+          <button class="admin-nav__item" type="button" data-module-filter="insights">
+            <span>心得分享</span><i class="admin-nav__dot admin-nav__dot--violet"></i>
+          </button>
+          <button class="admin-nav__item" type="button" data-module-filter="learning">
+            <span>日常学习</span><i class="admin-nav__dot admin-nav__dot--lime"></i>
+          </button>
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <span class="admin-private"><i></i> PRIVATE CHANNEL</span>
+          <button class="admin-text-button" type="button" data-admin-logout>退出登录</button>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-header">
+          <div>
+            <p class="admin-eyebrow">ORBITAL ARCHIVE / 文章管理</p>
+            <h1>内容控制台</h1>
+            <p>整理草稿，维护三个知识轨道，并把完成的文章发布到个人网站。</p>
+          </div>
+          <button class="admin-primary" type="button" data-admin-new><span>＋</span> 新建文章</button>
+        </header>
+
+        <section class="admin-toolbar" aria-label="筛选文章">
+          <label class="admin-search">
+            <span aria-hidden="true">⌕</span>
+            <span class="sr-only">搜索文章</span>
+            <input type="search" placeholder="搜索标题或摘要…" data-admin-query>
+          </label>
+          <label class="admin-select">
+            <span class="sr-only">筛选模块</span>
+            <select data-admin-module>
+              <option value="">所有模块</option>
+              <option value="projects">我的项目</option>
+              <option value="insights">心得分享</option>
+              <option value="learning">日常学习</option>
+            </select>
+          </label>
+          <label class="admin-select">
+            <span class="sr-only">筛选状态</span>
+            <select data-admin-status>
+              <option value="">所有状态</option>
+              <option value="draft">草稿</option>
+              <option value="published">已发布</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="admin-content" aria-labelledby="archive-title">
+          <div class="admin-section-title">
+            <div><span class="admin-pulse"></span><h2 id="archive-title">文章轨道</h2></div>
+            <p data-admin-result-count>正在连接档案库…</p>
+          </div>
+
+          <div class="admin-state" data-admin-loading>
+            <span class="admin-loader" aria-hidden="true"></span>正在读取私人档案…
+          </div>
+          <div class="admin-state" data-admin-empty hidden>
+            <strong>这条轨道还是空的</strong>
+            <span>新建一篇文章，或调整上方的筛选条件。</span>
+          </div>
+          <div class="admin-state admin-state--error" data-admin-error hidden>
+            <strong>暂时无法读取档案</strong>
+            <span>请检查服务状态后重试。</span>
+            <button type="button" data-admin-retry>重新连接</button>
+          </div>
+          <div class="admin-posts" data-admin-posts aria-live="polite"></div>
+        </section>
+      </main>
+
+      <aside class="admin-rail" aria-label="发布概览">
+        <p class="admin-eyebrow">MISSION STATUS</p>
+        <h2>发布概览</h2>
+        <div class="admin-metric-grid">
+          <article><strong data-count="drafts">0</strong><span>草稿</span></article>
+          <article><strong data-count="published">0</strong><span>已发布</span></article>
+        </div>
+        <article class="admin-sync-card">
+          <span class="admin-sync-card__icon">↗</span>
+          <div><strong>待同步任务</strong><p><b data-count="pending">0</b> 篇文章等待推送</p></div>
+        </article>
+        <div class="admin-orbit" aria-hidden="true"><i></i><span>W</span></div>
+        <p class="admin-rail__note">文章只有在发布并完成 Git 同步后，访客才会在公开网站看到。</p>
+      </aside>
+    </div>
+  </body>
+</html>

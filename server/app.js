@@ -136,10 +136,15 @@ function installAdmin(app, config, options) {
   }));
 
   const adminFile = name => path.join(config.repoDir, 'admin', name);
+  const requireAdminPage = (req, res, next) => (
+    req.session.authenticated === true ? next() : res.redirect('/admin/login')
+  );
   app.get('/admin/login', (_req, res) => res.sendFile(adminFile('login.html')));
-  app.get('/admin/login.js', (_req, res) => res.sendFile(adminFile('login.js')));
-  app.get('/admin/admin-api.js', (_req, res) => res.sendFile(adminFile('admin-api.js')));
-  app.get(['/admin', '/admin/editor'], auth.requireAuth, (_req, res) => res.sendStatus(501));
+  for (const asset of ['login.js', 'admin-api.js', 'dashboard.js', 'admin-model.js', 'admin.css']) {
+    app.get(`/admin/${asset}`, (_req, res) => res.sendFile(adminFile(asset)));
+  }
+  app.get('/admin', requireAdminPage, (_req, res) => res.sendFile(adminFile('index.html')));
+  app.get('/admin/editor', requireAdminPage, (_req, res) => res.sendStatus(501));
 
   if (typeof options.installAdmin === 'function') {
     options.installAdmin(app, { auth, store, draftStore, mediaStore, gitPublisher, publishService });
