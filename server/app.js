@@ -154,11 +154,12 @@ function installAdmin(app, config, options) {
     req.session.authenticated === true ? next() : res.redirect('/admin/login')
   );
   app.get('/admin/login', (_req, res) => res.sendFile(adminFile('login.html')));
-  for (const asset of ['login.js', 'admin-api.js', 'dashboard.js', 'editor.js', 'admin-model.js', 'admin.css']) {
+  for (const asset of ['login.js', 'admin-api.js', 'dashboard.js', 'editor.js', 'schedule.js', 'admin-model.js', 'admin.css']) {
     app.get(`/admin/${asset}`, (_req, res) => res.sendFile(adminFile(asset)));
   }
   app.get('/admin', requireAdminPage, (_req, res) => res.sendFile(adminFile('index.html')));
   app.get('/admin/editor', requireAdminPage, (_req, res) => res.sendFile(adminFile('editor.html')));
+  app.get('/admin/schedule', requireAdminPage, (_req, res) => res.sendFile(adminFile('schedule.html')));
 
   if (typeof options.installAdmin === 'function') {
     options.installAdmin(app, { auth, store, draftStore, mediaStore, gitPublisher, publishService, deleteService });

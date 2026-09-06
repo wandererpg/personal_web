@@ -69,6 +69,31 @@ test('homepage exposes the compact schedule summary below the station card', asy
   assert.match(css, /align-self:\s*start/);
 });
 
+test('admin schedule editor exposes the protected course form', async () => {
+  const html = await read('admin/schedule.html');
+  const js = await read('admin/schedule.js');
+  const css = await read('admin/admin.css');
+  const app = await read('server/app.js');
+
+  for (const hook of [
+    'data-admin-schedule',
+    'data-schedule-settings-form',
+    'data-course-list',
+    'data-course-form',
+    'data-course-weeks',
+    'data-course-save',
+    'data-schedule-save-state',
+  ]) assert.match(html, new RegExp(hook));
+  assert.match(html, /schedule-model\.js/);
+  assert.match(html, /schedule\.js/);
+  assert.match(js, /\/api\/admin\/schedule/);
+  assert.match(js, /AdminApi/);
+  assert.match(js, /window\.confirm/);
+  assert.match(css, /\.schedule-admin/);
+  assert.match(css, /data-course-weeks|schedule-admin__weeks/);
+  assert.match(app, /admin\/schedule/);
+});
+
 test('pages expose shared navigation and semantic landmarks', async () => {
   for (const page of ['index.html', 'projects.html', 'notes.html', 'post.html']) {
     const html = await read(page);

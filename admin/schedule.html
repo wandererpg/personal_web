@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#050816">
+    <title>课表控制台 · Wanderer.OS</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/admin/admin.css">
+    <script src="/schedule-model.js" defer></script>
+    <script src="/admin/admin-api.js" defer></script>
+    <script src="/admin/schedule.js" defer></script>
+  </head>
+  <body>
+    <div class="admin-shell schedule-admin-page">
+      <aside class="admin-sidebar">
+        <a class="admin-brand" href="/" aria-label="返回个人网站">
+          <span class="admin-brand__mark">W</span>
+          <span><strong>Wanderer.OS</strong><small>CONTENT STATION</small></span>
+        </a>
+
+        <nav class="admin-nav" aria-label="管理模块">
+          <p class="admin-eyebrow">STATION MODULES</p>
+          <a class="admin-nav__item" href="/admin"><span>文章档案</span><i class="admin-nav__dot admin-nav__dot--violet"></i></a>
+          <a class="admin-nav__item is-active" href="/admin/schedule"><span>每周课表</span><i class="admin-nav__dot admin-nav__dot--cyan"></i></a>
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <span class="admin-private"><i></i> PRIVATE CHANNEL</span>
+          <button class="admin-text-button" type="button" data-admin-logout>退出登录</button>
+        </div>
+      </aside>
+
+      <main class="admin-main schedule-admin" data-admin-schedule>
+        <header class="admin-header schedule-admin__header">
+          <div>
+            <p class="admin-eyebrow">WEEKLY ORBIT / 课表管理</p>
+            <h1>我的每周课表</h1>
+            <p>设置学期周次，维护课程安排；保存后公开课表会自动跟随当前周次更新。</p>
+          </div>
+          <button class="admin-primary" type="button" data-course-add><span>＋</span> 新增课程</button>
+        </header>
+
+        <p class="schedule-admin__save-state" data-schedule-save-state role="status" aria-live="polite">正在读取课表…</p>
+        <p class="schedule-admin__error" data-schedule-error role="alert" hidden></p>
+
+        <section class="schedule-admin__settings" aria-labelledby="schedule-settings-title">
+          <div class="admin-section-title">
+            <div><span class="admin-pulse"></span><h2 id="schedule-settings-title">学期设置</h2></div>
+            <p>MONDAY START / BEIJING TIME</p>
+          </div>
+          <form class="schedule-admin__settings-form" data-schedule-settings-form>
+            <label class="schedule-admin__field">
+              <span>学期开始日期 <b>必须为周一</b></span>
+              <input type="date" data-term-start required>
+            </label>
+            <label class="schedule-admin__field">
+              <span>学期总周数</span>
+              <input type="number" data-total-weeks min="1" max="60" step="1" required>
+            </label>
+            <button class="admin-button admin-button--primary" type="submit">保存学期设置</button>
+          </form>
+        </section>
+
+        <section class="schedule-admin__content" aria-labelledby="course-list-title">
+          <div class="admin-section-title">
+            <div><span class="admin-pulse"></span><h2 id="course-list-title">课程记录</h2></div>
+            <p data-course-count>0 COURSES</p>
+          </div>
+          <div class="schedule-admin__columns">
+            <div class="schedule-admin__course-list" data-course-list aria-live="polite"></div>
+            <p class="admin-state schedule-admin__empty" data-course-empty>还没有课程记录，请从右上角开始添加。</p>
+
+            <form class="schedule-admin__form" data-course-form hidden novalidate>
+              <div class="schedule-admin__form-heading">
+                <div><span class="admin-eyebrow">COURSE SIGNAL</span><h3 data-course-form-title>新增课程</h3></div>
+                <button class="admin-text-button" type="button" data-course-cancel>取消</button>
+              </div>
+              <input type="hidden" data-course-id>
+              <label class="schedule-admin__field">
+                <span>课程名称 <b>必填</b></span>
+                <input type="text" data-course-name maxlength="120" required placeholder="例如：计算物理基础">
+                <small data-course-error="name"></small>
+              </label>
+              <div class="schedule-admin__field-grid">
+                <label class="schedule-admin__field">
+                  <span>授课老师</span>
+                  <input type="text" data-course-teacher maxlength="80" placeholder="例如：赵虎">
+                </label>
+                <label class="schedule-admin__field">
+                  <span>上课地点</span>
+                  <input type="text" data-course-room maxlength="80" placeholder="例如：九 202">
+                </label>
+              </div>
+              <div class="schedule-admin__field-grid">
+                <label class="schedule-admin__field">
+                  <span>星期</span>
+                  <select data-course-weekday>
+                    <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+                    <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
+                  </select>
+                </label>
+                <div class="schedule-admin__field">
+                  <span>节次</span>
+                  <div class="schedule-admin__periods">
+                    <select data-course-start-period aria-label="起始节次"></select>
+                    <span>至</span>
+                    <select data-course-end-period aria-label="结束节次"></select>
+                  </div>
+                </div>
+              </div>
+              <div class="schedule-admin__field">
+                <span>上课周次 <b>可多选</b></span>
+                <div class="schedule-admin__week-actions">
+                  <button type="button" class="admin-button" data-weeks-action="all">全选</button>
+                  <button type="button" class="admin-button" data-weeks-action="clear">清空</button>
+                  <button type="button" class="admin-button" data-weeks-action="odd">单双周：单</button>
+                  <button type="button" class="admin-button" data-weeks-action="even">单双周：双</button>
+                </div>
+                <div class="schedule-admin__weeks" data-course-weeks></div>
+              </div>
+              <fieldset class="schedule-admin__colors">
+                <legend>课程颜色</legend>
+                <div class="schedule-admin__color-options">
+                  <label><input type="radio" name="course-color" value="mint" data-course-color checked><span class="schedule-color schedule-color--mint">薄荷</span></label>
+                  <label><input type="radio" name="course-color" value="pink" data-course-color><span class="schedule-color schedule-color--pink">玫瑰</span></label>
+                  <label><input type="radio" name="course-color" value="blue" data-course-color><span class="schedule-color schedule-color--blue">星蓝</span></label>
+                  <label><input type="radio" name="course-color" value="orange" data-course-color><span class="schedule-color schedule-color--orange">日珥</span></label>
+                </div>
+              </fieldset>
+              <p class="schedule-admin__form-error" data-course-form-error role="alert" hidden></p>
+              <div class="schedule-admin__form-actions">
+                <button class="admin-button admin-button--danger" type="button" data-course-delete hidden>删除课程</button>
+                <span></span>
+                <button class="admin-button" type="button" data-course-cancel>取消</button>
+                <button class="admin-button admin-button--primary" type="submit" data-course-save>保存课程</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <aside class="admin-rail schedule-admin__rail" aria-label="课表说明">
+        <p class="admin-eyebrow">PERIOD AXIS</p>
+        <h2>12 节时间轴</h2>
+        <ol class="schedule-admin__period-list">
+          <li><b>1–2</b><span>08:00–09:40</span></li>
+          <li><b>3–4</b><span>10:00–11:40</span></li>
+          <li><b>5–6</b><span>13:30–15:10</span></li>
+          <li><b>7–8</b><span>15:30–17:20</span></li>
+          <li><b>9–10</b><span>18:00–19:40</span></li>
+          <li><b>11–12</b><span>20:00–21:40</span></li>
+        </ol>
+        <p class="admin-rail__note">课程保存后会按星期、周次和节次自动显示在公开课表中。相同时间的课程会被阻止保存。</p>
+      </aside>
+    </div>
+  </body>
+</html>

@@ -79,6 +79,39 @@ test('schedule API rejects overlapping courses without replacing the saved versi
   });
 });
 
+test('schedule API rejects invalid term settings and course fields', async () => {
+  const fixture = await createAdminFixture();
+  const { agent, csrfToken } = await fixture.login();
+  const invalid = {
+    version: 1,
+    termStart: '2026-09-08',
+    totalWeeks: 20,
+    courses: [],
+  };
+
+  await agent.put('/api/admin/schedule').set('x-csrf-token', csrfToken)
+    .send(invalid).expect(400, { error: 'SCHEDULE_VALIDATION' });
+});
+
+test('authenticated admin can remove a course by saving the updated schedule', async () => {
+  const fixture = await createAdminFixture();
+  const { agent, csrfToken } = await fixture.login();
+  const schedule = {
+    version: 1,
+    termStart: '2026-09-07',
+    totalWeeks: 20,
+    courses: [{
+      id: 'course-to-remove', name: '待删除课程', teacher: '老师', room: '一 101', weekday: 5,
+      startPeriod: 5, endPeriod: 6, weeks: [1, 2], color: 'orange',
+    }],
+  };
+  await agent.put('/api/admin/schedule').set('x-csrf-token', csrfToken).send(schedule).expect(200);
+  const updated = { ...schedule, courses: [] };
+  await agent.put('/api/admin/schedule').set('x-csrf-token', csrfToken)
+    .send(updated).expect(200, { schedule: updated });
+  await request(fixture.app).get('/api/schedule').expect(200, { schedule: updated });
+});
+
 test('authenticated admin can create, save, upload, publish, and revise an article', async () => {
   const fixture = await createAdminFixture();
   const { agent, csrfToken } = await fixture.login();
