@@ -14,3 +14,7 @@
 - 记录决定和结果，再开始下一轮。
 
 当项目变得可运行，它就不再只是属于我的想象，也开始拥有和别人交流的机会。这也是我愿意持续做小项目的原因。
+![1](assets/blog/small-projects/ca2e8b9f-e586-4b2a-bb0e-233fa5225caa.jpg)  
+11111
+111
+![222](assets/blog/small-projects/ca578387-02e8-4111-99c1-3aa1baf65b5c.jpg)

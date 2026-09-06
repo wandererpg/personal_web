@@ -4,12 +4,15 @@
     "title": "为什么我喜欢把想法做成小项目？",
     "module": "projects",
     "createdAt": "2026-03-15T09:00:00+08:00",
-    "updatedAt": "2026-03-15T09:00:00+08:00",
-    "publishedAt": "2026-03-15T09:00:00+08:00",
+    "updatedAt": "2026-09-06T06:57:15.737Z",
+    "publishedAt": "2026-09-06T06:57:15.737Z",
     "excerpt": "当一个念头变成可以点击、运行或被别人使用的东西，它才真正开始和世界发生联系。",
     "cover": "assets/blog/small-projects/cover.svg",
-    "tags": ["Making", "Project"],
-    "readingTime": "4 min",
+    "tags": [
+      "Making",
+      "Project"
+    ],
+    "readingTime": "2 min",
     "content": "posts/small-projects.md"
   },
   {
@@ -21,7 +24,9 @@
     "publishedAt": "2026-02-20T09:00:00+08:00",
     "excerpt": "先找到边界，再决定下一步，最后让结果能够被复用。",
     "cover": "",
-    "tags": ["Process"],
+    "tags": [
+      "Process"
+    ],
     "readingTime": "3 min",
     "content": "posts/visible-steps.md"
   },
@@ -34,7 +39,9 @@
     "publishedAt": "2026-01-12T09:00:00+08:00",
     "excerpt": "比起收藏更多内容，更重要的是为真正会再次使用的知识留出位置。",
     "cover": "",
-    "tags": ["Learning"],
+    "tags": [
+      "Learning"
+    ],
     "readingTime": "3 min",
     "content": "posts/first-orbit.md"
   }
