@@ -65,6 +65,11 @@ test('editor normalizes tags and detects publication requirements', () => {
   assert.deepEqual(AdminModel.validateForPublish({ ...post, title: '', body: '  ' }), ['title', 'body']);
 });
 
+test('successful publication returns to the admin login page', () => {
+  assert.equal(AdminModel.getPostPublishDestination({ syncStatus: 'synced' }), '/admin/login');
+  assert.equal(AdminModel.getPostPublishDestination({ syncStatus: 'pending' }), null);
+});
+
 test('editor page exposes Markdown preview, upload, autosave, and publication controls', async () => {
   const [html, script] = await Promise.all([read('admin/editor.html'), read('admin/editor.js')]);
   for (const hook of [
@@ -75,4 +80,6 @@ test('editor page exposes Markdown preview, upload, autosave, and publication co
   assert.match(script, /Blog\.renderMarkdown/);
   assert.match(script, /1500/);
   assert.match(script, /beforeunload/);
+  assert.doesNotMatch(script, /post\.html\?slug=/);
+  assert.match(script, /getPostPublishDestination/);
 });

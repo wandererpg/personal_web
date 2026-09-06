@@ -101,8 +101,8 @@
       if (state.dirty) await saveDraft();
       const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}/publish`, { method: 'POST' });
       if (response.syncStatus === 'synced') {
-        setStatus('发布完成，正在打开文章', 'saved');
-        window.location.assign(`/post.html?slug=${encodeURIComponent(response.post.slug)}`);
+        setStatus('发布完成，正在返回登录页', 'saved');
+        window.location.assign(window.AdminModel.getPostPublishDestination(response));
       } else {
         one('[data-editor-sync]').hidden = false;
         setStatus('文章已提交，等待 Git 同步', 'pending');
@@ -130,8 +130,8 @@
       });
       if (response.syncStatus === 'synced') {
         button.hidden = true;
-        setStatus('同步完成', 'saved');
-        window.location.assign(`/post.html?slug=${encodeURIComponent(one('[data-editor-slug]').value)}`);
+        setStatus('同步完成，正在返回登录页', 'saved');
+        window.location.assign(window.AdminModel.getPostPublishDestination(response));
       }
     } catch {
       setStatus('同步仍未完成，请稍后重试', 'error');

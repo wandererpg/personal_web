@@ -67,8 +67,12 @@
     return { type: 'revise', slug: post.slug };
   }
 
+  function getPostPublishDestination(result) {
+    return result?.syncStatus === 'synced' ? '/admin/login' : null;
+  }
+
   return {
-    MODULES, filterPosts, getOpenAction, insertMarkdown, normalizeEditorPayload,
-    summarizePosts, validateForPublish
+    MODULES, filterPosts, getOpenAction, getPostPublishDestination, insertMarkdown,
+    normalizeEditorPayload, summarizePosts, validateForPublish
   };
 }));

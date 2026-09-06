@@ -25,7 +25,7 @@
     Object.freeze({ id: 'learning', label: '日常学习', signal: 'LEARNING ORBIT', description: '保存近期学过并真正理解的知识。' }),
   ]);
   const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  const timestampPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/;
+  const timestampPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/;
   const contentPathPattern = /^posts\/[a-zA-Z0-9._/-]+$/;
 
   const findBlogModule = (id) => BLOG_MODULES.find((module) => module.id === id) ?? null;
