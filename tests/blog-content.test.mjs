@@ -41,3 +41,15 @@ test('sample articles contain readable Markdown content', async () => {
     assert.match(markdown, /^- /m, `${file} needs a list`);
   }
 });
+
+test('blog titles do not contain Chinese full stops', async () => {
+  const posts = JSON.parse(await read('posts/index.json'));
+
+  for (const post of posts) {
+    assert.doesNotMatch(post.title, /。/, `${post.slug} metadata title contains a full stop`);
+
+    const markdown = await read(post.content);
+    const heading = markdown.match(/^#\s+(.+)$/m)?.[1];
+    if (heading) assert.doesNotMatch(heading, /。/, `${post.slug} Markdown title contains a full stop`);
+  }
+});
