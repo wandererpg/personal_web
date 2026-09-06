@@ -19,9 +19,23 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
 }(typeof globalThis !== 'undefined' ? globalThis : this, function createBlogApi() {
   const BLOG_INDEX_PATH = 'posts/index.json';
+  const BLOG_MODULES = Object.freeze([
+    Object.freeze({ id: 'projects', label: '我的项目', signal: 'PROJECT ARCHIVE', description: '记录正在制作的东西、实现过程与阶段成果。' }),
+    Object.freeze({ id: 'insights', label: '心得分享', signal: 'INSIGHT LOG', description: '整理实践后的判断、方法和值得留下的想法。' }),
+    Object.freeze({ id: 'learning', label: '日常学习', signal: 'LEARNING ORBIT', description: '保存近期学过并真正理解的知识。' }),
+  ]);
   const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  const timestampPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/;
   const contentPathPattern = /^posts\/[a-zA-Z0-9._/-]+$/;
+
+  const findBlogModule = (id) => BLOG_MODULES.find((module) => module.id === id) ?? null;
+  const filterPostsByModule = (posts, id) => (
+    findBlogModule(id) ? posts.filter((post) => post.module === id) : []
+  );
+  const moduleLabel = (post) => findBlogModule(post.module)?.label ?? '';
+  const validTimestamp = (value) => (
+    typeof value === 'string' && timestampPattern.test(value) && !Number.isNaN(Date.parse(value))
+  );
 
   const escapeHtml = (value) => String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -38,7 +52,7 @@
   };
 
   const sortPosts = (posts) => [...posts].sort((left, right) => (
-    right.date.localeCompare(left.date) || left.slug.localeCompare(right.slug)
+    Date.parse(right.createdAt) - Date.parse(left.createdAt) || left.slug.localeCompare(right.slug)
   ));
 
   const latestPosts = (posts, limit = 3) => sortPosts(posts).slice(0, Math.max(0, limit));
@@ -63,15 +77,18 @@
 
     const slug = typeof record.slug === 'string' ? record.slug.trim() : '';
     const title = typeof record.title === 'string' ? record.title.trim() : '';
-    const date = typeof record.date === 'string' ? record.date.trim() : '';
-    const category = typeof record.category === 'string' ? record.category.trim() : '';
+    const module = typeof record.module === 'string' ? record.module.trim() : '';
+    const createdAt = typeof record.createdAt === 'string' ? record.createdAt.trim() : '';
+    const updatedAt = typeof record.updatedAt === 'string' ? record.updatedAt.trim() : '';
+    const publishedAt = typeof record.publishedAt === 'string' ? record.publishedAt.trim() : '';
     const excerpt = typeof record.excerpt === 'string' ? record.excerpt.trim() : '';
     const readingTime = typeof record.readingTime === 'string' ? record.readingTime.trim() : '';
     const content = typeof record.content === 'string' ? record.content.trim() : '';
     const cover = typeof record.cover === 'string' ? record.cover.trim() : '';
 
-    if (!slugPattern.test(slug) || !datePattern.test(date)) return null;
-    if (!title || !content || !category || !excerpt || !readingTime) return null;
+    if (!slugPattern.test(slug) || !validTimestamp(createdAt)
+        || !validTimestamp(updatedAt) || !validTimestamp(publishedAt)) return null;
+    if (!title || !content || !findBlogModule(module) || !excerpt || !readingTime) return null;
     if (!contentPathPattern.test(content) || content.includes('..')) return null;
     if (cover && !safeContentUrl(cover)) return null;
     if (!Array.isArray(record.tags) || record.tags.some((tag) => typeof tag !== 'string')) return null;
@@ -79,8 +96,10 @@
     return {
       slug,
       title,
-      date,
-      category,
+      module,
+      createdAt,
+      updatedAt,
+      publishedAt,
       excerpt,
       cover,
       tags: record.tags.map((tag) => tag.trim()).filter(Boolean),
@@ -118,7 +137,15 @@
     }
   };
 
-  const formatBlogDate = (date) => String(date ?? '').replace(/-/g, '.');
+  const formatBlogDate = (timestamp) => {
+    const date = new Date(String(timestamp ?? ''));
+    if (Number.isNaN(date.getTime())) return '';
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+    return `${values.year}.${values.month}.${values.day}`;
+  };
 
   const getBlogSlug = (search) => new URLSearchParams(String(search ?? '')).get('slug');
 
@@ -191,9 +218,9 @@
     const date = createTextElement(doc, 'span', 'blog-row__date', '');
     date.dataset.blogDate = '';
     date.append(
-      createTextElement(doc, 'span', 'blog-row__date-value', formatBlogDate(post.date)),
+      createTextElement(doc, 'span', 'blog-row__date-value', formatBlogDate(post.createdAt)),
       doc.createElement('br'),
-      createTextElement(doc, 'span', 'blog-row__category', post.category),
+      createTextElement(doc, 'span', 'blog-row__category', moduleLabel(post)),
     );
 
     const content = doc.createElement('span');
@@ -335,12 +362,12 @@
         if (!post) throw new Error('文章不存在');
 
         if (doc) doc.title = `${post.title} · Blog · Wanderer.OS`;
-        if (elements.category) elements.category.textContent = post.category;
+        if (elements.category) elements.category.textContent = moduleLabel(post);
         if (elements.title) elements.title.textContent = post.title;
         if (elements.excerpt) elements.excerpt.textContent = post.excerpt;
         if (elements.date) {
-          elements.date.textContent = formatBlogDate(post.date);
-          elements.date.dateTime = post.date;
+          elements.date.textContent = formatBlogDate(post.createdAt);
+          elements.date.dateTime = post.createdAt;
         }
         if (elements.readingTime) elements.readingTime.textContent = post.readingTime;
         renderBlogCover(doc, elements.cover, post);
@@ -409,7 +436,7 @@
     topLine.className = 'card-topline';
     topLine.append(
       createTextElement(doc, 'span', 'card-index', `BLOG / ${String(index + 1).padStart(2, '0')}`),
-      createTextElement(doc, 'span', 'status', post.category),
+      createTextElement(doc, 'span', 'status', moduleLabel(post)),
     );
     card.append(topLine);
 
@@ -613,6 +640,9 @@
 
   return {
     BLOG_INDEX_PATH,
+    BLOG_MODULES,
+    findBlogModule,
+    filterPostsByModule,
     normalizePost,
     normalizePosts,
     sortPosts,
