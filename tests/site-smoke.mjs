@@ -71,6 +71,8 @@ test('homepage exposes the compact schedule summary below the station card', asy
   assert.match(controller, /data-schedule-summary-day/);
   assert.match(controller, /coursesForDate/);
   assert.match(controller, /addDays\(today, 1\)/);
+  assert.match(controller, /state\.schedule && !state\.loading && !state\.error/);
+  assert.doesNotMatch(controller, /state\.schedule\?\.termStart && !state\.loading && !state\.error/);
   assert.match(css, /\.hero-visual__stack\s*\{/);
   assert.match(css, /\.home-schedule\s*\{/);
   assert.match(css, /\.home-schedule__days\s*\{/);

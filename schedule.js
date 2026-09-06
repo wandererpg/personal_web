@@ -177,7 +177,7 @@
     const list = day.querySelector('[data-schedule-summary-day-list]');
     const empty = day.querySelector('[data-schedule-summary-day-empty]');
     const weekday = model.currentWeekday(dateKey);
-    const courses = state.schedule?.termStart && !state.loading && !state.error
+    const courses = state.schedule && !state.loading && !state.error
       ? model.coursesForDate(state.schedule.courses, dateKey, week)
       : [];
     const dayLabel = day.querySelector('[data-schedule-summary-day-label]');
