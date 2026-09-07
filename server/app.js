@@ -12,12 +12,14 @@ const { createGitPublisher } = require('./git-publisher.js');
 const { createPublishService } = require('./publish-service.js');
 const { createDeleteService } = require('./delete-service.js');
 const { createScheduleStore } = require('./schedule-store.js');
+const { createGuestbookStore } = require('./guestbook-store.js');
 const { createAdminScheduleRouter, createPublicScheduleRouter } = require('./schedule-api.js');
+const { createAdminGuestbookRouter, createPublicGuestbookRouter } = require('./guestbook-api.js');
 
 const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'projects.html', 'notes.html', 'post.html', 'schedule.html', 'styles.css',
   'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'schedule-model.js',
-  'schedule.js', 'favicon.svg'
+  'schedule.js', 'guestbook.js', 'favicon.svg'
 ]);
 const PUBLIC_DIRECTORIES = new Set(['posts', 'assets', 'music']);
 
@@ -131,6 +133,7 @@ function installAdmin(app, config, options) {
     gitPublisher
   });
   const scheduleStore = options.scheduleStore || createScheduleStore({ dataDir: config.dataDir });
+  const guestbookStore = options.guestbookStore || createGuestbookStore({ dataDir: config.dataDir });
   app.get('/api/admin/session', auth.ensureCsrf, (req, res) => res.json({
     authenticated: req.session.authenticated === true,
     csrfToken: req.session.csrfToken
@@ -148,18 +151,20 @@ function installAdmin(app, config, options) {
     auth
   }));
   app.use('/api/admin/schedule', auth.requireAuth, createAdminScheduleRouter({ scheduleStore, auth }));
+  app.use('/api/admin/guestbook', auth.requireAuth, createAdminGuestbookRouter({ guestbookStore, auth }));
 
   const adminFile = name => path.join(config.repoDir, 'admin', name);
   const requireAdminPage = (req, res, next) => (
     req.session.authenticated === true ? next() : res.redirect('/admin/login')
   );
   app.get('/admin/login', (_req, res) => res.sendFile(adminFile('login.html')));
-  for (const asset of ['login.js', 'admin-api.js', 'dashboard.js', 'editor.js', 'schedule.js', 'admin-model.js', 'admin.css']) {
+  for (const asset of ['login.js', 'admin-api.js', 'dashboard.js', 'editor.js', 'schedule.js', 'guestbook.js', 'admin-model.js', 'admin.css']) {
     app.get(`/admin/${asset}`, (_req, res) => res.sendFile(adminFile(asset)));
   }
   app.get('/admin', requireAdminPage, (_req, res) => res.sendFile(adminFile('index.html')));
   app.get('/admin/editor', requireAdminPage, (_req, res) => res.sendFile(adminFile('editor.html')));
   app.get('/admin/schedule', requireAdminPage, (_req, res) => res.sendFile(adminFile('schedule.html')));
+  app.get('/admin/guestbook', requireAdminPage, (_req, res) => res.sendFile(adminFile('guestbook.html')));
 
   if (typeof options.installAdmin === 'function') {
     options.installAdmin(app, { auth, store, draftStore, mediaStore, gitPublisher, publishService, deleteService });
@@ -173,8 +178,10 @@ function createApp(config, options = {}) {
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(express.json({ limit: '256kb' }));
   const scheduleStore = options.scheduleStore || createScheduleStore({ dataDir: config.dataDir });
+  const guestbookStore = options.guestbookStore || createGuestbookStore({ dataDir: config.dataDir });
   app.use('/api/schedule', createPublicScheduleRouter({ scheduleStore }));
-  if (options.installAdmin !== false) installAdmin(app, config, { ...options, scheduleStore });
+  app.use('/api/guestbook', createPublicGuestbookRouter({ guestbookStore }));
+  if (options.installAdmin !== false) installAdmin(app, config, { ...options, scheduleStore, guestbookStore });
   installPublicFiles(app, config.repoDir);
   app.use((error, _req, res, _next) => {
     console.error(error);

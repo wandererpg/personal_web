@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex,nofollow">
+    <meta name="theme-color" content="#050816">
+    <title>留言板控制台 · Wanderer.OS</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="admin.css">
+    <script src="admin-api.js" defer></script>
+    <script src="guestbook.js" defer></script>
+  </head>
+  <body>
+    <div class="admin-shell guestbook-admin-page">
+      <aside class="admin-sidebar">
+        <a class="admin-brand" href="/" aria-label="返回个人网站">
+          <span class="admin-brand__mark">W</span>
+          <span><strong>Wanderer.OS</strong><small>CONTENT STATION</small></span>
+        </a>
+        <nav class="admin-nav" aria-label="管理模块">
+          <p class="admin-eyebrow">STATION MODULES</p>
+          <a class="admin-nav__item" href="/admin"><span>文章档案</span><i class="admin-nav__dot admin-nav__dot--violet"></i></a>
+          <a class="admin-nav__item" href="/admin/schedule"><span>每周课表</span><i class="admin-nav__dot admin-nav__dot--cyan"></i></a>
+          <a class="admin-nav__item is-active" href="/admin/guestbook"><span>留言板</span><i class="admin-nav__dot admin-nav__dot--lime"></i></a>
+        </nav>
+        <div class="admin-sidebar__footer">
+          <span class="admin-private"><i></i> PRIVATE CHANNEL</span>
+          <button class="admin-text-button" type="button" data-admin-logout>退出登录</button>
+        </div>
+      </aside>
+
+      <main class="admin-main guestbook-admin" data-admin-guestbook>
+        <header class="admin-header">
+          <div>
+            <p class="admin-eyebrow">OPEN CHANNEL / 留言管理</p>
+            <h1>留言板</h1>
+            <p>查看访客留下的文字和图片；不合适的内容可以从这里移除。</p>
+          </div>
+        </header>
+        <p class="guestbook-admin__status" data-admin-guestbook-status role="status" aria-live="polite">正在读取留言…</p>
+        <p class="guestbook-admin__error" data-admin-guestbook-error role="alert" hidden></p>
+        <section class="guestbook-admin__content" aria-labelledby="guestbook-admin-list-title">
+          <div class="admin-section-title">
+            <div><span class="admin-pulse"></span><h2 id="guestbook-admin-list-title">最新留言</h2></div>
+            <p data-admin-guestbook-count>0 SIGNALS</p>
+          </div>
+          <div class="guestbook-admin__list" data-admin-guestbook-list aria-live="polite"></div>
+          <p class="admin-state guestbook-admin__empty" data-admin-guestbook-empty hidden>还没有访客留言。</p>
+        </section>
+      </main>
+
+      <aside class="admin-rail" aria-label="留言说明">
+        <p class="admin-eyebrow">CHANNEL STATUS</p>
+        <h2>开放频道</h2>
+        <article class="admin-sync-card">
+          <span class="admin-sync-card__icon">✦</span>
+          <div><strong>公开留言</strong><p>文字和图片会立即出现在首页。</p></div>
+        </article>
+        <div class="admin-orbit" aria-hidden="true"><i></i><span>W</span></div>
+        <p class="admin-rail__note">留言与图片保存在服务器的 BLOG_DATA_DIR 中，不会进入公开 Git 仓库。</p>
+      </aside>
+    </div>
+  </body>
+</html>

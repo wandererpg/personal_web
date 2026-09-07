@@ -30,7 +30,7 @@ async function createSiteFixture() {
   const outside = await mkdtemp(join(tmpdir(), 'wanderer-outside-'));
   const rootFiles = [
     'index.html', 'projects.html', 'notes.html', 'post.html', 'styles.css',
-    'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'favicon.svg'
+    'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'guestbook.js', 'favicon.svg'
   ];
   await Promise.all(rootFiles.map(file => writeFile(join(root, file), `public:${file}`)));
   await Promise.all(['posts', 'assets', 'music', 'server'].map(dir => mkdir(join(root, dir))));
@@ -98,7 +98,7 @@ test('public server serves only explicitly allowed root files and directories', 
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
 
   for (const url of ['/', '/index.html', '/projects.html', '/notes.html', '/post.html',
-    '/styles.css', '/script.js', '/blog.js', '/calendar.js', '/clock.js',
+    '/styles.css', '/script.js', '/blog.js', '/calendar.js', '/clock.js', '/guestbook.js',
     '/liquid-glass.js', '/favicon.svg', '/posts/article.md', '/assets/image.txt',
     '/music/track.mp3']) await request(app).get(url).expect(200);
 

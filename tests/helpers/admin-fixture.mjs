@@ -9,6 +9,7 @@ const session = require('express-session');
 const { createApp } = require('../../server/app.js');
 const { createDraftStore } = require('../../server/draft-store.js');
 const { createScheduleStore } = require('../../server/schedule-store.js');
+const { createGuestbookStore } = require('../../server/guestbook-store.js');
 
 export const pngFixture = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
 
@@ -37,16 +38,18 @@ export async function createAdminFixture(options = {}) {
   };
   const draftStore = createDraftStore({ dataDir });
   const scheduleStore = options.scheduleStore || createScheduleStore({ dataDir });
+  const guestbookStore = options.guestbookStore || createGuestbookStore({ dataDir });
   const app = createApp(config, {
     sessionStore: new session.MemoryStore(),
     passwordCompare: async value => value === 'correct',
     gitPublisher,
     draftStore,
-    scheduleStore
+    scheduleStore,
+    guestbookStore
   });
 
   return {
-    app, repoDir, dataDir, draftStore, scheduleStore, gitCalls,
+    app, repoDir, dataDir, draftStore, scheduleStore, guestbookStore, gitCalls,
     async login() {
       const agent = request.agent(app);
       const sessionResponse = await agent.get('/api/admin/session').expect(200);

@@ -101,3 +101,16 @@ test('dashboard exposes edit and delete actions for every private archive row', 
   assert.match(script, /posts\/published/);
   assert.match(script, /method: 'DELETE'/);
 });
+
+test('guestbook moderation page exposes safe listing and deletion hooks', async () => {
+  const [html, script] = await Promise.all([read('admin/guestbook.html'), read('admin/guestbook.js')]);
+  for (const hook of [
+    'data-admin-guestbook', 'data-admin-guestbook-list', 'data-admin-guestbook-empty',
+    'data-admin-guestbook-error', 'data-admin-guestbook-status', 'data-admin-guestbook-count'
+  ]) assert.match(html, new RegExp(hook));
+  assert.match(html, /href="\/admin\/guestbook"/);
+  assert.match(script, /\/api\/admin\/guestbook/);
+  assert.match(script, /method: 'DELETE'/);
+  assert.match(script, /textContent/);
+  assert.doesNotMatch(script, /\.innerHTML\s*=/);
+});

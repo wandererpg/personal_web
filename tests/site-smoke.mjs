@@ -13,7 +13,7 @@ const musicFiles = [
 ];
 
 test('required site files exist', async () => {
-  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js', 'clock.js']) {
+  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js', 'clock.js', 'guestbook.js']) {
     assert.equal(await exists(file), true, `${file} is missing`);
   }
 });
@@ -82,6 +82,25 @@ test('homepage exposes the compact schedule summary below the station card', asy
   assert.match(css, /\.home-schedule__days\s*\{/);
   assert.match(css, /\.home-schedule__day\s*\{/);
   assert.match(css, /align-self:\s*start/);
+});
+
+test('homepage places the blog before the bot control and guestbook workspace', async () => {
+  const html = await read('index.html');
+  const app = await read('server/app.js');
+  const guestbook = await read('guestbook.js');
+
+  assert.ok(html.indexOf('id="blog"') < html.indexOf('id="bot-management"'));
+  assert.match(html, /id="bot-management"/);
+  assert.match(html, /data-guestbook/);
+  assert.match(html, /href="http:\/\/39\.96\.37\.102:6099\/"/);
+  assert.match(html, /href="http:\/\/39\.96\.37\.102:6185\/"/);
+  assert.match(html, /href="https:\/\/39\.96\.37\.102:29248\/f3c1a365"/);
+  assert.match(html, /<script src="guestbook\.js" defer><\/script>/);
+  assert.match(guestbook, /FormData/);
+  assert.match(guestbook, /textContent/);
+  assert.doesNotMatch(guestbook, /\.innerHTML\s*=/);
+  assert.match(app, /'guestbook\.js'/);
+  assert.match(app, /\/api\/guestbook/);
 });
 
 test('admin schedule editor exposes the protected course form', async () => {
@@ -525,7 +544,7 @@ test('home calendar exposes the school schedule and nearby events panel', async 
 
 test('all primary glass surfaces load the shared interaction module', async () => {
   const expectedTargets = new Map([
-    ['index.html', 9],
+    ['index.html', 8],
     ['projects.html', 4],
     ['notes.html', 4],
     ['post.html', 1],
@@ -607,7 +626,7 @@ test('home exposes the repository-driven blog preview', async () => {
   const html = await read('index.html');
   const blog = await read('blog.js');
 
-  assert.match(html, /<script src="blog\.js" defer><\/script>\s*<script src="script\.js" defer><\/script>/);
+  assert.match(html, /<script src="blog\.js" defer><\/script>\s*<script src="guestbook\.js" defer><\/script>\s*<script src="script\.js" defer><\/script>/);
   assert.match(html, /id="blog"/);
   assert.match(html, /data-blog-preview/);
   assert.match(html, /data-blog-preview-empty/);
