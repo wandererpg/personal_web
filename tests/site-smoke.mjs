@@ -557,9 +557,9 @@ test('liquid glass material provides responsive and reduced-motion feedback', as
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.liquid-glass[^}]*transform:\s*none\s*!important;/s);
 });
 
-test('station glass card keeps desktop vertical centering while active', async () => {
+test('stacked station glass card keeps its placement while active', async () => {
   const css = await read('styles.css');
-  assert.match(css, /@media\s*\(min-width:\s*921px\)[\s\S]*?\.station-panel\.liquid-glass\.is-glass-active\s*\{[^}]*transform:\s*translateY\(-50%\)[^}]*perspective\(900px\)/s);
+  assert.match(css, /\.hero-visual__stack \.station-panel\.liquid-glass\.is-glass-active\s*\{[^}]*transform:\s*rotate\(2deg\)\s+perspective\(900px\)[^}]*translateY\(-4px\)/s);
 });
 
 test('home station presents wanderer with an accessible avatar placeholder', async () => {

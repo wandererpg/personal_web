@@ -3347,6 +3347,12 @@ svg {
   transform: rotate(2deg);
 }
 
+@media (min-width: 921px) {
+  .hero-visual__stack .station-panel.liquid-glass.is-glass-active {
+    transform: rotate(2deg) perspective(900px) rotateX(var(--glass-rx)) rotateY(var(--glass-ry)) translateY(-4px) scale(var(--glass-scale));
+  }
+}
+
 .home-schedule {
   cursor: pointer;
   transition: border-color 180ms ease, background 180ms ease;
