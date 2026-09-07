@@ -13,7 +13,7 @@ const musicFiles = [
 ];
 
 test('required site files exist', async () => {
-  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js', 'clock.js', 'guestbook.js']) {
+  for (const file of ['index.html', 'projects.html', 'notes.html', 'styles.css', 'script.js', 'clock.js', 'guestbook.js', 'assets/avatar.jpg']) {
     assert.equal(await exists(file), true, `${file} is missing`);
   }
 });
@@ -591,14 +591,14 @@ test('stacked station glass card keeps its placement while active', async () => 
   assert.match(css, /\.hero-visual__stack \.station-panel\.liquid-glass\.is-glass-active\s*\{[^}]*transform:\s*rotate\(2deg\)\s+perspective\(900px\)[^}]*translateY\(-4px\)/s);
 });
 
-test('home station presents wanderer with an accessible avatar placeholder', async () => {
+test('home station presents wanderer with the selected avatar image', async () => {
   const html = await read('index.html');
 
   assert.match(html, /<span class="station-nebula" aria-hidden="true"><\/span>/);
   assert.match(html, /<div class="avatar-stage">/);
-  assert.match(html, /class="avatar-placeholder" role="img" aria-label="Wanderer 头像占位符"/);
-  assert.match(html, /<span aria-hidden="true">W<\/span>/);
-  assert.match(html, /<small aria-hidden="true">AVATAR<\/small>/);
+  assert.match(html, /class="avatar-placeholder" role="img" aria-label="Wanderer 头像"/);
+  assert.match(html, /<img class="avatar-image" src="assets\/avatar\.jpg" alt="Wanderer 头像">/);
+  assert.doesNotMatch(html, /头像占位符|<small aria-hidden="true">AVATAR<\/small>/);
   assert.match(html, /<h2>wanderer<\/h2>/);
   assert.doesNotMatch(html, /class="planet(?:-stage)?"/);
   assert.doesNotMatch(html, /把好奇心，变成可见的东西。/);
