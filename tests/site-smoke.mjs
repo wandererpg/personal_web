@@ -43,6 +43,10 @@ test('public schedule page exposes the full weekly view and safe asset allowlist
   assert.match(css, /\.schedule-grid\s*\{/);
   assert.match(css, /\.schedule-course\s*\{/);
   assert.match(controller, /schedule-course__period/);
+  assert.match(controller, /label\.style\.gridColumn = '1'/);
+  assert.match(controller, /label\.style\.gridRow = String\(period\.index \+ 1\)/);
+  assert.match(controller, /cell\.style\.gridColumn = String\(dayIndex \+ 2\)/);
+  assert.match(controller, /cell\.style\.gridRow = String\(period\.index \+ 1\)/);
   assert.match(css, /08:00/);
   assert.match(css, /20:55/);
   assert.match(css, /overflow/);

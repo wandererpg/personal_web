@@ -102,10 +102,14 @@
     if (empty) empty.hidden = false;
 
     const corner = createElement('div', 'schedule-grid__corner', '节次');
+    corner.style.gridColumn = '1';
+    corner.style.gridRow = '1';
     corner.setAttribute('aria-hidden', 'true');
     grid.append(corner);
     dates.forEach((dateKey, index) => {
       const day = createElement('div', 'schedule-day');
+      day.style.gridColumn = String(index + 2);
+      day.style.gridRow = '1';
       day.classList.toggle('is-today', dateKey === beijingDateKey());
       day.append(
         createElement('span', 'schedule-day__name', `周${dayNames[index]}`),
@@ -116,12 +120,19 @@
 
     model.PERIODS.forEach(period => {
       const label = createElement('div', 'schedule-period');
+      label.style.gridColumn = '1';
+      label.style.gridRow = String(period.index + 1);
       label.append(
         createElement('strong', '', String(period.index)),
         createElement('span', '', `${period.start}–${period.end}`),
       );
       grid.append(label);
-      dates.forEach(() => grid.append(createElement('div', 'schedule-grid__cell')));
+      dates.forEach((_dateKey, dayIndex) => {
+        const cell = createElement('div', 'schedule-grid__cell');
+        cell.style.gridColumn = String(dayIndex + 2);
+        cell.style.gridRow = String(period.index + 1);
+        grid.append(cell);
+      });
     });
 
     const visible = model.coursesForWeek(state.schedule?.courses || [], state.viewWeek);
