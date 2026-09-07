@@ -209,7 +209,7 @@
           <div class="container">
             <div class="section-heading reveal">
               <div>
-                <span class="section-label">02 / Blog archive</span>
+                <span class="section-label">Blog archive</span>
                 <h2 id="blog-title">我的博客</h2>
               </div>
               <div>
@@ -225,80 +225,82 @@
         </section>
 
         <section class="section bot-section" id="bot-management" aria-labelledby="bot-management-title">
-          <div class="bot-guestbook-grid">
-            <section class="bot-panel liquid-glass reveal delay-1" data-liquid-glass aria-labelledby="bot-management-title">
-              <header class="bot-panel__header">
-                <div>
-                  <span class="section-label">01 / BOT CONTROL</span>
-                  <h2 id="bot-management-title">BOT 管理</h2>
-                  <p class="bot-panel__intro">把正在运行的服务放在同一条轨道上，随时进入管理面板。</p>
-                  <a class="bot-panel__record-link text-link" href="projects.html">查看项目记录</a>
+          <div class="container">
+            <div class="bot-guestbook-grid">
+              <section class="bot-panel liquid-glass reveal delay-1" data-liquid-glass aria-labelledby="bot-management-title">
+                <header class="bot-panel__header">
+                  <div>
+                    <span class="section-label">BOT CONTROL</span>
+                    <h2 id="bot-management-title">BOT 管理</h2>
+                    <p class="bot-panel__intro">把正在运行的服务放在同一条轨道上，随时进入管理面板。</p>
+                    <a class="bot-panel__record-link text-link" href="projects.html">查看项目记录</a>
+                  </div>
+                  <span class="bot-panel__status"><i></i>READY</span>
+                </header>
+                <div class="bot-links">
+                  <a class="bot-link" href="http://39.96.37.102:6099/" target="_blank" rel="noopener noreferrer">
+                    <span class="bot-link__mark bot-link__mark--napcat" data-bot-icon aria-hidden="true"><img src="http://39.96.37.102:6099/webui/favicon.ico" alt=""><span>NC</span></span>
+                    <span class="bot-link__copy"><strong>NapCat</strong><small>QQ 服务管理</small></span>
+                    <span class="bot-link__arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a class="bot-link" href="http://39.96.37.102:6185/" target="_blank" rel="noopener noreferrer">
+                    <span class="bot-link__mark bot-link__mark--astrobot" data-bot-icon aria-hidden="true"><img src="http://39.96.37.102:6185/favicon.svg" alt=""><span>AB</span></span>
+                    <span class="bot-link__copy"><strong>AstroBot</strong><small>机器人控制台</small></span>
+                    <span class="bot-link__arrow" aria-hidden="true">↗</span>
+                  </a>
+                  <a class="bot-link" href="https://39.96.37.102:29248/f3c1a365" target="_blank" rel="noopener noreferrer">
+                    <span class="bot-link__mark bot-link__mark--baota" aria-hidden="true"><span>BT</span></span>
+                    <span class="bot-link__copy"><strong>宝塔 Docker</strong><small>容器与服务部署</small></span>
+                    <span class="bot-link__arrow" aria-hidden="true">↗</span>
+                  </a>
                 </div>
-                <span class="bot-panel__status"><i></i>READY</span>
-              </header>
-              <div class="bot-links">
-                <a class="bot-link" href="http://39.96.37.102:6099/" target="_blank" rel="noopener noreferrer">
-                  <span class="bot-link__mark bot-link__mark--napcat" data-bot-icon aria-hidden="true"><img src="http://39.96.37.102:6099/webui/favicon.ico" alt=""><span>NC</span></span>
-                  <span class="bot-link__copy"><strong>NapCat</strong><small>QQ 服务管理</small></span>
-                  <span class="bot-link__arrow" aria-hidden="true">↗</span>
-                </a>
-                <a class="bot-link" href="http://39.96.37.102:6185/" target="_blank" rel="noopener noreferrer">
-                  <span class="bot-link__mark bot-link__mark--astrobot" data-bot-icon aria-hidden="true"><img src="http://39.96.37.102:6185/favicon.svg" alt=""><span>AB</span></span>
-                  <span class="bot-link__copy"><strong>AstroBot</strong><small>机器人控制台</small></span>
-                  <span class="bot-link__arrow" aria-hidden="true">↗</span>
-                </a>
-                <a class="bot-link" href="https://39.96.37.102:29248/f3c1a365" target="_blank" rel="noopener noreferrer">
-                  <span class="bot-link__mark bot-link__mark--baota" aria-hidden="true"><span>BT</span></span>
-                  <span class="bot-link__copy"><strong>宝塔 Docker</strong><small>容器与服务部署</small></span>
-                  <span class="bot-link__arrow" aria-hidden="true">↗</span>
-                </a>
-              </div>
-            </section>
+              </section>
 
-            <section class="guestbook liquid-glass reveal delay-2" data-liquid-glass data-guestbook aria-labelledby="guestbook-title">
-              <header class="guestbook__header">
-                <div>
-                  <span class="section-label">OPEN CHANNEL</span>
-                  <h3 id="guestbook-title">留言板</h3>
-                </div>
-                <span class="guestbook__signal" aria-hidden="true">✦</span>
-              </header>
-              <p class="guestbook__intro">公开频道：访客留下的文字和图片会直接显示在这里。</p>
-              <form class="guestbook__form" data-guestbook-form enctype="multipart/form-data">
-                <label class="guestbook__field">
-                  <span>昵称 <small>OPTIONAL</small></span>
-                  <input type="text" name="nickname" data-guestbook-nickname maxlength="32" placeholder="匿名访客">
-                </label>
-                <label class="guestbook__field">
-                  <span>留言 <small>1000 CHARACTERS</small></span>
-                  <textarea name="message" data-guestbook-message maxlength="1000" rows="3" placeholder="写下你想说的话…"></textarea>
-                </label>
-                <div class="guestbook__upload">
-                  <label class="guestbook__upload-button">
-                    <input type="file" name="images" data-guestbook-images accept="image/png,image/jpeg,image/webp" multiple>
-                    <span aria-hidden="true">＋</span>
-                    <strong>添加图片</strong>
-                    <small>PNG / JPG / WEBP · 最多 3 张，每张 4MB</small>
+              <section class="guestbook liquid-glass reveal delay-2" data-liquid-glass data-guestbook aria-labelledby="guestbook-title">
+                <header class="guestbook__header">
+                  <div>
+                    <span class="section-label">OPEN CHANNEL</span>
+                    <h3 id="guestbook-title">留言板</h3>
+                  </div>
+                  <span class="guestbook__signal" aria-hidden="true">✦</span>
+                </header>
+                <p class="guestbook__intro">公开频道：访客留下的文字和图片会直接显示在这里。</p>
+                <form class="guestbook__form" data-guestbook-form enctype="multipart/form-data">
+                  <label class="guestbook__field">
+                    <span>昵称 <small>OPTIONAL</small></span>
+                    <input type="text" name="nickname" data-guestbook-nickname maxlength="32" placeholder="匿名访客">
                   </label>
-                  <div class="guestbook__preview" data-guestbook-preview aria-live="polite"></div>
-                </div>
-                <div class="guestbook__actions">
-                  <p data-guestbook-status role="status" aria-live="polite"></p>
-                  <button class="guestbook__submit" type="submit">发射留言 <span aria-hidden="true">↗</span></button>
-                </div>
-              </form>
-              <div class="guestbook__list" data-guestbook-list aria-live="polite"></div>
-              <p class="guestbook__empty" data-guestbook-empty hidden>这里还没有留言，成为第一个信号。</p>
-              <p class="guestbook__error" data-guestbook-error role="alert" hidden>留言暂时无法加载，请稍后重试。</p>
-            </section>
+                  <label class="guestbook__field">
+                    <span>留言 <small>1000 CHARACTERS</small></span>
+                    <textarea name="message" data-guestbook-message maxlength="1000" rows="3" placeholder="写下你想说的话…"></textarea>
+                  </label>
+                  <div class="guestbook__upload">
+                    <label class="guestbook__upload-button">
+                      <input type="file" name="images" data-guestbook-images accept="image/png,image/jpeg,image/webp" multiple>
+                      <span aria-hidden="true">＋</span>
+                      <strong>添加图片</strong>
+                      <small>PNG / JPG / WEBP · 最多 3 张，每张 4MB</small>
+                    </label>
+                    <div class="guestbook__preview" data-guestbook-preview aria-live="polite"></div>
+                  </div>
+                  <div class="guestbook__actions">
+                    <p data-guestbook-status role="status" aria-live="polite"></p>
+                    <button class="guestbook__submit" type="submit">发射留言 <span aria-hidden="true">↗</span></button>
+                  </div>
+                </form>
+                <div class="guestbook__list" data-guestbook-list aria-live="polite"></div>
+                <p class="guestbook__empty" data-guestbook-empty hidden>这里还没有留言，成为第一个信号。</p>
+                <p class="guestbook__error" data-guestbook-error role="alert" hidden>留言暂时无法加载，请稍后重试。</p>
+              </section>
+            </div>
           </div>
         </section>
 
         <section class="section links-section container" id="links" aria-labelledby="links-title">
           <div class="section-heading reveal">
             <div>
-              <span class="section-label">03 / Communication links</span>
-              <h2 id="links-title">在其他轨道见。</h2>
+              <span class="section-label">Communication links</span>
+              <h2 id="links-title">更多了解我的途径</h2>
             </div>
             <p>项目和想法会在不同平台继续生长，欢迎从你熟悉的入口进入。</p>
           </div>

@@ -91,7 +91,12 @@ test('homepage places the blog before the bot control and exposes the public gue
   const css = await read('styles.css');
 
   assert.ok(html.indexOf('id="blog"') < html.indexOf('id="bot-management"'));
+  assert.match(html, /<span class="section-label">Blog archive<\/span>/);
+  assert.match(html, /<span class="section-label">BOT CONTROL<\/span>/);
+  assert.match(html, /<span class="section-label">Communication links<\/span>/);
+  assert.doesNotMatch(html, /<span class="section-label">(?:01|02|03)\s*\//);
   assert.match(html, /<section class="bot-panel[^"]*"[\s\S]*<h2 id="bot-management-title">BOT 管理<\/h2>/);
+  assert.match(html, /<h2 id="links-title">更多了解我的途径<\/h2>/);
   assert.match(html, /data-guestbook-list/);
   assert.match(html, /公开频道：访客留下的文字和图片会直接显示在这里/);
   assert.match(html, /href="http:\/\/39\.96\.37\.102:6099\/"/);
@@ -102,6 +107,7 @@ test('homepage places the blog before the bot control and exposes the public gue
   assert.match(guestbook, /fetch\('\/api\/guestbook'/);
   assert.match(guestbook, /textContent/);
   assert.doesNotMatch(guestbook, /\.innerHTML\s*=/);
+  assert.match(html, /<section class="section bot-section"[\s\S]*<div class="container">\s*<div class="bot-guestbook-grid">/);
   assert.match(css, /grid-template-columns:\s*minmax\(220px, 0\.62fr\)/);
   assert.match(app, /'guestbook\.js'/);
   assert.match(app, /\/api\/guestbook/);
