@@ -3578,7 +3578,7 @@ svg {
 
 .bot-guestbook-grid {
   display: grid;
-  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.22fr);
+  grid-template-columns: minmax(220px, 0.62fr) minmax(0, 1.38fr);
   gap: 18px;
   align-items: stretch;
 }
@@ -3606,12 +3606,27 @@ svg {
   gap: 14px;
 }
 
+.bot-panel__header h2,
 .bot-panel__header h3,
 .guestbook__header h3 {
   margin: 6px 0 0;
   color: var(--ink-strong);
   font: 700 1.25rem/1.15 var(--display);
   letter-spacing: -0.04em;
+}
+
+.bot-panel__intro {
+  max-width: 18rem;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.bot-panel__record-link {
+  display: inline-flex;
+  margin-top: 11px;
+  font-size: 0.64rem;
 }
 
 .bot-panel__status {

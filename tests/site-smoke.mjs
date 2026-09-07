@@ -84,21 +84,25 @@ test('homepage exposes the compact schedule summary below the station card', asy
   assert.match(css, /align-self:\s*start/);
 });
 
-test('homepage places the blog before the bot control and guestbook workspace', async () => {
+test('homepage places the blog before the bot control and exposes the public guestbook', async () => {
   const html = await read('index.html');
   const app = await read('server/app.js');
   const guestbook = await read('guestbook.js');
+  const css = await read('styles.css');
 
   assert.ok(html.indexOf('id="blog"') < html.indexOf('id="bot-management"'));
-  assert.match(html, /id="bot-management"/);
-  assert.match(html, /data-guestbook/);
+  assert.match(html, /<section class="bot-panel[^"]*"[\s\S]*<h2 id="bot-management-title">BOT 管理<\/h2>/);
+  assert.match(html, /data-guestbook-list/);
+  assert.match(html, /公开频道：访客留下的文字和图片会直接显示在这里/);
   assert.match(html, /href="http:\/\/39\.96\.37\.102:6099\/"/);
   assert.match(html, /href="http:\/\/39\.96\.37\.102:6185\/"/);
   assert.match(html, /href="https:\/\/39\.96\.37\.102:29248\/f3c1a365"/);
   assert.match(html, /<script src="guestbook\.js" defer><\/script>/);
   assert.match(guestbook, /FormData/);
+  assert.match(guestbook, /fetch\('\/api\/guestbook'/);
   assert.match(guestbook, /textContent/);
   assert.doesNotMatch(guestbook, /\.innerHTML\s*=/);
+  assert.match(css, /grid-template-columns:\s*minmax\(220px, 0\.62fr\)/);
   assert.match(app, /'guestbook\.js'/);
   assert.match(app, /\/api\/guestbook/);
 });
