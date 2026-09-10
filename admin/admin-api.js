@@ -5,6 +5,8 @@
 }(typeof globalThis !== 'undefined' ? globalThis : this, function createAdminApi(fetchImpl) {
   let csrfToken = '';
 
+  const isMutation = method => !['GET', 'HEAD', 'OPTIONS'].includes(method);
+
   async function parseResponse(response) {
     const type = response.headers.get('content-type') || '';
     const body = type.includes('application/json') ? await response.json() : null;
@@ -25,17 +27,30 @@
     return body;
   }
 
+  async function send(path, options, method) {
+    const headers = new Headers(options.headers || {});
+    headers.set('Accept', 'application/json');
+    if (isMutation(method)) headers.set('x-csrf-token', csrfToken);
+    return parseResponse(await fetchImpl(path, {
+      ...options, method, headers, credentials: 'same-origin'
+    }));
+  }
+
+  function remember(body) {
+    if (body?.csrfToken) csrfToken = body.csrfToken;
+    return body;
+  }
+
   async function request(path, options = {}) {
     const method = (options.method || 'GET').toUpperCase();
     if (!csrfToken) await session();
-    const headers = new Headers(options.headers || {});
-    headers.set('Accept', 'application/json');
-    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) headers.set('x-csrf-token', csrfToken);
-    const body = await parseResponse(await fetchImpl(path, {
-      ...options, method, headers, credentials: 'same-origin'
-    }));
-    if (body?.csrfToken) csrfToken = body.csrfToken;
-    return body;
+    try {
+      return remember(await send(path, options, method));
+    } catch (error) {
+      if (!isMutation(method) || error.code !== 'CSRF_TOKEN_INVALID') throw error;
+      await session();
+      return remember(await send(path, options, method));
+    }
   }
 
   return { request, session };

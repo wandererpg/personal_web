@@ -2,10 +2,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
 
 const require = createRequire(import.meta.url);
 const AdminModel = require('../admin/admin-model.js');
+const { statusFor } = require('../server/admin-api.js');
 const read = file => readFile(new URL(`../${file}`, import.meta.url), 'utf8');
+
+function jsonResponse(body, status = 200) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    headers: new Headers({ 'content-type': 'application/json' }),
+    async json() { return body; }
+  };
+}
 
 test('dashboard filters posts by module, status, and query without changing input', () => {
   const posts = [
@@ -66,6 +77,41 @@ test('login page distinguishes invalid credentials from unavailable services', a
   assert.match(script, /loginErrorMessage\(error\)/);
 });
 
+test('admin API refreshes a stale CSRF token once before retrying a mutation', async () => {
+  const script = await read('admin/admin-api.js');
+  const calls = [];
+  const fetchImpl = async (path, options = {}) => {
+    const headers = new Headers(options.headers || {});
+    calls.push({ path, method: options.method || 'GET', csrf: headers.get('x-csrf-token') });
+    if (path === '/api/admin/session') {
+      const sessionCount = calls.filter(call => call.path === '/api/admin/session').length;
+      return jsonResponse({ authenticated: true, csrfToken: sessionCount === 1 ? 'stale' : 'fresh' });
+    }
+    if (calls.filter(call => call.path !== '/api/admin/session').length === 1) {
+      return jsonResponse({ error: 'CSRF_TOKEN_INVALID' }, 403);
+    }
+    return jsonResponse({ post: { id: 'draft-id', version: 2 } });
+  };
+  const context = { fetch: fetchImpl, Headers, console };
+  vm.runInNewContext(script, context);
+
+  const response = await context.AdminApi.request('/api/admin/posts/draft-id', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}'
+  });
+
+  assert.deepEqual(response, { post: { id: 'draft-id', version: 2 } });
+  assert.deepEqual(calls.map(call => [call.path, call.csrf]), [
+    ['/api/admin/session', null],
+    ['/api/admin/posts/draft-id', 'stale'],
+    ['/api/admin/session', null],
+    ['/api/admin/posts/draft-id', 'fresh']
+  ]);
+});
+
+test('draft write failures return a retryable service error', () => {
+  assert.equal(statusFor({ code: 'DRAFT_WRITE_FAILED' }), 503);
+});
+
 test('editor inserts uploaded Markdown at the current selection', () => {
   assert.deepEqual(AdminModel.insertMarkdown('before after', 7, 7, '![结构图](/private/image.png)'), {
     value: 'before ![结构图](/private/image.png)after',
@@ -100,6 +146,7 @@ test('editor page exposes Markdown preview, upload, autosave, and publication co
   assert.match(script, /beforeunload/);
   assert.doesNotMatch(script, /post\.html\?slug=/);
   assert.match(script, /getPostPublishDestination/);
+  assert.match(script, /DRAFT_WRITE_FAILED/);
 });
 
 test('dashboard exposes edit and delete actions for every private archive row', async () => {

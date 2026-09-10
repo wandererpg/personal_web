@@ -16,8 +16,21 @@ function text(value, maximum, code) {
 
 async function atomicJson(file, value) {
   const temporary = `${file}.${process.pid}.${randomUUID()}.tmp`;
-  await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
-  await rename(temporary, file);
+  try {
+    await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, { encoding: 'utf8', mode: 0o600 });
+    await rename(temporary, file);
+  } catch (error) {
+    await rm(temporary, { force: true }).catch(() => {});
+    throw error;
+  }
+}
+
+async function writeDraft(file, value) {
+  try {
+    await atomicJson(file, value);
+  } catch (error) {
+    throw Object.assign(contentError('DRAFT_WRITE_FAILED'), { cause: error });
+  }
 }
 
 function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
@@ -50,7 +63,7 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
       publishedAt: input.publishedAt || null,
       syncStatus: 'private'
     };
-    await atomicJson(fileFor(draft.id), draft);
+    await writeDraft(fileFor(draft.id), draft);
     return draft;
   }
 
@@ -83,7 +96,7 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
       body: text(input.body, 1_000_000, 'BODY_INVALID'),
       updatedAt: now()
     };
-    await atomicJson(fileFor(id), next);
+    await writeDraft(fileFor(id), next);
     return next;
   }
 
@@ -108,7 +121,7 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
       lastCommit: input.lastCommit ?? current.lastCommit ?? null,
       updatedAt: now()
     };
-    await atomicJson(fileFor(id), next);
+    await writeDraft(fileFor(id), next);
     return next;
   }
 

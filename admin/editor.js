@@ -46,6 +46,16 @@
     return { version: state.post.version, ...window.AdminModel.normalizeEditorPayload(fields()) };
   }
 
+  function saveErrorMessage(error) {
+    return {
+      AUTH_REQUIRED: '登录状态已失效，请重新登录',
+      CSRF_TOKEN_INVALID: '登录会话已更新，请刷新页面后再保存',
+      DRAFT_NOT_FOUND: '这篇草稿不存在，请返回档案库重新打开',
+      DRAFT_WRITE_FAILED: '服务器无法写入草稿，请检查私有数据目录权限',
+      VERSION_CONFLICT: '版本发生冲突，请刷新后继续'
+    }[error.code] || '保存失败，请重试';
+  }
+
   async function saveDraft({ quiet = false } = {}) {
     window.clearTimeout(saveTimer);
     if (!state.post || !state.dirty || state.saving) return state.post;
@@ -66,7 +76,7 @@
       }
       return state.post;
     } catch (error) {
-      setStatus(error.code === 'VERSION_CONFLICT' ? '版本发生冲突，请刷新后继续' : '保存失败，请重试', 'error');
+      setStatus(saveErrorMessage(error), 'error');
       throw error;
     } finally {
       state.saving = false;
