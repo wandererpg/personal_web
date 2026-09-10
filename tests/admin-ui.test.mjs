@@ -57,6 +57,15 @@ test('dashboard page exposes private archive controls and safe rendering hooks',
   assert.doesNotMatch(script, /\.innerHTML\s*=/);
 });
 
+test('login page distinguishes invalid credentials from unavailable services', async () => {
+  const script = await read('admin/login.js');
+
+  assert.match(script, /LOGIN_FAILED/);
+  assert.match(script, /CSRF_TOKEN_INVALID/);
+  assert.match(script, /后台服务暂时不可用，请确认网页服务已启动/);
+  assert.match(script, /loginErrorMessage\(error\)/);
+});
+
 test('editor inserts uploaded Markdown at the current selection', () => {
   assert.deepEqual(AdminModel.insertMarkdown('before after', 7, 7, '![结构图](/private/image.png)'), {
     value: 'before ![结构图](/private/image.png)after',
