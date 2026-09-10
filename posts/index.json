@@ -15,22 +15,6 @@
     "content": "posts/wanderer.md"
   },
   {
-    "slug": "small-projects",
-    "title": "为什么我喜欢把想法做成小项目？",
-    "module": "projects",
-    "createdAt": "2026-03-15T09:00:00+08:00",
-    "updatedAt": "2026-09-06T06:57:15.737Z",
-    "publishedAt": "2026-09-06T06:57:15.737Z",
-    "excerpt": "当一个念头变成可以点击、运行或被别人使用的东西，它才真正开始和世界发生联系。",
-    "cover": "assets/blog/small-projects/cover.svg",
-    "tags": [
-      "Making",
-      "Project"
-    ],
-    "readingTime": "2 min",
-    "content": "posts/small-projects.md"
-  },
-  {
     "slug": "visible-steps",
     "title": "把复杂问题拆成可见的步骤",
     "module": "insights",
