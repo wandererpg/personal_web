@@ -1,14 +1,13 @@
+import { createGitPublisher, spawnGit } from '../server/git-publisher.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const require = createRequire(import.meta.url);
 
 test('publisher uses exact scoped Git arguments without a shell', async () => {
-  const { createGitPublisher } = require('../server/git-publisher.js');
+
   const calls = [];
   const run = async args => {
     calls.push(args);
@@ -32,7 +31,7 @@ test('publisher uses exact scoped Git arguments without a shell', async () => {
 });
 
 test('publisher rejects paths outside public blog content', async () => {
-  const { createGitPublisher } = require('../server/git-publisher.js');
+
   const publisher = createGitPublisher({ repoDir: 'C:/repo', branch: 'master', run: async () => '' });
 
   await assert.rejects(() => publisher.commitAndPush({
@@ -41,7 +40,7 @@ test('publisher rejects paths outside public blog content', async () => {
 });
 
 test('push failure exposes a pending commit without losing it', async () => {
-  const { createGitPublisher } = require('../server/git-publisher.js');
+
   const run = async args => {
     if (args[0] === 'rev-parse') return 'pending123';
     if (args[0] === 'push') throw Object.assign(new Error('offline'), { code: 'GIT_FAILED' });
@@ -55,7 +54,7 @@ test('push failure exposes a pending commit without losing it', async () => {
 });
 
 test('publisher creates and pushes a real commit to an isolated bare remote', async () => {
-  const { createGitPublisher, spawnGit } = require('../server/git-publisher.js');
+
   const root = await mkdtemp(join(tmpdir(), 'wanderer-git-'));
   const repoDir = join(root, 'site');
   const remoteDir = join(root, 'remote.git');

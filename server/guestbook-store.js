@@ -1,7 +1,7 @@
-const { randomUUID } = require('node:crypto');
-const { mkdir, readFile, realpath, rename, rm, stat, writeFile } = require('node:fs/promises');
-const path = require('node:path');
-const { detectImage } = require('./media-store.js');
+import { randomUUID } from 'node:crypto';
+import { mkdir, readFile, realpath, rename, rm, stat, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { detectImage } from './media-store.js';
 
 const MAX_NICKNAME_LENGTH = 32;
 const MAX_MESSAGE_LENGTH = 1000;
@@ -231,7 +231,7 @@ function createEntry(input, files) {
   return { id: randomUUID(), nickname, message, createdAt: new Date().toISOString(), images: [] };
 }
 
-module.exports = {
+export {
   MAX_ENTRIES,
   MAX_IMAGES_PER_ENTRY,
   MAX_IMAGE_BYTES,

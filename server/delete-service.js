@@ -1,7 +1,7 @@
-const { readFile, readdir, realpath, rm, stat } = require('node:fs/promises');
-const path = require('node:path');
-const { atomicJson } = require('./draft-store.js');
-const { contentError, validateDraftId, validateSlug } = require('./content-model.js');
+import { readFile, readdir, realpath, rm, stat } from 'node:fs/promises';
+import path from 'node:path';
+import { atomicJson } from './draft-store.js';
+import { contentError, validateDraftId, validateSlug } from './content-model.js';
 
 const PUBLIC_CONTENT_PATTERN = /^posts\/[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 const PUBLIC_ASSET_NAME_PATTERN = /^[a-z0-9][a-z0-9._-]{0,159}\.(?:png|jpg|webp|svg)$/i;
@@ -119,4 +119,4 @@ function createDeleteService({ repoDir, dataDir, draftStore, mediaStore, gitPubl
   return { deleteDraft, deletePublished };
 }
 
-module.exports = { createDeleteService, isWithin, publicAssets, publicFile };
+export { createDeleteService, isWithin, publicAssets, publicFile };

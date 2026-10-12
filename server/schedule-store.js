@@ -1,7 +1,7 @@
-const { randomUUID } = require('node:crypto');
-const { readFile, rename, rm, writeFile } = require('node:fs/promises');
-const path = require('node:path');
-const { DEFAULT_SCHEDULE, validateSchedule } = require('../schedule-model.js');
+import { randomUUID } from 'node:crypto';
+import { readFile, rename, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { DEFAULT_SCHEDULE, validateSchedule } from '../schedule-model.js';
 
 function scheduleError(code, message, cause) {
   const error = new Error(message, cause ? { cause } : undefined);
@@ -57,4 +57,4 @@ function createScheduleStore({ dataDir } = {}) {
   return { read, write };
 }
 
-module.exports = { createScheduleStore, scheduleError };
+export { createScheduleStore, scheduleError };

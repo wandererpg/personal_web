@@ -1,18 +1,20 @@
+import { createMediaStore } from '../server/media-store.js';
+import { detectImage } from '../server/media-store.js';
+import { MAX_IMAGE_BYTES } from '../server/media-store.js';
+import { extractDraftMediaNames, rewriteDraftMediaUrls } from '../server/media-store.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { mkdtemp, mkdir, readFile, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const require = createRequire(import.meta.url);
 const DRAFT_ID = '11111111-1111-4111-8111-111111111111';
 const png = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
 const jpeg = Buffer.from('ffd8ffe000104a464946', 'hex');
 const webp = Buffer.from('524946460c0000005745425056503820', 'hex');
 
 async function fixture() {
-  const { createMediaStore } = require('../server/media-store.js');
+
   const dataDir = await mkdtemp(join(tmpdir(), 'wanderer-media-data-'));
   const repoDir = await mkdtemp(join(tmpdir(), 'wanderer-media-repo-'));
   await mkdir(join(repoDir, 'assets', 'blog'), { recursive: true });
@@ -20,7 +22,7 @@ async function fixture() {
 }
 
 test('detectImage trusts signatures rather than extension or declared MIME', () => {
-  const { detectImage } = require('../server/media-store.js');
+
 
   assert.deepEqual(detectImage(png), { extension: 'png', mime: 'image/png' });
   assert.deepEqual(detectImage(jpeg), { extension: 'jpg', mime: 'image/jpeg' });
@@ -42,7 +44,7 @@ test('stage writes a generated safe filename and preserves image bytes', async (
 });
 
 test('stage rejects empty and oversized image buffers', async () => {
-  const { MAX_IMAGE_BYTES } = require('../server/media-store.js');
+
   const { store } = await fixture();
 
   await assert.rejects(() => store.stage(DRAFT_ID, Buffer.alloc(0)),
@@ -52,7 +54,7 @@ test('stage rejects empty and oversized image buffers', async () => {
 });
 
 test('draft media URLs are rewritten only for the publishing draft', () => {
-  const { extractDraftMediaNames, rewriteDraftMediaUrls } = require('../server/media-store.js');
+
   const name = '22222222-2222-4222-8222-222222222222.png';
   const other = '33333333-3333-4333-8333-333333333333';
   const body = `![结构图](/api/admin/media/${DRAFT_ID}/${name})\n![其他](/api/admin/media/${other}/${name})`;

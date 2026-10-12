@@ -1,7 +1,8 @@
-(function initAdminGuestbook(globalScope) {
+import { adminApi } from './admin-api.js';
+
+export function initAdminGuestbook(globalScope = globalThis) {
   const document = globalScope.document;
   const root = document?.querySelector('[data-admin-guestbook]');
-  const adminApi = globalScope.AdminApi;
   if (!document || !root || !adminApi) return;
 
   const state = { entries: [], loading: true, error: false };
@@ -92,4 +93,6 @@
     globalScope.location.replace('/admin/login');
   });
   void load();
-}(typeof window !== 'undefined' ? window : globalThis));
+}
+
+initAdminGuestbook();

@@ -1,9 +1,8 @@
+import { calculatePointerEffects, shouldTrackPointer } from '../liquid-glass.js';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import test from 'node:test';
 
-const require = createRequire(import.meta.url);
-const { calculatePointerEffects, shouldTrackPointer } = require('../liquid-glass.js');
+
 
 const rect = { left: 100, top: 50, width: 200, height: 100 };
 

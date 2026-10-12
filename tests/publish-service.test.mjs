@@ -1,16 +1,16 @@
+import { createPublishService } from '../server/publish-service.js';
+import { createDraftStore } from '../server/draft-store.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const require = createRequire(import.meta.url);
 const DRAFT_ID = '11111111-1111-4111-8111-111111111111';
 const IMAGE_NAME = '22222222-2222-4222-8222-222222222222.png';
 
 async function fixture(overrides = {}) {
-  const { createPublishService } = require('../server/publish-service.js');
+
   const repoDir = await mkdtemp(join(tmpdir(), 'wanderer-publish-'));
   await mkdir(join(repoDir, 'posts'));
   await writeFile(join(repoDir, 'posts', 'index.json'), '[]\n');
@@ -114,7 +114,7 @@ test('publication rejects invalid dates, empty bodies, and cross-draft private m
 });
 
 test('draft store system updates change only publication-owned fields', async () => {
-  const { createDraftStore } = require('../server/draft-store.js');
+
   const dataDir = await mkdtemp(join(tmpdir(), 'wanderer-publish-draft-'));
   const store = createDraftStore({ dataDir, now: () => '2026-09-06T15:00:00+08:00' });
   const draft = await store.create({ module: 'projects', title: 'Draft', body: 'Body' });

@@ -1,6 +1,6 @@
-const crypto = require('node:crypto');
-const bcrypt = require('bcryptjs');
-const rateLimit = require('express-rate-limit');
+import crypto from 'node:crypto';
+import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
 
 function createToken() {
   return crypto.randomBytes(32).toString('base64url');
@@ -68,4 +68,4 @@ function createAuth(config, options = {}) {
   return { ensureCsrf, requireCsrf, requireAuth, login, loginLimiter };
 }
 
-module.exports = { createAuth, createToken, sameToken };
+export { createAuth, createToken, sameToken };

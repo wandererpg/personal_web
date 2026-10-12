@@ -1,6 +1,6 @@
-const { spawn } = require('node:child_process');
-const path = require('node:path');
-const { contentError } = require('./content-model.js');
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import { contentError } from './content-model.js';
 
 const PUBLIC_GIT_PATH = /^(?:posts\/index\.json|posts\/[a-z0-9]+(?:-[a-z0-9]+)*\.md|assets\/blog\/[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9][a-z0-9._-]{0,159}\.(?:png|jpg|webp|svg))$/i;
 
@@ -85,4 +85,4 @@ function createGitPublisher({ repoDir, branch, run = args => spawnGit(repoDir, a
   };
 }
 
-module.exports = { createGitPublisher, spawnGit, validateGitPaths };
+export { createGitPublisher, spawnGit, validateGitPaths };

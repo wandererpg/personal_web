@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
-const readline = require('node:readline');
+import bcrypt from 'bcryptjs';
+import readline from 'node:readline';
 
 function readHidden(prompt) {
   if (!process.stdin.isTTY || typeof process.stdin.setRawMode !== 'function') {

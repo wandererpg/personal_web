@@ -1,4 +1,8 @@
-(function AdminEditor() {
+import { adminApi as AdminApi } from './admin-api.js';
+import * as AdminModel from './admin-model.js';
+import * as Blog from '../blog.js';
+
+export function AdminEditor() {
   const AUTOSAVE_DELAY = 1500;
   const id = new URLSearchParams(window.location.search).get('id');
   const state = { post: null, dirty: false, revision: 0, saving: false, uploading: false, publishing: false };
@@ -29,7 +33,7 @@
 
   function renderPreview() {
     const markdown = one('[data-editor-body]').value;
-    one('[data-editor-preview]').innerHTML = window.WandererBlog.renderMarkdown(markdown, { allowPrivateMedia: true })
+    one('[data-editor-preview]').innerHTML = Blog.renderMarkdown(markdown, { allowPrivateMedia: true })
       || '<p class="editor-preview-empty">预览会随着 Markdown 内容实时更新。</p>';
   }
 
@@ -43,7 +47,7 @@
   }
 
   function payload() {
-    return { version: state.post.version, ...window.AdminModel.normalizeEditorPayload(fields()) };
+    return { version: state.post.version, ...AdminModel.normalizeEditorPayload(fields()) };
   }
 
   function saveErrorMessage(error) {
@@ -64,7 +68,7 @@
     if (!quiet) setStatus('正在保存…');
     updateButtons();
     try {
-      const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}`, {
+      const response = await AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload())
       });
       state.post = response.post;
@@ -97,8 +101,8 @@
   }
 
   async function publish() {
-    const normalized = window.AdminModel.normalizeEditorPayload(fields());
-    const errors = window.AdminModel.validateForPublish(normalized);
+    const normalized = AdminModel.normalizeEditorPayload(fields());
+    const errors = AdminModel.validateForPublish(normalized);
     if (errors.length) {
       showValidation(errors);
       setStatus('请先补全必填内容', 'error');
@@ -109,10 +113,10 @@
     setStatus('正在保存并发射…');
     try {
       if (state.dirty) await saveDraft();
-      const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}/publish`, { method: 'POST' });
+      const response = await AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}/publish`, { method: 'POST' });
       if (response.syncStatus === 'synced') {
         setStatus('发布完成，正在返回登录页', 'saved');
-        window.location.assign(window.AdminModel.getPostPublishDestination(response));
+        window.location.assign(AdminModel.getPostPublishDestination(response));
       } else {
         one('[data-editor-sync]').hidden = false;
         setStatus('文章已提交，等待 Git 同步', 'pending');
@@ -135,13 +139,13 @@
     button.disabled = true;
     setStatus('正在重试 Git 同步…');
     try {
-      const response = await window.AdminApi.request('/api/admin/sync', {
+      const response = await AdminApi.request('/api/admin/sync', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ draftId: id })
       });
       if (response.syncStatus === 'synced') {
         button.hidden = true;
         setStatus('同步完成，正在返回登录页', 'saved');
-        window.location.assign(window.AdminModel.getPostPublishDestination(response));
+        window.location.assign(AdminModel.getPostPublishDestination(response));
       }
     } catch {
       setStatus('同步仍未完成，请稍后重试', 'error');
@@ -151,7 +155,7 @@
 
   function insert(markdown, start, end) {
     const body = one('[data-editor-body]');
-    const result = window.AdminModel.insertMarkdown(body.value, start, end, markdown);
+    const result = AdminModel.insertMarkdown(body.value, start, end, markdown);
     body.value = result.value;
     body.focus();
     body.setSelectionRange(result.cursor, result.cursor);
@@ -172,7 +176,7 @@
     updateButtons();
     setStatus('正在上传图片…');
     try {
-      const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}/media`, {
+      const response = await AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}/media`, {
         method: 'POST', body: form
       });
       if (mode === 'cover') {
@@ -241,7 +245,7 @@
   async function load() {
     if (!id) return window.location.replace('/admin');
     try {
-      const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}`);
+      const response = await AdminApi.request(`/api/admin/posts/${encodeURIComponent(id)}`);
       state.post = response.post;
       const post = response.post;
       one('[data-editor-title]').value = post.title;
@@ -265,11 +269,11 @@
   }
 
   function init() {
-    if (!window.AdminApi || !window.AdminModel || !window.WandererBlog) return;
+    if (!AdminApi || !AdminModel || !Blog) return;
     bind();
     load();
   }
+  init();
+}
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
-}());
+AdminEditor();

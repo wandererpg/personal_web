@@ -1,4 +1,4 @@
-// Optional real-Chromium verification. Uses disposable data and never publishes or pushes.
+﻿// Optional real-Chromium verification. Uses disposable data and never publishes or pushes.
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -18,8 +18,8 @@ const chromePath = process.env.CHROME_PATH || [
 assert.ok(chromePath && existsSync(chromePath), 'Set CHROME_PATH to a Chromium browser executable');
 const root = await mkdtemp(join(tmpdir(), 'wanderer-es6-browser-'));
 const config = {
-  env: 'test', repoDir: fileURLToPath(new URL('../../', import.meta.url)),
-  webDir: fileURLToPath(new URL('../', import.meta.url)), dataDir: root,
+  env: 'test', repoDir: fileURLToPath(new URL('../', import.meta.url)),
+  webDir: fileURLToPath(new URL('./', import.meta.url)), dataDir: root,
   adminUsername: 'browser-test', adminPasswordHash: 'test-only',
   sessionSecret: 'browser-test-session-secret-'.repeat(3), gitBranch: 'test-only',
 };

@@ -1,5 +1,5 @@
-const { readConfig } = require('./server/config.js');
-const { createApp } = require('./server/app.js');
+import { readConfig } from './server/config.js';
+import { createApp } from './server/app.js';
 
 const config = readConfig();
 const app = createApp(config);

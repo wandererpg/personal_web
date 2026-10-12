@@ -1,9 +1,6 @@
-import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
-import test from 'node:test';
-
-const require = createRequire(import.meta.url);
-const {
+import {
+  DAY_IN_MILLISECONDS,
+  dateKeyToUtc,
   addEvent,
   buildMonthDays,
   expandDateRange,
@@ -15,7 +12,17 @@ const {
   saveEvents,
   schoolEventsForDate,
   updateEvent,
-} = require('../calendar.js');
+} from '../calendar-model.js';
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+test('calendar controller date helpers are explicit imports and reject invalid dates', () => {
+  assert.equal(DAY_IN_MILLISECONDS, 86400000);
+  assert.equal(dateKeyToUtc('2026-09-08') - dateKeyToUtc('2026-09-07'), DAY_IN_MILLISECONDS);
+  assert.equal(Number.isFinite(dateKeyToUtc('2026-02-30')), false);
+});
+
+
 
 test('buildMonthDays creates a Monday-first six-week grid', () => {
   const days = buildMonthDays(2026, 8);

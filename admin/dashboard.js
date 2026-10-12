@@ -1,4 +1,7 @@
-(function AdminDashboard() {
+import { adminApi as AdminApi } from './admin-api.js';
+import * as AdminModel from './admin-model.js';
+
+export function AdminDashboard() {
   const state = { posts: [], module: '', status: '', query: '', loading: true, error: false };
 
   const one = selector => document.querySelector(selector);
@@ -31,7 +34,7 @@
     const content = element('span', 'admin-post__content');
     const meta = element('span', 'admin-post__meta');
     meta.append(
-      element('span', 'admin-post__module', window.AdminModel.MODULES[post.module] || '未分类'),
+      element('span', 'admin-post__module', AdminModel.MODULES[post.module] || '未分类'),
       element('span', `admin-badge admin-badge--${post.status}`,
         post.status === 'published' ? '已发布' : '草稿')
     );
@@ -63,14 +66,14 @@
   }
 
   async function deletePost(post, button) {
-    const target = window.AdminModel.getDeleteTarget(post);
+    const target = AdminModel.getDeleteTarget(post);
     if (!target || !window.confirm(`确定删除「${post.title || '未命名文章'}」吗？此操作会同步删除文章内容。`)) return;
     button.disabled = true;
     try {
       const endpoint = target.type === 'draft'
         ? `/api/admin/posts/drafts/${encodeURIComponent(target.id)}`
         : `/api/admin/posts/published/${encodeURIComponent(target.slug)}`;
-      await window.AdminApi.request(endpoint, { method: 'DELETE' });
+      await AdminApi.request(endpoint, { method: 'DELETE' });
       state.posts = state.posts.filter(item => target.type === 'draft'
         ? item.id !== target.id
         : !(item.status === 'published' && item.slug === target.slug));
@@ -83,7 +86,7 @@
   }
 
   function render() {
-    const model = window.AdminModel;
+    const model = AdminModel;
     const visible = model.filterPosts(state.posts, state);
     const summary = model.summarizePosts(state.posts);
     const list = one('[data-admin-posts]');
@@ -104,7 +107,7 @@
     state.error = false;
     render();
     try {
-      const response = await window.AdminApi.request('/api/admin/posts');
+      const response = await AdminApi.request('/api/admin/posts');
       state.posts = Array.isArray(response.posts) ? response.posts : [];
     } catch (error) {
       if (error.status === 401) return window.location.replace('/admin/login');
@@ -118,10 +121,10 @@
   async function openPost(post, button) {
     button.disabled = true;
     try {
-      const action = window.AdminModel.getOpenAction(post);
+      const action = AdminModel.getOpenAction(post);
       let targetId = action.id;
       if (action.type === 'revise') {
-        const response = await window.AdminApi.request(`/api/admin/posts/${encodeURIComponent(post.slug)}/revise`, {
+        const response = await AdminApi.request(`/api/admin/posts/${encodeURIComponent(post.slug)}/revise`, {
           method: 'POST'
         });
         targetId = response.post.id;
@@ -138,7 +141,7 @@
     button.disabled = true;
     try {
       const module = state.module || 'projects';
-      const response = await window.AdminApi.request('/api/admin/posts', {
+      const response = await AdminApi.request('/api/admin/posts', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ module })
       });
       window.location.assign(`/admin/editor?id=${encodeURIComponent(response.post.id)}`);
@@ -166,17 +169,17 @@
   }
 
   function init() {
-    if (!window.AdminApi || !window.AdminModel) return;
+    if (!AdminApi || !AdminModel) return;
     bindFilters();
     one('[data-admin-new]').addEventListener('click', event => createPost(event.currentTarget));
     one('[data-admin-retry]').addEventListener('click', loadPosts);
     one('[data-admin-logout]').addEventListener('click', async () => {
-      await window.AdminApi.request('/api/admin/logout', { method: 'POST' });
+      await AdminApi.request('/api/admin/logout', { method: 'POST' });
       window.location.replace('/admin/login');
     });
     loadPosts();
   }
+  init();
+}
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
-}());
+AdminDashboard();

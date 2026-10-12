@@ -1,9 +1,4 @@
-import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
-import test from 'node:test';
-
-const require = createRequire(import.meta.url);
-const {
+import {
   BLOG_MODULES,
   filterPostsByModule,
   findPost,
@@ -23,7 +18,11 @@ const {
   renderMarkdown,
   safeContentUrl,
   sortPosts,
-} = require('../blog.js');
+} from '../blog.js';
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+
 
 const posts = [
   { slug: 'old', title: '旧文章', module: 'learning', createdAt: '2026-01-02T09:00:00+08:00', updatedAt: '2026-01-02T09:00:00+08:00', publishedAt: '2026-01-02T09:00:00+08:00', excerpt: '旧摘要', cover: '', tags: ['A'], readingTime: '2 min', content: 'posts/old.md' },

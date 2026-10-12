@@ -1,10 +1,13 @@
 {
   "name": "personal_website",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/*.test.mjs tests/site-smoke.mjs"
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-modules.js",
+    "test:browser": "node scripts/browser-smoke.js"
   },
   "engines": {
     "node": ">=20"

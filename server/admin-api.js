@@ -1,9 +1,9 @@
-const express = require('express');
-const multer = require('multer');
-const { readFile, realpath, stat } = require('node:fs/promises');
-const path = require('node:path');
-const { MAX_IMAGE_BYTES } = require('./media-store.js');
-const { contentError, validateDraftId, validateSlug } = require('./content-model.js');
+import express from 'express';
+import multer from 'multer';
+import { readFile, realpath, stat } from 'node:fs/promises';
+import path from 'node:path';
+import { MAX_IMAGE_BYTES } from './media-store.js';
+import { contentError, validateDraftId, validateSlug } from './content-model.js';
 
 async function readPublicIndex(repoDir) {
   try {
@@ -178,4 +178,4 @@ function createAdminRouter({ repoDir, draftStore, mediaStore, publishService, de
   return router;
 }
 
-module.exports = { cleanAlt, createAdminRouter, readPublicIndex, statusFor };
+export { cleanAlt, createAdminRouter, readPublicIndex, statusFor };

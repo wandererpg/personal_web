@@ -1,4 +1,6 @@
-(function initGuestbook(globalScope) {
+
+
+export function initGuestbook(globalScope = globalThis) {
   const document = globalScope.document;
   const root = document?.querySelector('[data-guestbook]');
   if (!document || !root) return;
@@ -170,4 +172,4 @@
   one('[data-guestbook-form]')?.addEventListener('submit', submit);
   globalScope.addEventListener('beforeunload', clearPreview, { once: true });
   void load();
-}(typeof window !== 'undefined' ? window : globalThis));
+}

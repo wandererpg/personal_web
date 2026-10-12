@@ -7,15 +7,28 @@ import test from 'node:test';
 import request from 'supertest';
 
 const webDir = fileURLToPath(new URL('../', import.meta.url));
-const legacyDir = fileURLToPath(new URL('../../', import.meta.url));
 
-test('new version preserves legacy styles and page content, changing only script entries', async () => {
+test('site pages keep their module entries intact after the es6 promotion', async () => {
   for (const file of ['styles.css', 'admin/admin.css', 'favicon.svg']) {
-    assert.deepEqual(await readFile(join(webDir, file)), await readFile(join(legacyDir, file)), file);
+    assert.equal(await access(join(webDir, file)).then(() => true, () => false), true, file);
   }
   const normalize = html => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, '').split('\n').map(line => line.trim()).filter(Boolean).join('\n');
-  for (const file of ['index.html', 'notes.html', 'post.html', 'projects.html', 'schedule.html', 'admin/login.html', 'admin/index.html', 'admin/editor.html', 'admin/schedule.html', 'admin/guestbook.html']) {
-    assert.equal(normalize(await readFile(join(webDir, file), 'utf8')), normalize(await readFile(join(legacyDir, file), 'utf8')), file);
+  const snapshots = {
+    'index.html': /<a class="brand" href="index.html" aria-label="Wanderer\.OS 首页">/,
+    'notes.html': /aria-current="page">Blog</,
+    'post.html': /blog-article__back/,
+    'projects.html': /aria-current="page">Projects</,
+    'schedule.html': /data-schedule-settings-link/,
+    'admin/login.html': /data-admin-login/,
+    'admin/index.html': /data-admin-posts/,
+    'admin/editor.html': /data-editor-body/,
+    'admin/schedule.html': /data-admin-schedule|data-schedule/,
+    'admin/guestbook.html': /data-admin-guestbook/
+  };
+  for (const [file, marker] of Object.entries(snapshots)) {
+    const html = await readFile(join(webDir, file), 'utf8');
+    assert.match(html, marker, file);
+    assert.doesNotMatch(html, /\brequire\s*\(/, file);
   }
 });
 
@@ -23,7 +36,7 @@ test('all native browser module dependencies are served as JavaScript', async t 
   const { createApp, PUBLIC_ROOT_FILES } = await import('../server/app.js');
   const dataDir = await mkdtemp(join(tmpdir(), 'wanderer-module-http-'));
   t.after(() => rm(dataDir, { recursive: true, force: true }));
-  const app = createApp({ env: 'test', repoDir: legacyDir, webDir, dataDir, sessionSecret: 'temporary-module-routing-secret-123456' });
+  const app = createApp({ env: 'test', repoDir: webDir, webDir, dataDir, sessionSecret: 'temporary-module-routing-secret-123456' });
   const paths = [...PUBLIC_ROOT_FILES].filter(file => file.endsWith('.js')).map(file => `/${file}`);
   paths.push(...['login.js', 'dashboard.js', 'editor.js', 'schedule.js', 'guestbook.js', 'admin-api.js', 'admin-model.js'].map(file => `/admin/${file}`));
   for (const path of paths) {
@@ -37,7 +50,7 @@ test('all native browser module dependencies are served as JavaScript', async t 
   }
 });
 
-test('new version supplies a native ES module browser entry', async () => {
+test('site supplies a native ES module browser entry', async () => {
   assert.equal(await access(join(webDir, 'public.js')).then(() => true, () => false), true);
   const entry = await readFile(join(webDir, 'public.js'), 'utf8');
   assert.match(entry, /import\s/);
@@ -48,13 +61,13 @@ test('new version supplies a native ES module browser entry', async () => {
   }
 });
 
-test('ESM server separates new page files from shared content and private data', async t => {
+test('ESM server separates page files from shared content and private data', async t => {
   assert.equal(await access(join(webDir, 'server/app.js')).then(() => true, () => false), true);
   const { createApp } = await import('../server/app.js');
   const root = await mkdtemp(join(tmpdir(), 'wanderer-esm-'));
   t.after(() => rm(root, { recursive: true, force: true }));
   const repoDir = join(root, 'repo');
-  const newWebDir = join(repoDir, 'es6');
+  const newWebDir = join(root, 'web');
   const dataDir = join(root, 'private');
   await Promise.all([mkdir(newWebDir, { recursive: true }), mkdir(join(repoDir, 'posts'), { recursive: true }), mkdir(dataDir)]);
   await writeFile(join(repoDir, 'index.html'), 'original home');

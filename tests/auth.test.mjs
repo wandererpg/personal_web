@@ -1,14 +1,14 @@
+import session from 'express-session';
+import { createApp } from '../server/app.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { copyFile, mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import request from 'supertest';
 
-const require = createRequire(import.meta.url);
-const session = require('express-session');
-const { createApp } = require('../server/app.js');
+
+
 
 async function makeApp(overrides = {}) {
   const repoDir = await mkdtemp(join(tmpdir(), 'wanderer-auth-site-'));
@@ -106,7 +106,7 @@ test('login page and scripts are available without exposing the dashboard', asyn
   await request(app).get('/admin/admin.css').expect(200, /admin-shell/);
   await request(app).get('/admin/dashboard.js').expect(200, /AdminDashboard/);
   await request(app).get('/admin/guestbook.js').expect(200, /api\/admin\/guestbook/);
-  await request(app).get('/admin/admin-model.js').expect(200, /AdminModel/);
+  await request(app).get('/admin/admin-model.js').expect(200, /export \{/);
   await request(app).get('/admin').expect(302, /Redirecting to \/admin\/login/)
     .expect('Location', '/admin/login');
   await request(app).get('/admin/editor?id=private').expect(302).expect('Location', '/admin/login');

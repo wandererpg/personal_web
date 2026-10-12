@@ -1,8 +1,8 @@
-const { randomUUID } = require('node:crypto');
-const { mkdir, readFile, rename, writeFile } = require('node:fs/promises');
-const path = require('node:path');
-const { contentError, validateModule, validateSlug, validateTags } = require('./content-model.js');
-const { extractDraftMediaNames, rewriteDraftMediaUrls } = require('./media-store.js');
+import { randomUUID } from 'node:crypto';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { contentError, validateModule, validateSlug, validateTags } from './content-model.js';
+import { extractDraftMediaNames, rewriteDraftMediaUrls } from './media-store.js';
 
 function requireText(value, code, maximum) {
   if (typeof value !== 'string' || !value.trim() || value.length > maximum) throw contentError(code);
@@ -120,4 +120,4 @@ function createPublishService({ repoDir, draftStore, mediaStore, gitPublisher, n
   return { publish, retrySync };
 }
 
-module.exports = { atomicText, createPublishService, publicRecord, readingTime };
+export { atomicText, createPublishService, publicRecord, readingTime };

@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 
 function statusFor(error) {
   return {
@@ -46,4 +46,4 @@ function createAdminScheduleRouter({ scheduleStore, auth }) {
   return router;
 }
 
-module.exports = { createAdminScheduleRouter, createPublicScheduleRouter, statusFor };
+export { createAdminScheduleRouter, createPublicScheduleRouter, statusFor };

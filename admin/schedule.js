@@ -1,8 +1,9 @@
-(function initAdminSchedule(globalScope) {
+import * as model from '../schedule-model.js';
+import { adminApi } from './admin-api.js';
+
+export function initAdminSchedule(globalScope = globalThis) {
   const document = globalScope.document;
   const root = document?.querySelector('[data-admin-schedule]');
-  const model = globalScope.WandererSchedule;
-  const adminApi = globalScope.AdminApi;
   if (!document || !root || !model || !adminApi) return;
 
   const state = {
@@ -307,4 +308,6 @@
 
   renderPeriodOptions();
   void load();
-}(typeof window !== 'undefined' ? window : globalThis));
+}
+
+initAdminSchedule();

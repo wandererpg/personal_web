@@ -1,7 +1,7 @@
-const { randomUUID } = require('node:crypto');
-const { copyFile, mkdir, readFile, realpath, rename, rm, stat, writeFile } = require('node:fs/promises');
-const path = require('node:path');
-const { contentError, validateDraftId, validateSlug } = require('./content-model.js');
+import { randomUUID } from 'node:crypto';
+import { copyFile, mkdir, readFile, realpath, rename, rm, stat, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { contentError, validateDraftId, validateSlug } from './content-model.js';
 
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 const MEDIA_NAME_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\.(?:png|jpg|webp)$/i;
@@ -144,7 +144,7 @@ function createMediaStore({ dataDir, repoDir }) {
   return { publish, readPrivate, removeDraft, stage };
 }
 
-module.exports = {
+export {
   MAX_IMAGE_BYTES,
   createMediaStore,
   detectImage,

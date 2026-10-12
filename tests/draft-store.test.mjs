@@ -1,14 +1,14 @@
+import { createDraftStore } from '../server/draft-store.js';
+import { validateDraftId, validateModule, validateSlug } from '../server/content-model.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const require = createRequire(import.meta.url);
 
 async function createStore(nowValues = []) {
-  const { createDraftStore } = require('../server/draft-store.js');
+
   const dataDir = await mkdtemp(join(tmpdir(), 'wanderer-drafts-'));
   let index = 0;
   const now = nowValues.length
@@ -83,7 +83,7 @@ test('draft update cannot overwrite system-owned identity and state', async () =
 });
 
 test('draft identifiers, slugs, modules, and tag payloads are validated', async () => {
-  const { validateDraftId, validateModule, validateSlug } = require('../server/content-model.js');
+
   assert.throws(() => validateDraftId('../../secret'), error => error.code === 'DRAFT_ID_INVALID');
   assert.throws(() => validateSlug('../secret'), error => error.code === 'SLUG_INVALID');
   assert.throws(() => validateModule('private'), error => error.code === 'MODULE_INVALID');

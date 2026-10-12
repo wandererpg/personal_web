@@ -1,6 +1,7 @@
-(function initScheduleController(globalScope) {
+import * as model from './schedule-model.js';
+
+export function initScheduleController(globalScope = globalThis) {
   const document = globalScope.document;
-  const model = globalScope.WandererSchedule;
   if (!document || !model) return;
 
   const schedulePage = document.querySelector('[data-schedule]');
@@ -324,4 +325,4 @@
 
   render();
   void load();
-}(typeof window !== 'undefined' ? window : globalThis));
+}

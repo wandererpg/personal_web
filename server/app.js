@@ -1,25 +1,25 @@
-const express = require('express');
-const helmet = require('helmet');
-const session = require('express-session');
-const createFileStore = require('session-file-store');
-const path = require('node:path');
-const { realpath, stat } = require('node:fs/promises');
-const { createAuth } = require('./auth.js');
-const { createAdminRouter } = require('./admin-api.js');
-const { createDraftStore } = require('./draft-store.js');
-const { createMediaStore } = require('./media-store.js');
-const { createGitPublisher } = require('./git-publisher.js');
-const { createPublishService } = require('./publish-service.js');
-const { createDeleteService } = require('./delete-service.js');
-const { createScheduleStore } = require('./schedule-store.js');
-const { createGuestbookStore } = require('./guestbook-store.js');
-const { createAdminScheduleRouter, createPublicScheduleRouter } = require('./schedule-api.js');
-const { createAdminGuestbookRouter, createPublicGuestbookRouter } = require('./guestbook-api.js');
+import express from 'express';
+import helmet from 'helmet';
+import session from 'express-session';
+import createFileStore from 'session-file-store';
+import path from 'node:path';
+import { realpath, stat } from 'node:fs/promises';
+import { createAuth } from './auth.js';
+import { createAdminRouter } from './admin-api.js';
+import { createDraftStore } from './draft-store.js';
+import { createMediaStore } from './media-store.js';
+import { createGitPublisher } from './git-publisher.js';
+import { createPublishService } from './publish-service.js';
+import { createDeleteService } from './delete-service.js';
+import { createScheduleStore } from './schedule-store.js';
+import { createGuestbookStore } from './guestbook-store.js';
+import { createAdminScheduleRouter, createPublicScheduleRouter } from './schedule-api.js';
+import { createAdminGuestbookRouter, createPublicGuestbookRouter } from './guestbook-api.js';
 
 const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'projects.html', 'notes.html', 'post.html', 'schedule.html', 'styles.css',
   'script.js', 'blog.js', 'calendar.js', 'clock.js', 'liquid-glass.js', 'schedule-model.js',
-  'schedule.js', 'guestbook.js', 'favicon.svg'
+  'schedule.js', 'guestbook.js', 'favicon.svg', 'public.js', 'music.js', 'calendar-model.js'
 ]);
 const PUBLIC_DIRECTORIES = new Set(['posts', 'assets', 'music']);
 
@@ -62,15 +62,17 @@ function isMissingPath(error) {
   return ['ENOENT', 'ENOTDIR', 'ELOOP'].includes(error.code);
 }
 
-function installPublicFiles(app, repoDir) {
+function installPublicFiles(app, repoDir, webDir) {
   app.use(async (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
     const selected = selectPublicPath(req.originalUrl);
     if (!selected) return next();
     try {
-      const repoReal = await realpath(repoDir);
+      // Pages/modules belong to the new version; public content stays in the Git repo.
+      const selectedRoot = selected.rootFile ? webDir : repoDir;
+      const repoReal = await realpath(selectedRoot);
       let allowedBase = repoReal;
-      let candidate = path.join(repoDir, selected.rootFile || selected.directory,
+      let candidate = path.join(selectedRoot, selected.rootFile || selected.directory,
         ...(selected.childSegments || []));
       if (selected.directory) {
         allowedBase = await realpath(path.join(repoDir, selected.directory));
@@ -153,7 +155,7 @@ function installAdmin(app, config, options) {
   app.use('/api/admin/schedule', auth.requireAuth, createAdminScheduleRouter({ scheduleStore, auth }));
   app.use('/api/admin/guestbook', auth.requireAuth, createAdminGuestbookRouter({ guestbookStore, auth }));
 
-  const adminFile = name => path.join(config.repoDir, 'admin', name);
+  const adminFile = name => path.join(config.webDir || config.repoDir, 'admin', name);
   const requireAdminPage = (req, res, next) => (
     req.session.authenticated === true ? next() : res.redirect('/admin/login')
   );
@@ -171,6 +173,14 @@ function installAdmin(app, config, options) {
   }
 }
 
+function handleServerError(error, req, res, next) {
+  // Audio streaming may be cancelled when selecting tracks or leaving the page.
+  if (error.code === 'ECONNABORTED' || req.aborted || res.destroyed || res.writableEnded) return;
+  if (res.headersSent) return next(error);
+  console.error(error);
+  res.status(500).json({ error: 'INTERNAL_ERROR' });
+}
+
 function createApp(config, options = {}) {
   const app = express();
   app.disable('x-powered-by');
@@ -182,13 +192,10 @@ function createApp(config, options = {}) {
   app.use('/api/schedule', createPublicScheduleRouter({ scheduleStore }));
   app.use('/api/guestbook', createPublicGuestbookRouter({ guestbookStore }));
   if (options.installAdmin !== false) installAdmin(app, config, { ...options, scheduleStore, guestbookStore });
-  installPublicFiles(app, config.repoDir);
-  app.use((error, _req, res, _next) => {
-    console.error(error);
-    res.status(500).json({ error: 'INTERNAL_ERROR' });
-  });
+  installPublicFiles(app, config.repoDir, config.webDir || config.repoDir);
+  app.use(handleServerError);
   app.use((req, res) => res.sendStatus(404));
   return app;
 }
 
-module.exports = { createApp, PUBLIC_ROOT_FILES, PUBLIC_DIRECTORIES };
+export { createApp, handleServerError, PUBLIC_ROOT_FILES, PUBLIC_DIRECTORIES };

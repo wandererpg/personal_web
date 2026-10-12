@@ -1,8 +1,4 @@
-(function exposeAdminApi(root, factory) {
-  const api = factory(root.fetch?.bind(root));
-  if (typeof module === 'object' && module.exports) module.exports = api;
-  else root.AdminApi = api;
-}(typeof globalThis !== 'undefined' ? globalThis : this, function createAdminApi(fetchImpl) {
+export function createAdminApi(fetchImpl = globalThis.fetch?.bind(globalThis)) {
   let csrfToken = '';
 
   const isMutation = method => !['GET', 'HEAD', 'OPTIONS'].includes(method);
@@ -54,4 +50,6 @@
   }
 
   return { request, session };
-}));
+}
+
+export const adminApi = createAdminApi();

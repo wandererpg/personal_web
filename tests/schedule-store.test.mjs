@@ -1,12 +1,11 @@
+import { createScheduleStore } from '../server/schedule-store.js';
 import assert from 'node:assert/strict';
 import { access, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
-import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import test from 'node:test';
 
-const require = createRequire(import.meta.url);
-const { createScheduleStore } = require('../server/schedule-store.js');
+
 
 const validSchedule = {
   version: 1,

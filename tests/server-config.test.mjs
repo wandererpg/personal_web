@@ -1,13 +1,13 @@
+﻿import { readConfig } from '../server/config.js';
+import { createApp } from '../server/app.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import request from 'supertest';
 
-const require = createRequire(import.meta.url);
 const repoDir = fileURLToPath(new URL('../', import.meta.url));
 const musicFiles = [
   '松本文紀 - 花弁となり 世界は大いに歌う.mp3',
@@ -48,7 +48,7 @@ async function createSiteFixture() {
 }
 
 test('readConfig requires secrets and resolves separate existing directories', async () => {
-  const { readConfig } = require('../server/config.js');
+
   const root = await mkdtemp(join(tmpdir(), 'wanderer-site-'));
   const data = await mkdtemp(join(tmpdir(), 'wanderer-data-'));
   const config = readConfig(validEnv(root, data));
@@ -58,7 +58,7 @@ test('readConfig requires secrets and resolves separate existing directories', a
 });
 
 test('readConfig rejects same, nested, dot-segment, and linked repository data paths', async () => {
-  const { readConfig } = require('../server/config.js');
+
   const root = await mkdtemp(join(tmpdir(), 'wanderer-site-'));
   const nested = join(root, 'private');
   await mkdir(nested);
@@ -82,7 +82,7 @@ test('readConfig rejects same, nested, dot-segment, and linked repository data p
 });
 
 test('readConfig only accepts integer ports from 1 through 65535', async () => {
-  const { readConfig } = require('../server/config.js');
+
   const root = await mkdtemp(join(tmpdir(), 'wanderer-site-'));
   const data = await mkdtemp(join(tmpdir(), 'wanderer-data-'));
   assert.equal(readConfig(validEnv(root, data, { PORT: '1' })).port, 1);
@@ -93,7 +93,7 @@ test('readConfig only accepts integer ports from 1 through 65535', async () => {
 });
 
 test('public server serves only explicitly allowed root files and directories', async () => {
-  const { createApp } = require('../server/app.js');
+
   const { root } = await createSiteFixture();
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
 
@@ -107,7 +107,7 @@ test('public server serves only explicitly allowed root files and directories', 
 });
 
 test('public app keeps the schedule API available without an optional data directory', async () => {
-  const { createApp } = require('../server/app.js');
+
   const { root } = await createSiteFixture();
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
 
@@ -122,7 +122,7 @@ test('public app keeps the schedule API available without an optional data direc
 });
 
 test('public server serves browser-encoded real music filenames as audio', async () => {
-  const { createApp } = require('../server/app.js');
+
   const app = createApp({ repoDir, env: 'test' }, { installAdmin: false });
 
   for (const filename of musicFiles) {
@@ -132,7 +132,7 @@ test('public server serves browser-encoded real music filenames as audio', async
 });
 
 test('encoded, traversal, and backslash paths cannot bypass the public allowlist', async () => {
-  const { createApp } = require('../server/app.js');
+
   const { root } = await createSiteFixture();
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
 
@@ -146,7 +146,7 @@ test('encoded, traversal, and backslash paths cannot bypass the public allowlist
 });
 
 test('public directories reject links that resolve outside their allowed roots', async () => {
-  const { createApp } = require('../server/app.js');
+
   const { root } = await createSiteFixture();
   const app = createApp({ repoDir: root, env: 'test' }, { installAdmin: false });
   await request(app).get('/assets/escape/secret.txt').expect(404);

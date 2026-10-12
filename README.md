@@ -31,7 +31,7 @@ node scripts/hash-password.js
 ```powershell
 New-Item -ItemType Directory -Force C:\WebsiteData\personal-website | Out-Null
 $env:NODE_ENV = 'development'
-$env:PORT = '3000'
+$env:PORT = '3001'
 $env:BLOG_REPO_DIR = (Get-Location).Path
 $env:BLOG_DATA_DIR = 'C:\WebsiteData\personal-website'
 $env:BLOG_ADMIN_USERNAME = 'wanderer'
@@ -41,7 +41,7 @@ $env:BLOG_GIT_BRANCH = 'master'
 npm start
 ```
 
-打开 `http://127.0.0.1:3000/` 查看网站，打开 `http://127.0.0.1:3000/admin` 登录后台。项目不会自动读取 `.env` 文件；`.env.example` 仅作为变量清单，实际值应由终端、服务管理器或密钥系统注入。
+打开 `http://127.0.0.1:3001/` 查看网站，打开 `http://127.0.0.1:3001/admin` 登录后台。项目不会自动读取 `.env` 文件；`.env.example` 仅作为变量清单，实际值应由终端、服务管理器或密钥系统注入。
 
 可以使用 OpenSSL 生成会话密钥：
 
@@ -101,7 +101,7 @@ git push --dry-run origin master
    sudo systemctl status personal-website
    ```
 
-4. 将 `deploy/nginx.conf.example` 复制到 Nginx 站点配置，替换域名和证书路径。配置只让 Node 监听 `127.0.0.1:3000`，外部访问必须经过 HTTPS。
+4. 将 `deploy/nginx.conf.example` 复制到 Nginx 站点配置，替换域名和证书路径。配置只让 Node 监听 `127.0.0.1:3001`，外部访问必须经过 HTTPS。
 5. 给 `personal-website` 用户配置 GitHub SSH key，并执行 `sudo -u personal-website ssh -T git@github.com` 和一次 `git push --dry-run` 验证权限。
 
 ## 备份与故障恢复

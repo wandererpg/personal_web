@@ -1,4 +1,6 @@
-(function AdminLogin() {
+import { adminApi as AdminApi } from './admin-api.js';
+
+export function AdminLogin() {
   function loginErrorMessage(error) {
     if (error?.code === 'LOGIN_RATE_LIMITED') return '尝试次数过多，请稍后再试。';
     if (error?.code === 'LOGIN_FAILED') return '账号或密码不正确。';
@@ -10,7 +12,7 @@
   function init() {
     const form = document.querySelector('[data-admin-login]');
     const status = document.querySelector('[data-admin-login-status]');
-    if (!form || !window.AdminApi) return;
+    if (!form || !AdminApi) return;
 
     form.addEventListener('submit', async event => {
       event.preventDefault();
@@ -19,7 +21,7 @@
       submit.disabled = true;
       try {
         const data = new FormData(form);
-        await window.AdminApi.request('/api/admin/login', {
+        await AdminApi.request('/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username: data.get('username'), password: data.get('password') })
@@ -32,8 +34,7 @@
       }
     });
   }
+  init();
+}
 
-  window.AdminLogin = { init };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
-}());
+AdminLogin();

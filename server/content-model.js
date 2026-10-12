@@ -33,7 +33,7 @@ function validateTags(value) {
   return [...new Set(value.map(tag => tag.trim()))];
 }
 
-module.exports = {
+export {
   MODULES,
   contentError,
   validateDraftId,

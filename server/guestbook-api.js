@@ -1,7 +1,7 @@
-const express = require('express');
-const multer = require('multer');
-const rateLimit = require('express-rate-limit');
-const { MAX_IMAGES_PER_ENTRY, MAX_IMAGE_BYTES, createGuestbookStore, validateEntryId } = require('./guestbook-store.js');
+import express from 'express';
+import multer from 'multer';
+import rateLimit from 'express-rate-limit';
+import { MAX_IMAGES_PER_ENTRY, MAX_IMAGE_BYTES, createGuestbookStore, validateEntryId } from './guestbook-store.js';
 
 function statusFor(error) {
   return {
@@ -98,7 +98,7 @@ function createAdminGuestbookRouter({ guestbookStore, auth }) {
   return router;
 }
 
-module.exports = {
+export {
   createAdminGuestbookRouter,
   createPublicGuestbookRouter,
   handleError,

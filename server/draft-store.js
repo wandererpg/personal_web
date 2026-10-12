@@ -1,13 +1,13 @@
-const { randomUUID } = require('node:crypto');
-const { mkdir, readFile, readdir, rename, rm, writeFile } = require('node:fs/promises');
-const path = require('node:path');
-const {
+import { randomUUID } from 'node:crypto';
+import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import {
   contentError,
   validateDraftId,
   validateModule,
   validateSlug,
   validateTags
-} = require('./content-model.js');
+} from './content-model.js';
 
 function text(value, maximum, code) {
   if (typeof value !== 'string' || value.length > maximum) throw contentError(code);
@@ -139,4 +139,4 @@ function createDraftStore({ dataDir, now = () => new Date().toISOString() }) {
   return { create, get, list, remove: removeDraft, update, updateSystem };
 }
 
-module.exports = { atomicJson, createDraftStore };
+export { atomicJson, createDraftStore };

@@ -1,5 +1,6 @@
-const path = require('node:path');
-const fs = require('node:fs');
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 function required(env, key) {
   const value = env[key]?.trim();
@@ -39,7 +40,7 @@ function readConfig(env = process.env) {
   }
   const sessionSecret = required(env, 'BLOG_SESSION_SECRET');
   if (sessionSecret.length < 32) throw new Error('BLOG_SESSION_SECRET must be at least 32 characters');
-  const rawPort = env.PORT === undefined ? '3000' : String(env.PORT).trim();
+  const rawPort = env.PORT === undefined ? '3001' : String(env.PORT).trim();
   const port = Number(rawPort);
   if (!/^\d+$/.test(rawPort) || !Number.isInteger(port) || port < 1 || port > 65535) {
     throw new Error('PORT must be an integer from 1 through 65535');
@@ -48,6 +49,7 @@ function readConfig(env = process.env) {
     env: env.NODE_ENV || 'development',
     port,
     repoDir: repo.realPath,
+    webDir: fileURLToPath(new URL('../', import.meta.url)),
     dataDir: data.realPath,
     adminUsername: required(env, 'BLOG_ADMIN_USERNAME'),
     adminPasswordHash: required(env, 'BLOG_ADMIN_PASSWORD_HASH'),
@@ -56,4 +58,4 @@ function readConfig(env = process.env) {
   };
 }
 
-module.exports = { readConfig };
+export { readConfig };

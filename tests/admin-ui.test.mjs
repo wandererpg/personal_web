@@ -1,12 +1,12 @@
+import { createAdminApi } from '../admin/admin-api.js';
+import * as AdminModel from '../admin/admin-model.js';
+import { statusFor } from '../server/admin-api.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
 import { readFile } from 'node:fs/promises';
-import vm from 'node:vm';
 
-const require = createRequire(import.meta.url);
-const AdminModel = require('../admin/admin-model.js');
-const { statusFor } = require('../server/admin-api.js');
+
+
 const read = file => readFile(new URL(`../${file}`, import.meta.url), 'utf8');
 
 function jsonResponse(body, status = 200) {
@@ -92,10 +92,9 @@ test('admin API refreshes a stale CSRF token once before retrying a mutation', a
     }
     return jsonResponse({ post: { id: 'draft-id', version: 2 } });
   };
-  const context = { fetch: fetchImpl, Headers, console };
-  vm.runInNewContext(script, context);
+  const api = createAdminApi(fetchImpl);
 
-  const response = await context.AdminApi.request('/api/admin/posts/draft-id', {
+  const response = await api.request('/api/admin/posts/draft-id', {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}'
   });
 
