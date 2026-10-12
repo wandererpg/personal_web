@@ -1,0 +1,8 @@
+import { readConfig } from './server/config.js';
+import { createApp } from './server/app.js';
+
+const config = readConfig();
+const app = createApp(config);
+app.listen(config.port, '127.0.0.1', () => {
+  console.log(`Wanderer.OS (Vite) listening on 127.0.0.1:${config.port}`);
+});

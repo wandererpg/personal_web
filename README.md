@@ -1,4 +1,4 @@
-# Personal Website
+﻿# Personal Website
 
 Wanderer 的个人网站与博客系统。公开页面展示个人项目、心得分享和日常学习；私人后台用于编写 Markdown、上传图片、保存草稿，并通过 Git 提交与推送发布文章。
 
@@ -126,6 +126,21 @@ sudo systemctl start personal-website
 ```
 
 如 rebase 出现冲突，应人工核对 `posts/index.json` 和文章文件，完成后再次运行测试。不要使用 force-push。已有“待同步”提交时先保留当前仓库和 `BLOG_DATA_DIR` 备份，再处理分支差异。
+
+## Vite 构建版本（vite/）
+
+`vite/` 是基于 Vite 的多页面构建版本，公开页面与后台页面共用同一套 Express API：
+
+```powershell
+cd vite
+npm run dev       # 等价于 npx vite，开发服务器 http://127.0.0.1:5173
+npm run build     # 等价于 npx vite build，产物输出到 vite/dist/
+npm run preview   # 等价于 npx vite preview，预览服务器 http://127.0.0.1:4173
+npm start         # 生产模式：Express 直接服务 vite/dist/ 静态资源，默认端口 3002
+npm test          # 运行 vite/ 内的 node:test 测试
+```
+
+构建把 5 个公开页与 5 个后台页编译为静态 HTML，脚本与样式输出到 `dist/static/` 的带哈希文件；`posts/`、`assets/`、`music/` 内容与 `/api/*` 仍由 Express 提供。开发与预览服务器会把 `/api`、`/posts`、`/assets`、`/music` 代理到后端（默认 `http://127.0.0.1:3002`，可用 `BLOG_BACKEND_ORIGIN` 覆盖），因此先 `npm start` 启动 Express 再跑 `npm run dev`。可用 `BLOG_WEB_DIR` 指向自定义静态目录，缺省为 `vite/dist`。
 
 ## 验证与日常维护
 

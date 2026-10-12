@@ -1,0 +1,17 @@
+{
+  "name": "personal-website-vite",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "start": "node server.js",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-modules.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
